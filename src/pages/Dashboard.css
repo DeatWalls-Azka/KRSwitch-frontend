@@ -26,6 +26,7 @@
   display: flex;
   flex-direction: row;
   padding: 10px 20px;
+  flex-shrink: 0;
   gap: 40px;
 }
 
@@ -40,12 +41,14 @@
 }
 
 .parallel-tabs {
-  border-bottom: 1px solid #d1d5db;
-  display: flex;
-  flex-direction: row;
-  padding: 10px 20px;
-  gap: 40px;
-  font-weight: bold;
+    border-bottom: 1px solid #d1d5db;
+    display: flex;
+    flex-direction: row;
+    padding: 10px 20px;
+    gap: 40px;
+    font-weight: bold;
+    flex-shrink: 0;
+    /* background-color: #f3f4f6; */
 }
 
 /* Main content area - flex row */
@@ -58,9 +61,7 @@
 /* Left panel - 60% width */
 .roster-panel {
   width: 70%;
-  background-color: #f3f4f6;
   border-right: 1px solid #d1d5db;
-  overflow: auto;
 }
 
 /* Right panel - 40% width */
@@ -69,4 +70,82 @@
   background-color: white;
   padding: 20px;
   overflow: auto;
+}
+
+.roster-view {
+  background-color: #f3f4f6;
+  flex: 1;  
+  height: 100%;
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;  
+  overflow-y: hidden; 
+  padding: 20px;
+}
+
+.class-card {
+  min-width: 300px;
+  border: 2px solid #18A04B;
+  border-radius: 8px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 112px);
+}
+
+.class-header {
+  background: #dcfce7;
+  padding: 12px;
+  border-bottom: 1px solid #d1d5db;
+  flex-shrink: 0;
+  flex-direction: row;
+  border-radius: 6px 6px 0 0;
+}
+
+.class-header h3 {
+  color: #18A04B;
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.class-header p {
+  font-size: 12px;
+  color: #18A04B;
+  margin: 4px 0;
+}
+
+.student-table-container {
+  overflow-y: auto;  
+  flex: 1;
+}
+
+.student-table {
+  width: 100%;
+  font-size: 12px;
+}
+
+.student-table thead {
+  position: sticky;
+  top: 0;
+  background: #f9fafb;
+  z-index: 10;
+  font-weight: bold;
+}
+
+.student-table th {
+  background: white;
+  color: #18A04B;
+  padding: 8px;
+  text-align: left;
+  font-weight: bold;
+}
+
+.student-table td {
+  padding: 8px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.student-table tr:hover {
+  background: #f3f4f6;
 }
