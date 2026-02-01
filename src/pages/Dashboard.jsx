@@ -83,42 +83,36 @@ export default function Dashboard() {
           </button>
         ))}
       </div>
-
-      <div className="tabs-row">
-        <div className="parallel-tabs">
-          <button 
-            className={`parallel-tab ${selectedSessionType === 'kuliah' ? 'active' : ''}`}
-            onClick={() => setSelectedSessionType('kuliah')}
-          >
-            KULIAH (K)
-          </button>
-
-          {selectedCourse.type === 1 && (
-            <button 
-              className={`parallel-tab ${selectedSessionType === 'praktikum' ? 'active' : ''}`}
-              onClick={() => setSelectedSessionType('praktikum')}
-            >
-              PRAKTIKUM (P)
-            </button>
-          )}
-
-          {selectedCourse.type === 2 && (
-            <button 
-              className={`parallel-tab ${selectedSessionType === 'responsi' ? 'active' : ''}`}
-              onClick={() => setSelectedSessionType('responsi')}
-            >
-              RESPONSI (R)
-            </button>
-          )}
-        </div>
-
-        <div className="barter-header">
-          <h2>LIVE BARTER FEED</h2>
-        </div>
-      </div>
       
       <div className="dashboard-main">
         <div className="roster-panel">
+          <div className="parallel-tabs">
+            <button 
+              className={`parallel-tab ${selectedSessionType === 'kuliah' ? 'active' : ''}`}
+              onClick={() => setSelectedSessionType('kuliah')}
+            >
+              KULIAH (K)
+            </button>
+
+            {selectedCourse.type === 1 && (
+              <button 
+                className={`parallel-tab ${selectedSessionType === 'praktikum' ? 'active' : ''}`}
+                onClick={() => setSelectedSessionType('praktikum')}
+              >
+                PRAKTIKUM (P)
+              </button>
+            )}
+
+            {selectedCourse.type === 2 && (
+              <button 
+                className={`parallel-tab ${selectedSessionType === 'responsi' ? 'active' : ''}`}
+                onClick={() => setSelectedSessionType('responsi')}
+              >
+                RESPONSI (R)
+              </button>
+            )}
+          </div>
+
           <div className="roster-view">
             {classes.map((classItem) => (
               <div key={classItem.code} className="class-card">
@@ -155,6 +149,10 @@ export default function Dashboard() {
         </div>
         
         <div className="barter-panel">
+          <div className="barter-header">
+            <h2>LIVE BARTER FEED</h2>
+          </div>
+          
           <div className="barter-content">
             <p className="empty-state">No active offers</p>
           </div>
