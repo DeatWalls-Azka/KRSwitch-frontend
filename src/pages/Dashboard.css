@@ -1,0 +1,72 @@
+/* Container takes full viewport height */
+.dashboard-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Jet Brains Mono', monospace;
+  background-color: #f9fafb;
+}
+
+/* Header at the top */
+.dashboard-header {
+  background-color: white;
+  border-bottom: 1px solid #d1d5db;
+  padding: 16px 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.course-tabs {
+  border-bottom: 1px solid #d1d5db;
+  display: flex;
+  flex-direction: row;
+  padding: 10px 20px;
+  gap: 40px;
+}
+
+.course-tabs h2 {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.course-tabs h3 {
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.parallel-tabs {
+  border-bottom: 1px solid #d1d5db;
+  display: flex;
+  flex-direction: row;
+  padding: 10px 20px;
+  gap: 40px;
+  font-weight: bold;
+}
+
+/* Main content area - flex row */
+.dashboard-main {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* Left panel - 60% width */
+.roster-panel {
+  width: 70%;
+  background-color: #f3f4f6;
+  border-right: 1px solid #d1d5db;
+  overflow: auto;
+}
+
+/* Right panel - 40% width */
+.barter-panel {
+  width: 30%;
+  background-color: white;
+  padding: 20px;
+  overflow: auto;
+}
