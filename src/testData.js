@@ -265,6 +265,18 @@ export const barterOffers = [
   { id: 10, offererNim: 'M6401211003', myClassId: 9, wantedClassId: 10, status: 'open', createdAt: '2026-02-02T21:30:00Z', takerNim: null, completedAt: null },
   { id: 11, offererNim: 'M6401211150', myClassId: 10, wantedClassId: 8, status: 'open', createdAt: '2026-02-02T22:00:00Z', takerNim: null, completedAt: null },
   { id: 12, offererNim: 'M6401211003', myClassId: 15, wantedClassId: 14, status: 'open', createdAt: '2026-02-02T23:10:00Z', takerNim: null, completedAt: null },
+  { id: 13, offererNim: 'M6401211004', myClassId: 14, wantedClassId: 16, status: 'open', createdAt: '2026-02-03T08:30:00Z', takerNim: null, completedAt: null },
+  { id: 14, offererNim: 'M6401211005', myClassId: 16, wantedClassId: 15, status: 'open', createdAt: '2026-02-03T09:45:00Z', takerNim: null, completedAt: null },
+  { id: 15, offererNim: 'M6401211100', myClassId: 20, wantedClassId: 21, status: 'open', createdAt: '2026-02-03T10:15:00Z', takerNim: null, completedAt: null },
+  { id: 16, offererNim: 'M6401211101', myClassId: 21, wantedClassId: 22, status: 'open', createdAt: '2026-02-03T11:20:00Z', takerNim: null, completedAt: null },
+  { id: 17, offererNim: 'M6401211102', myClassId: 22, wantedClassId: 23, status: 'open', createdAt: '2026-02-03T12:30:00Z', takerNim: null, completedAt: null },
+  { id: 18, offererNim: 'M6401211103', myClassId: 23, wantedClassId: 24, status: 'open', createdAt: '2026-02-03T13:45:00Z', takerNim: null, completedAt: null },
+  { id: 19, offererNim: 'M6401211104', myClassId: 24, wantedClassId: 20, status: 'open', createdAt: '2026-02-03T14:50:00Z', takerNim: null, completedAt: null },
+  { id: 20, offererNim: 'M6401211110', myClassId: 25, wantedClassId: 26, status: 'open', createdAt: '2026-02-03T15:30:00Z', takerNim: null, completedAt: null },
+  { id: 21, offererNim: 'M6401211111', myClassId: 26, wantedClassId: 27, status: 'open', createdAt: '2026-02-03T16:40:00Z', takerNim: null, completedAt: null },
+  { id: 22, offererNim: 'M6401211112', myClassId: 27, wantedClassId: 28, status: 'open', createdAt: '2026-02-03T17:55:00Z', takerNim: null, completedAt: null },
+  { id: 23, offererNim: 'M6401211113', myClassId: 28, wantedClassId: 29, status: 'open', createdAt: '2026-02-03T18:20:00Z', takerNim: null, completedAt: null },
+  { id: 24, offererNim: 'M6401211114', myClassId: 29, wantedClassId: 25, status: 'open', createdAt: '2026-02-03T19:35:00Z', takerNim: null, completedAt: null },
 ];
 
 // Current user for testing
