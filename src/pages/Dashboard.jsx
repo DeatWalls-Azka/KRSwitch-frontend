@@ -64,16 +64,10 @@ export default function Dashboard() {
     }
   ];
 
-  // Example barter offers - replace with real data
   const barterOffers = [
-    // {
-    //   nim: 'G6401211001',
-    //   studentName: 'Ahmad Fauzi',
-    //   offeringClass: 'K1',
-    //   seekingClass: 'K2',
-    //   message: 'Urgent - need to swap for scheduling conflict',
-    //   timestamp: '2 mins ago'
-    // }
+    {course: 'KOM201', offeringClass: 'K1', seekingClass: 'K2', studentName: 'Ahmad Fauzi', nim: 'G6401211001', timestamp: '2024-06-01 10:15'},
+    {course: 'KOM202', offeringClass: 'P1', seekingClass: 'P3', studentName: 'Budi Santoso', nim: 'G6401211002', timestamp: '2024-06-01 11:20'},
+    {course: 'MAT203', offeringClass: 'R2', seekingClass: 'R1', studentName: 'Citra Dewi', nim: 'G6401211003', timestamp: '2024-06-01 12:05'}
   ];
 
   const [selectedCourse, setSelectedCourse] = useState(courses[0]);
