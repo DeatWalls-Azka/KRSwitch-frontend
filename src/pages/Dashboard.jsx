@@ -8,6 +8,14 @@ import FilterButton from '../components/FilterButton';
 import { users, parallelClasses, enrollments, barterOffers, currentUser } from '../testData';
 
 export default function Dashboard() {
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [selectedSessionType, setSelectedSessionType] = useState('kuliah');
+  const [filterByCourse, setFilterByCourse] = useState(false);
+  const [filterForYou, setFilterForYou] = useState(false);
+  const [displayedOffers, setDisplayedOffers] = useState(new Map());
+  const [exitingOffers, setExitingOffers] = useState(new Map());
+  const [animationState, setAnimationState] = useState('stable');
+
   const getStudentsInClass = (parallelClassId) => {
     return enrollments
       .filter(e => e.parallelClassId === parallelClassId)
@@ -67,28 +75,20 @@ export default function Dashboard() {
     myEnrollmentMap[pc.courseCode] = pc.classCode;
   });
 
-  const [selectedCourse, setSelectedCourse] = useState(courses[0]);
-  const [selectedSessionType, setSelectedSessionType] = useState('kuliah');
-  const [filterByCourse, setFilterByCourse] = useState(false);
-  const [filterForYou, setFilterForYou] = useState(false);
+  useEffect(() => {
+    if (courses.length > 0 && !selectedCourse) {
+      setSelectedCourse(courses[0]);
+    }
+  }, [courses, selectedCourse]);
 
   useEffect(() => {
     setSelectedSessionType('kuliah');
-  }, [selectedCourse.code]);
-
-  const filteredClasses = parallelClasses.filter(pc => {
-    if (pc.courseCode !== selectedCourse.code) return false;
-    
-    const prefix = pc.classCode[0].toLowerCase();
-    if (selectedSessionType === 'kuliah') return prefix === 'k';
-    if (selectedSessionType === 'praktikum') return prefix === 'p';
-    if (selectedSessionType === 'responsi') return prefix === 'r';
-    return false;
-  });
+  }, [selectedCourse?.code]);
 
   const enrichedOffers = barterOffers.map(enrichBarterOffer);
-  const filteredBarterOffers = enrichedOffers.filter(offer => {
-    if (filterByCourse && offer.seekingCourse !== selectedCourse.code) {
+
+  const shouldShowOffer = (offer) => {
+    if (filterByCourse && offer.seekingCourse !== selectedCourse?.code) {
       return false;
     }
 
@@ -100,6 +100,115 @@ export default function Dashboard() {
     }
 
     return true;
+  };
+
+  useEffect(() => {
+    const currentIds = new Set(displayedOffers.keys());
+    const shouldShowIds = new Set();
+    
+    enrichedOffers.forEach(offer => {
+      if (shouldShowOffer(offer)) {
+        shouldShowIds.add(offer.id);
+      }
+    });
+
+    const idsToRemove = Array.from(currentIds).filter(id => !shouldShowIds.has(id));
+    const idsToAdd = Array.from(shouldShowIds).filter(id => !currentIds.has(id));
+
+    if (idsToRemove.length > 0) {
+      const newExiting = new Map();
+      const displayedArray = Array.from(displayedOffers.values());
+      idsToRemove.forEach(id => {
+        const idx = displayedArray.findIndex(o => o.id === id);
+        if (idx >= 0) {
+          const exitIdx = displayedArray.length - 1 - idx;
+          newExiting.set(id, exitIdx);
+        }
+      });
+      setExitingOffers(newExiting);
+      setAnimationState('exiting');
+    } else if (idsToAdd.length > 0) {
+      const newDisplayed = new Map(displayedOffers);
+      enrichedOffers.forEach(offer => {
+        if (idsToAdd.includes(offer.id)) {
+          newDisplayed.set(offer.id, offer);
+        }
+      });
+      setDisplayedOffers(newDisplayed);
+      setAnimationState('entering');
+    }
+  }, [filterByCourse, filterForYou, selectedCourse?.code]);
+
+  useEffect(() => {
+    if (animationState === 'exiting' && exitingOffers.size === 0) {
+      const currentIds = new Set(displayedOffers.keys());
+      const shouldShowIds = new Set();
+      
+      enrichedOffers.forEach(offer => {
+        if (shouldShowOffer(offer)) {
+          shouldShowIds.add(offer.id);
+        }
+      });
+
+      const idsToAdd = Array.from(shouldShowIds).filter(id => !currentIds.has(id));
+
+      if (idsToAdd.length > 0) {
+        const newDisplayed = new Map();
+        enrichedOffers.forEach(offer => {
+          if (shouldShowIds.has(offer.id)) {
+            newDisplayed.set(offer.id, offer);
+          }
+        });
+        setDisplayedOffers(newDisplayed);
+        setAnimationState('entering');
+      } else {
+        setAnimationState('stable');
+      }
+    } else if (animationState === 'entering') {
+      const maxDelay = offersToDisplay.length * 30 + 200;
+      const timer = setTimeout(() => {
+        setAnimationState('stable');
+      }, maxDelay);
+      return () => clearTimeout(timer);
+    }
+  }, [animationState, exitingOffers.size]);
+
+  const offersToDisplay = Array.from(displayedOffers.values());
+
+  const handleExitClick = (offerId) => {
+    const currentIndex = offersToDisplay.findIndex(o => o.id === offerId);
+    if (currentIndex >= 0) {
+      const exitIdx = offersToDisplay.length - 1 - currentIndex;
+      setExitingOffers(prev => new Map([...prev, [offerId, exitIdx]]));
+      if (animationState === 'stable') {
+        setAnimationState('exiting');
+      }
+    }
+  };
+
+  const handleAnimationComplete = (offerId) => {
+    setDisplayedOffers(prev => {
+      const next = new Map(prev);
+      next.delete(offerId);
+      return next;
+    });
+    setExitingOffers(prev => {
+      const next = new Map(prev);
+      next.delete(offerId);
+      return next;
+    });
+  };
+
+  if (!selectedCourse) return null;
+
+  const filteredClasses = parallelClasses.filter(pc => {
+    if (pc.courseCode !== selectedCourse.code) return false;
+    
+    const prefix = pc.classCode[0].toLowerCase();
+    if (selectedSessionType === 'kuliah') return prefix === 'k';
+    if (selectedSessionType === 'praktikum') return prefix === 'p';
+    if (selectedSessionType === 'responsi') return prefix === 'r';
+    return false;
   });
 
   return (
@@ -112,16 +221,8 @@ export default function Dashboard() {
         onCourseSelect={setSelectedCourse}
       />
       
-      {/* LAYOUT FIX:
-         1. 'flex-col md:flex-row' -> Stack vertically on mobile, row on desktop.
-      */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         
-        {/* LEFT PANEL (Classes):
-           1. 'flex-1' -> Takes all REMAINING space.
-           2. 'min-w-0' -> CRITICAL. This allows the flex item to shrink below its content size
-                           if the screen zooms in, preventing it from pushing the right panel off.
-        */}
         <div className="flex-1 min-w-0 border-r border-gray-200 flex flex-col order-2 md:order-1 h-full">
           <SessionTypeTabs
             courseType={selectedCourse.type}
@@ -146,10 +247,6 @@ export default function Dashboard() {
           </div>
         </div>
         
-        {/* RIGHT PANEL (Barter):
-           1. 'w-full md:w-[380px]' -> Full width on mobile, Fixed 380px on desktop.
-           2. 'shrink-0' -> Tells flexbox: "Do NOT squish me, even if we run out of space."
-        */}
         <div className="w-full md:w-[470px] shrink-0 bg-white flex flex-col overflow-hidden order-1 md:order-2 border-b md:border-b-0 md:border-l border-gray-200 h-[40%] md:h-auto">
           <div className="flex flex-col items-left px-4 py-3 bg-gray-50 flex-shrink-0 border-b border-gray-200">
             <h2 className="text-xs font-bold text-gray-900 m-0 mb-2">LIVE BARTER FEED</h2>
@@ -181,10 +278,23 @@ export default function Dashboard() {
           </div>
           
           <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
-            {filteredBarterOffers.length > 0 ? (
-              filteredBarterOffers.map((offer, index) => (
-                <BarterCard key={offer.id} offer={offer} index={index} />
-              ))
+            {offersToDisplay.length > 0 ? (
+              offersToDisplay.map((offer, index) => {
+                const isExiting = exitingOffers.has(offer.id);
+                const exitIndex = isExiting ? exitingOffers.get(offer.id) : 0;
+                const shouldAnimate = animationState !== 'exiting' || isExiting;
+                return (
+                  <BarterCard 
+                    key={offer.id} 
+                    offer={offer} 
+                    index={shouldAnimate ? index : 0}
+                    exitIndex={exitIndex}
+                    shouldExit={isExiting}
+                    onAnimationComplete={handleAnimationComplete}
+                    onExitClick={handleExitClick}
+                  />
+                );
+              })
             ) : (
               <p className="text-center py-10 px-5 text-gray-500 text-sm">No active offers</p>
             )}
