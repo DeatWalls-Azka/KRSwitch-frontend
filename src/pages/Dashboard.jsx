@@ -72,7 +72,6 @@ export default function Dashboard() {
   const [filterByCourse, setFilterByCourse] = useState(false);
   const [filterForYou, setFilterForYou] = useState(false);
 
-  // Reset to kuliah tab kalo course changes
   useEffect(() => {
     setSelectedSessionType('kuliah');
   }, [selectedCourse.code]);
@@ -113,8 +112,17 @@ export default function Dashboard() {
         onCourseSelect={setSelectedCourse}
       />
       
-      <div className="flex-1 flex overflow-hidden">
-        <div className="flex-[3] border-r border-gray-200 flex flex-col">
+      {/* LAYOUT FIX:
+         1. 'flex-col md:flex-row' -> Stack vertically on mobile, row on desktop.
+      */}
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+        
+        {/* LEFT PANEL (Classes):
+           1. 'flex-1' -> Takes all REMAINING space.
+           2. 'min-w-0' -> CRITICAL. This allows the flex item to shrink below its content size
+                           if the screen zooms in, preventing it from pushing the right panel off.
+        */}
+        <div className="flex-1 min-w-0 border-r border-gray-200 flex flex-col order-2 md:order-1 h-full">
           <SessionTypeTabs
             courseType={selectedCourse.type}
             selectedSessionType={selectedSessionType}
@@ -138,7 +146,11 @@ export default function Dashboard() {
           </div>
         </div>
         
-        <div className="flex-[1] bg-white flex flex-col overflow-hidden">
+        {/* RIGHT PANEL (Barter):
+           1. 'w-full md:w-[380px]' -> Full width on mobile, Fixed 380px on desktop.
+           2. 'shrink-0' -> Tells flexbox: "Do NOT squish me, even if we run out of space."
+        */}
+        <div className="w-full md:w-[470px] shrink-0 bg-white flex flex-col overflow-hidden order-1 md:order-2 border-b md:border-b-0 md:border-l border-gray-200 h-[40%] md:h-auto">
           <div className="flex flex-col items-left px-4 py-3 bg-gray-50 flex-shrink-0 border-b border-gray-200">
             <h2 className="text-xs font-bold text-gray-900 m-0 mb-2">LIVE BARTER FEED</h2>
             
