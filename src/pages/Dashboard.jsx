@@ -118,7 +118,7 @@ export default function Dashboard() {
         onCourseSelect={setSelectedCourse}
       />
       
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden shadow-lg">
         <div className="flex-[3] border-r border-gray-200 flex flex-col">
           <SessionTypeTabs
             courseType={selectedCourse.type}
@@ -134,7 +134,7 @@ export default function Dashboard() {
         </div>
         
         <div className="flex-[1] bg-white flex flex-col overflow-hidden">
-          <div className="flex flex-col items-left px-4 py-3 bg-gray-50 flex-shrink-0">
+          <div className="flex flex-col items-left px-4 py-3 bg-gray-50 flex-shrink-0 border-b border-gray-200">
             <h2 className="text-xs font-bold text-gray-900 m-0 mb-2">LIVE BARTER FEED</h2>
             
             <div className="flex gap-2">

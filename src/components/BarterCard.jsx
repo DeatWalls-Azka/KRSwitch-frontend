@@ -1,9 +1,9 @@
 export default function BarterCard({ offer }) {
   return (
-    <div className="border border-gray-200 bg-white p-2 mb-2 flex items-center gap-3 text-[10px] border-radius-2 rounded-md">
+    <div className="border border-gray-200 bg-white p-2 mb-2 flex items-center gap-3 text-[10px] border-radius-2 rounded-md shadow-xs">
       <div className="flex-dir col">
-        <div className="text-gray-900 truncate font-bold text-xs">{offer.studentName}</div>
-        <div className="font-mono text-gray-500 min-w-[90px] text-xs">{offer.nim}</div>
+        <div className="text-gray-900 truncate w-[90px] font-bold text-xs">{offer.studentName}</div>
+        <div className="font-mono text-gray-500 w-[90px] text-xs">{offer.nim}</div>
       </div>
 
       {/* Stats tengah */}
