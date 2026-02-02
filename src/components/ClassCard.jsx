@@ -9,30 +9,36 @@ export default function ClassCard({ classItem }) {
       </div>
       
       <div className="overflow-y-auto flex-1 overscroll-contain">
-        <table className="w-full text-[11px]">
-          <thead>
-            <tr>
-              <th className="sticky top-0 z-10 bg-white text-green-600 px-3 py-2 text-left font-bold border-b border-gray-200 text-[11px]">#</th>
-              <th className="sticky top-0 z-10 bg-white text-green-600 px-3 py-2 text-left font-bold border-b border-gray-200 text-[11px]">STUDENT</th>
-              <th className="sticky top-0 z-10 bg-white text-green-600 px-3 py-2 text-left font-bold border-b border-gray-200 text-[11px]">NIM</th>
-            </tr>
-          </thead>
-          <tbody>
-            {classItem.students.map((student, index) => (
-              <tr key={student.nim + index} className="hover:bg-gray-50">
-                <td className="px-3 py-2 border-t border-gray-100 text-gray-500 font-mono text-[11px]">
-                  {String(index + 1).padStart(2, '0')}
-                </td>
-                <td className="px-3 py-2 border-t border-gray-100 text-gray-900 text-[11px]">
-                  {student.name}
-                </td>
-                <td className="px-3 py-2 border-t border-gray-100 text-gray-500 font-mono text-[11px]">
-                  {student.nim}
-                </td>
+        {classItem.students.length === 0 ? (
+          <div className="flex items-center justify-center py-2 text-gray-400 text-[11px] font-bold">
+            No students enrolled
+          </div>
+        ) : (
+          <table className="w-full text-[11px]">
+            <thead>
+              <tr>
+                <th className="sticky top-0 z-10 bg-white text-green-600 px-3 py-2 text-left font-bold border-b border-gray-200 text-[11px]">#</th>
+                <th className="sticky top-0 z-10 bg-white text-green-600 px-3 py-2 text-left font-bold border-b border-gray-200 text-[11px]">STUDENT</th>
+                <th className="sticky top-0 z-10 bg-white text-green-600 px-3 py-2 text-left font-bold border-b border-gray-200 text-[11px]">NIM</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {classItem.students.map((student, index) => (
+                <tr key={student.nim + index} className="hover:bg-gray-50">
+                  <td className="px-3 py-2 border-t border-gray-100 text-gray-500 font-mono text-[11px]">
+                    {String(index + 1).padStart(2, '0')}
+                  </td>
+                  <td className="px-3 py-2 border-t border-gray-100 text-gray-900 text-[11px]">
+                    {student.name}
+                  </td>
+                  <td className="px-3 py-2 border-t border-gray-100 text-gray-500 font-mono text-[11px]">
+                    {student.nim}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );
