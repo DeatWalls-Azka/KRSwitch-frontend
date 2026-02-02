@@ -65,9 +65,9 @@ export default function Dashboard() {
   ];
 
   const barterOffers = [
-    {seekingCourse: 'KOM201', offeringClass: 'K1', seekingClass: 'K2', studentName: 'Ahmad Fauzi', nim: 'G6401211001', timestamp: '2024-06-01 10:15'},
-    {seekingCourse: 'KOM202', offeringClass: 'P1', seekingClass: 'P3', studentName: 'Budi Santoso', nim: 'G6401211002', timestamp: '2024-06-01 11:20'},
-    {seekingCourse: 'MAT203', offeringClass: 'R2', seekingClass: 'R1', studentName: 'Citra Dewi', nim: 'G6401211003', timestamp: '2024-06-01 12:05'}
+    {seekingCourse: 'KOM201', offeringClass: 'K1', seekingClass: 'K2', studentName: 'Ahmad Fauzi', nim: 'G6401211001', timestamp: '01 - 10:15'},
+    {seekingCourse: 'KOM202', offeringClass: 'P1', seekingClass: 'P3', studentName: 'Budi Santoso', nim: 'G6401211002', timestamp: '01 - 11:20'},
+    {seekingCourse: 'MAT203', offeringClass: 'R2', seekingClass: 'R1', studentName: 'Citra Dewi', nim: 'G6401211003', timestamp: '02 - 12:05'}
   ];
 
   const [selectedCourse, setSelectedCourse] = useState(courses[0]);
@@ -103,13 +103,13 @@ export default function Dashboard() {
             <h2 className="text-xs font-bold text-gray-900 m-0">LIVE BARTER FEED</h2>
           </div>
           
-          <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+          <div className="flex-1 overflow-y-auto p-2 bg-gray-50">
             {barterOffers.length > 0 ? (
               barterOffers.map((offer, index) => (
                 <BarterCard key={index} offer={offer} />
               ))
             ) : (
-              <p className="text-center py-10 px-5 text-gray-500 text-xs">No active offers</p>
+              <p className="text-center py-10 px-5 text-gray-500 text-sm">No active offers</p>
             )}
           </div>
         </div>
