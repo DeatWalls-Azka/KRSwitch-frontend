@@ -24,7 +24,7 @@ export default function ClassCard({ classItem, index = 0 }) {
         <p className="text-[10px] text-gray-500 my-1">{classItem.day} · {classItem.time}</p>
       </div>
       
-      <div className="overflow-y-auto flex-1 overscroll-contain">
+      <div className="overflow-y-auto flex-1 overscroll-y-contain">
         {classItem.students.length === 0 ? (
           <div className="flex items-center justify-center py-2 text-gray-400 text-[11px] font-bold">
             No students enrolled
