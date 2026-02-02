@@ -98,7 +98,7 @@ export default function Dashboard() {
           </div>
         </div>
         
-        <div className="flex-[2] bg-white flex flex-col overflow-hidden">
+        <div className="flex-[1] bg-white flex flex-col overflow-hidden">
           <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 flex-shrink-0">
             <h2 className="text-xs font-bold text-gray-900 m-0">LIVE BARTER FEED</h2>
           </div>
