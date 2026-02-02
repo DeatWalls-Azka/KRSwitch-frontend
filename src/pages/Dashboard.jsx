@@ -122,9 +122,10 @@ export default function Dashboard() {
           />
 
           <div className="flex-1 flex gap-3 overflow-x-auto overflow-y-hidden p-4 bg-gray-50">
-            {filteredClasses.map((pc) => (
+            {filteredClasses.map((pc, index) => (
               <ClassCard 
-                key={pc.id} 
+                key={pc.id}
+                index={index}
                 classItem={{
                   code: pc.classCode,
                   day: pc.day,
@@ -169,8 +170,8 @@ export default function Dashboard() {
           
           <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
             {filteredBarterOffers.length > 0 ? (
-              filteredBarterOffers.map((offer) => (
-                <BarterCard key={offer.id} offer={offer} />
+              filteredBarterOffers.map((offer, index) => (
+                <BarterCard key={offer.id} offer={offer} index={index} />
               ))
             ) : (
               <p className="text-center py-10 px-5 text-gray-500 text-sm">No active offers</p>

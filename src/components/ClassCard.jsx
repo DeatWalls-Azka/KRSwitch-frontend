@@ -1,6 +1,22 @@
-export default function ClassCard({ classItem }) {
+import { useEffect, useState } from 'react';
+
+export default function ClassCard({ classItem, index = 0 }) {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, index * 50);
+
+    return () => clearTimeout(timer);
+  }, [index]);
+
   return (
-    <div className="min-w-[300px] max-w-[300px] border-2 border-green-600 rounded-md bg-white flex flex-col h-fit max-h-full flex-shrink-0 shadow-md">
+    <div 
+      className={`min-w-[300px] max-w-[300px] border-2 border-green-600 rounded-md bg-white flex flex-col h-fit max-h-full flex-shrink-0 shadow-md transition-all duration-300 ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
+      }`}
+    >
       <div className="bg-green-100 p-3 border-b border-gray-200 rounded-t flex-shrink-0">
         <div className="flex justify-between items-center mb-2">
           <h3 className="text-sm font-bold text-green-600 m-0">{classItem.code}</h3>

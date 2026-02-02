@@ -1,6 +1,22 @@
-export default function BarterCard({ offer }) {
+import { useEffect, useState } from 'react';
+
+export default function BarterCard({ offer, index = 0 }) {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, index * 50);
+
+    return () => clearTimeout(timer);
+  }, [index]);
+
   return (
-    <div className="border border-gray-200 bg-white p-2 mb-2 flex items-center gap-3 text-[10px] border-radius-2 rounded-md shadow-xs">
+    <div 
+      className={`border border-gray-200 bg-white p-2 mb-2 flex items-center gap-3 text-[10px] border-radius-2 rounded-md shadow-xs transition-all duration-300 ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
+      }`}
+    >
       <div className="flex-dir col">
         <div className="text-gray-900 truncate w-[90px] font-bold text-xs">{offer.studentName}</div>
         <div className="font-mono text-gray-500 w-[90px] text-xs">{offer.nim}</div>
