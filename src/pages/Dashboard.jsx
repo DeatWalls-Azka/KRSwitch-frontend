@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Header from '../components/Header';
 import CourseTabs from '../components/CourseTabs';
 import SessionTypeTabs from '../components/SessionTypeTabs';
@@ -14,7 +14,7 @@ export default function Dashboard() {
   const [filterForYou, setFilterForYou] = useState(false);
   const [displayedOffers, setDisplayedOffers] = useState(new Map());
   const [exitingOffers, setExitingOffers] = useState(new Map());
-  const [animationState, setAnimationState] = useState('stable');
+  const [filterVersion, setFilterVersion] = useState(0);
 
   const getStudentsInClass = (parallelClassId) => {
     return enrollments
@@ -53,27 +53,32 @@ export default function Dashboard() {
     };
   };
 
-  const courses = [...new Set(parallelClasses.map(pc => pc.courseCode))]
-    .map(code => {
-      const classesForCourse = parallelClasses.filter(pc => pc.courseCode === code);
-      const firstClass = classesForCourse[0];
-      
-      const hasP = classesForCourse.some(c => c.classCode.startsWith('P'));
-      const hasR = classesForCourse.some(c => c.classCode.startsWith('R'));
-      const type = hasP ? 1 : hasR ? 2 : 0;
-      
-      return {
-        code: code,
-        name: firstClass.courseName,
-        type: type
-      };
-    });
+  const courses = useMemo(() => {
+    return [...new Set(parallelClasses.map(pc => pc.courseCode))]
+      .map(code => {
+        const classesForCourse = parallelClasses.filter(pc => pc.courseCode === code);
+        const firstClass = classesForCourse[0];
+        
+        const hasP = classesForCourse.some(c => c.classCode.startsWith('P'));
+        const hasR = classesForCourse.some(c => c.classCode.startsWith('R'));
+        const type = hasP ? 1 : hasR ? 2 : 0;
+        
+        return {
+          code: code,
+          name: firstClass.courseName,
+          type: type
+        };
+      });
+  }, []);
 
-  const myEnrollments = getUserEnrollments(currentUser.nim);
-  const myEnrollmentMap = {};
-  myEnrollments.forEach(pc => {
-    myEnrollmentMap[pc.courseCode] = pc.classCode;
-  });
+  const myEnrollmentMap = useMemo(() => {
+    const myEnrollments = getUserEnrollments(currentUser.nim);
+    const map = {};
+    myEnrollments.forEach(pc => {
+      map[pc.courseCode] = pc.classCode;
+    });
+    return map;
+  }, []);
 
   useEffect(() => {
     if (courses.length > 0 && !selectedCourse) {
@@ -85,7 +90,11 @@ export default function Dashboard() {
     setSelectedSessionType('kuliah');
   }, [selectedCourse?.code]);
 
-  const enrichedOffers = barterOffers.map(enrichBarterOffer);
+  const enrichedOffers = useMemo(() => {
+    return barterOffers
+      .map(enrichBarterOffer)
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }, []);
 
   const shouldShowOffer = (offer) => {
     if (filterByCourse && offer.seekingCourse !== selectedCourse?.code) {
@@ -102,6 +111,13 @@ export default function Dashboard() {
     return true;
   };
 
+  // When filters change, cancel animations and force refresh
+  useEffect(() => {
+    setExitingOffers(new Map());
+    setFilterVersion(v => v + 1);
+  }, [filterByCourse, filterForYou, selectedCourse?.code]);
+
+  // Handle display updates
   useEffect(() => {
     const currentIds = new Set(displayedOffers.keys());
     const shouldShowIds = new Set();
@@ -118,6 +134,7 @@ export default function Dashboard() {
     if (idsToRemove.length > 0) {
       const newExiting = new Map();
       const displayedArray = Array.from(displayedOffers.values());
+      
       idsToRemove.forEach(id => {
         const idx = displayedArray.findIndex(o => o.id === id);
         if (idx >= 0) {
@@ -125,31 +142,32 @@ export default function Dashboard() {
           newExiting.set(id, exitIdx);
         }
       });
+      
       setExitingOffers(newExiting);
-      setAnimationState('exiting');
-    } else if (idsToAdd.length > 0) {
+    }
+
+    if (idsToAdd.length > 0 && idsToRemove.length === 0) {
       const newDisplayed = new Map(displayedOffers);
       enrichedOffers.forEach(offer => {
-        if (idsToAdd.includes(offer.id)) {
+        if (shouldShowIds.has(offer.id)) {
           newDisplayed.set(offer.id, offer);
         }
       });
       setDisplayedOffers(newDisplayed);
-      setAnimationState('entering');
     }
-  }, [filterByCourse, filterForYou, selectedCourse?.code]);
+  }, [filterVersion]);
 
+  // After exits complete, add new cards
   useEffect(() => {
-    if (animationState === 'exiting' && exitingOffers.size === 0) {
-      const currentIds = new Set(displayedOffers.keys());
+    if (exitingOffers.size === 0) {
       const shouldShowIds = new Set();
-      
       enrichedOffers.forEach(offer => {
         if (shouldShowOffer(offer)) {
           shouldShowIds.add(offer.id);
         }
       });
 
+      const currentIds = new Set(displayedOffers.keys());
       const idsToAdd = Array.from(shouldShowIds).filter(id => !currentIds.has(id));
 
       if (idsToAdd.length > 0) {
@@ -160,18 +178,9 @@ export default function Dashboard() {
           }
         });
         setDisplayedOffers(newDisplayed);
-        setAnimationState('entering');
-      } else {
-        setAnimationState('stable');
       }
-    } else if (animationState === 'entering') {
-      const maxDelay = offersToDisplay.length * 30 + 200;
-      const timer = setTimeout(() => {
-        setAnimationState('stable');
-      }, maxDelay);
-      return () => clearTimeout(timer);
     }
-  }, [animationState, exitingOffers.size]);
+  }, [exitingOffers.size]);
 
   const offersToDisplay = Array.from(displayedOffers.values());
 
@@ -180,9 +189,6 @@ export default function Dashboard() {
     if (currentIndex >= 0) {
       const exitIdx = offersToDisplay.length - 1 - currentIndex;
       setExitingOffers(prev => new Map([...prev, [offerId, exitIdx]]));
-      if (animationState === 'stable') {
-        setAnimationState('exiting');
-      }
     }
   };
 
@@ -282,12 +288,12 @@ export default function Dashboard() {
               offersToDisplay.map((offer, index) => {
                 const isExiting = exitingOffers.has(offer.id);
                 const exitIndex = isExiting ? exitingOffers.get(offer.id) : 0;
-                const shouldAnimate = animationState !== 'exiting' || isExiting;
+                
                 return (
                   <BarterCard 
                     key={offer.id} 
                     offer={offer} 
-                    index={shouldAnimate ? index : 0}
+                    index={index}
                     exitIndex={exitIndex}
                     shouldExit={isExiting}
                     onAnimationComplete={handleAnimationComplete}

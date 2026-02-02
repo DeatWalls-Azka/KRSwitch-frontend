@@ -7,7 +7,7 @@ export default function BarterCard({ offer, index = 0, exitIndex = 0, shouldExit
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), index * 30);
     return () => clearTimeout(timer);
-  }, [index]);
+  }, []);
 
   useEffect(() => {
     if (shouldExit && isVisible && !isExiting) {
@@ -24,7 +24,7 @@ export default function BarterCard({ offer, index = 0, exitIndex = 0, shouldExit
         if (onAnimationComplete) {
           onAnimationComplete(offer.id);
         }
-      }, 200);
+      }, 100);
       return () => clearTimeout(timer);
     }
   }, [isExiting, offer.id, onAnimationComplete]);
@@ -36,12 +36,12 @@ export default function BarterCard({ offer, index = 0, exitIndex = 0, shouldExit
   };
 
   const animationClasses = (isVisible && !isExiting)
-    ? 'opacity-100 translate-y-0 scale-100'
-    : 'opacity-0 translate-y-4 scale-95';
+    ? 'opacity-100 translate-x-0 scale-100'
+    : 'opacity-0 translate-x-8 scale-y-0';
 
   return (
     <div 
-      className={`border border-gray-200 bg-white p-2 mb-2 flex items-center gap-3 rounded-md shadow-xs transition-all duration-200 ease-in-out ${animationClasses}`}
+      className={`border border-gray-200 bg-white p-2 mb-2 flex items-center gap-3 rounded-md shadow-xs transition-all duration-100 ease-out ${animationClasses}`}
     >
       <div className="flex flex-col shrink-0 w-[90px]">
         <div className="text-gray-900 truncate font-bold text-xs" title={offer.studentName}>
@@ -64,9 +64,9 @@ export default function BarterCard({ offer, index = 0, exitIndex = 0, shouldExit
         <button 
           onClick={handleClick}
           disabled={shouldExit}
-          className="bg-green-600 text-white text-[11px] min-w-[90px] font-bold py-1 px-2.5 border-0 cursor-pointer hover:bg-green-700 transition-colors rounded-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-green-600 text-white text-[11px] min-w-[90px] font-bold py-1 px-2.5 border-0 cursor-pointer hover:bg-green-700 active:bg-green-800 transition-colors rounded-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {shouldExit ? 'OPENING...' : 'OPEN TRADE'}
+          {shouldExit ? 'OPEN TRADE' : 'OPEN TRADE'}
         </button>
       </div>
     </div>
