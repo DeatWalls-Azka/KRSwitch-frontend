@@ -8,13 +8,13 @@ export default function ClassCard({ classItem }) {
         <p className="text-[10px] text-gray-500 my-1">{classItem.day} · {classItem.time}</p>
       </div>
       
-      <div className="overflow-y-auto flex-1">
+      <div className="overflow-y-auto flex-1 overscroll-contain">
         <table className="w-full text-[11px]">
-          <thead className="sticky top-0 bg-white z-10">
+          <thead>
             <tr>
-              <th className="bg-white text-green-600 px-3 py-2 text-left font-bold border-b border-gray-200 text-[11px]">#</th>
-              <th className="bg-white text-green-600 px-3 py-2 text-left font-bold border-b border-gray-200 text-[11px]">STUDENT</th>
-              <th className="bg-white text-green-600 px-3 py-2 text-left font-bold border-b border-gray-200 text-[11px]">NIM</th>
+              <th className="sticky top-0 z-10 bg-white text-green-600 px-3 py-2 text-left font-bold border-b border-gray-200 text-[11px]">#</th>
+              <th className="sticky top-0 z-10 bg-white text-green-600 px-3 py-2 text-left font-bold border-b border-gray-200 text-[11px]">STUDENT</th>
+              <th className="sticky top-0 z-10 bg-white text-green-600 px-3 py-2 text-left font-bold border-b border-gray-200 text-[11px]">NIM</th>
             </tr>
           </thead>
           <tbody>
