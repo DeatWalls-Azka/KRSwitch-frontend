@@ -47,10 +47,10 @@ export default function SessionTypeTabs({ courseType, selectedSessionType, onSes
       
       {/* Sliding indicator line */}
       <div 
-        className={`absolute bottom-0 h-0.5 bg-green-600 ${isReady ? 'transition-all duration-300 ease-out' : ''}`}
+        className={`absolute bottom-0 left-0 h-0.5 bg-green-600 will-change-transform ${isReady ? 'transition-all duration-300 ease-out' : ''}`}
         style={{
-          left: `${indicatorStyle.left}px`,
           width: `${indicatorStyle.width}px`,
+          transform: `translateX(${indicatorStyle.left}px)`, 
         }}
       />
     </div>
