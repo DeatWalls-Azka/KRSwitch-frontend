@@ -258,18 +258,21 @@ export default function Dashboard() {
             <h2 className="text-xs font-bold text-gray-900 m-0 mb-2">LIVE BARTER FEED</h2>
             
             <div className="flex gap-2 items-center">
-              <svg 
-                width="14" 
-                height="14" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                className="text-gray-600"
-              >
-                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-              </svg>
-              
+              <button
+                onClick={()=> setFilterByCourse(!filterByCourse)}>
+                <svg 
+                  width="14" 
+                  height="14" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  className="text-gray-600"
+                >
+                  <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+                </svg>
+              </button>
+
               <FilterButton 
                 label={selectedCourse.code}
                 isActive={filterByCourse}
@@ -280,7 +283,15 @@ export default function Dashboard() {
                 isActive={filterForYou}
                 onClick={() => setFilterForYou(!filterForYou)}
               />
+              <button
+                onClick={() => {/* open create offer modal */}}
+                className="ml-auto text-[11px] font-bold py-1.5 px-3 bg-green-600 text-white hover:bg-green-700 transition-colors rounded-md shadow-sm hover:shadow-md"
+              >
+                + CREATE OFFER
+              </button>
             </div>
+
+            
           </div>
           
           <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
