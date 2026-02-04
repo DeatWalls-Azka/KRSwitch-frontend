@@ -255,9 +255,8 @@ export default function Dashboard() {
         
         <div className="w-full md:w-[470px] shrink-0 bg-white flex flex-col overflow-hidden order-1 md:order-2 border-b md:border-b-0 md:border-l border-gray-200 h-[40%] md:h-auto">
           <div className="flex flex-col items-left px-4 py-3 bg-gray-50 flex-shrink-0 border-b border-gray-200">
-            <h2 className="text-xs font-bold text-gray-900 m-0 mb-2">LIVE BARTER FEED</h2>
-            
             <div className="flex gap-2 items-center">
+              <h2 className="mr-auto text-xs font-bold text-gray-900 m-0 mb-2">LIVE BARTER FEED</h2>
               <button
                 onClick={()=> setFilterByCourse(!filterByCourse)}>
                 <svg 
@@ -267,11 +266,21 @@ export default function Dashboard() {
                   fill="none" 
                   stroke="currentColor" 
                   strokeWidth="2" 
-                  className="text-gray-600"
+                  className="text-gray-900 mb-2"
                 >
                   <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
                 </svg>
               </button>
+            </div>
+            
+            <div className="flex gap-2 items-center">
+              <button
+                onClick={() => {/* open create offer modal */}}
+                className="mr-auto text-[11px] font-bold py-1 px-2.5 border-0 cursor-pointer transition-colors rounded-md border-1 border-green-600 bg-white text-green-600 hover:bg-green-50 shadow-sm"
+              >
+                CREATE OFFER
+              </button>
+
 
               <FilterButton 
                 label={selectedCourse.code}
@@ -283,12 +292,7 @@ export default function Dashboard() {
                 isActive={filterForYou}
                 onClick={() => setFilterForYou(!filterForYou)}
               />
-              <button
-                onClick={() => {/* open create offer modal */}}
-                className="ml-auto text-[11px] font-bold py-1.5 px-3 bg-green-600 text-white hover:bg-green-700 transition-colors rounded-md shadow-sm hover:shadow-md"
-              >
-                + CREATE OFFER
-              </button>
+              
             </div>
 
             
