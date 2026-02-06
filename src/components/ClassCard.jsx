@@ -18,10 +18,10 @@ export default function ClassCard({ classItem, index = 0 }) {
       }`}
     >
       <div className="bg-green-100 p-3 border-b border-gray-200 rounded-t flex-shrink-0">
-        <div className="flex justify-between items-center mb-2">
+        <div className="flex justify-between items-center">
           <h3 className="text-sm font-bold text-green-600 m-0">{classItem.code}</h3>
         </div>
-        <p className="text-[10px] text-gray-500 my-1">{classItem.day} · {classItem.time}</p>
+        <p className="text-[10px] text-gray-500">{classItem.day} · {classItem.time}</p>
       </div>
       
       <div className="overflow-y-auto flex-1 overscroll-y-contain">

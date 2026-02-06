@@ -41,7 +41,7 @@ export default function BarterCard({ offer, index = 0, exitIndex = 0, shouldExit
 
   return (
     <div 
-      className={`border border-gray-200 bg-white p-2 mb-2 flex items-center gap-3 rounded-md shadow-xs transition-all duration-100 ease-out ${animationClasses}`}
+      className={`border border-gray-200 bg-white p-2 mb-1 flex items-center gap-3 rounded-md shadow-xs transition-all duration-100 ease-out ${animationClasses}`}
     >
       <div className="flex flex-col shrink-0 w-[90px]">
         <div className="text-gray-900 truncate font-bold text-xs" title={offer.studentName}>
