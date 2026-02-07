@@ -31,7 +31,6 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
         setIsAvailable(data.available);
       } catch (error) {
         console.error('Availability check failed:', error);
-        // Don't change availability on error - keep current state
       }
     };
 

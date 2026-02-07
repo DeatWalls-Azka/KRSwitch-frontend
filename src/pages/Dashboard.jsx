@@ -14,6 +14,7 @@ export default function Dashboard() {
   const [filterForYou, setFilterForYou] = useState(false);
   const [displayedOffers, setDisplayedOffers] = useState(new Map());
   const [exitingOffers, setExitingOffers] = useState(new Map());
+  const [filterVersion, setFilterVersion] = useState(0);
 
   const getStudentsInClass = (parallelClassId) => {
     return enrollments
@@ -65,11 +66,7 @@ export default function Dashboard() {
         const hasR = classesForCourse.some(c => c.classCode.startsWith('R'));
         const type = hasP ? 1 : hasR ? 2 : 0;
         
-        return {
-          code: code,
-          name: firstClass.courseName,
-          type: type
-        };
+        return { code, name: firstClass.courseName, type };
       });
   }, []);
 
@@ -104,30 +101,82 @@ export default function Dashboard() {
       if (filterByCourse && offer.seekingCourse !== selectedCourse?.code) {
         return false;
       }
-
       if (filterForYou) {
         const userCurrentClass = myEnrollmentMap[offer.seekingCourse];
         if (userCurrentClass !== offer.seekingClass) {
           return false;
         }
       }
-
       return true;
     };
   }, [filterByCourse, filterForYou, selectedCourse?.code, myEnrollmentMap]);
 
-  // Reset animations and update displayed offers
   useEffect(() => {
-    setExitingOffers(new Map());
+    setFilterVersion(v => v + 1);
+  }, [filterByCourse, filterForYou, selectedCourse?.code]);
+
+  useEffect(() => {
+    const currentIds = new Set(displayedOffers.keys());
+    const shouldShowIds = new Set();
     
-    const newDisplayed = new Map();
     enrichedOffers.forEach(offer => {
       if (shouldShowOffer(offer)) {
-        newDisplayed.set(offer.id, offer);
+        shouldShowIds.add(offer.id);
       }
     });
-    setDisplayedOffers(newDisplayed);
-  }, [filterByCourse, filterForYou, selectedCourse?.code, enrichedOffers, shouldShowOffer]);
+
+    const idsToRemove = Array.from(currentIds).filter(id => !shouldShowIds.has(id));
+    const idsToAdd = Array.from(shouldShowIds).filter(id => !currentIds.has(id));
+
+    if (idsToRemove.length > 0) {
+      const newExiting = new Map();
+      const displayedArray = Array.from(displayedOffers.values());
+      
+      idsToRemove.forEach(id => {
+        const idx = displayedArray.findIndex(o => o.id === id);
+        if (idx >= 0) {
+          const exitIdx = displayedArray.length - 1 - idx;
+          newExiting.set(id, exitIdx);
+        }
+      });
+      
+      setExitingOffers(newExiting);
+    }
+
+    if (idsToAdd.length > 0 && idsToRemove.length === 0) {
+      const newDisplayed = new Map(displayedOffers);
+      enrichedOffers.forEach(offer => {
+        if (shouldShowIds.has(offer.id)) {
+          newDisplayed.set(offer.id, offer);
+        }
+      });
+      setDisplayedOffers(newDisplayed);
+    }
+  }, [filterVersion]);
+
+  useEffect(() => {
+    if (exitingOffers.size === 0) {
+      const shouldShowIds = new Set();
+      enrichedOffers.forEach(offer => {
+        if (shouldShowOffer(offer)) {
+          shouldShowIds.add(offer.id);
+        }
+      });
+
+      const currentIds = new Set(displayedOffers.keys());
+      const idsToAdd = Array.from(shouldShowIds).filter(id => !currentIds.has(id));
+
+      if (idsToAdd.length > 0) {
+        const newDisplayed = new Map();
+        enrichedOffers.forEach(offer => {
+          if (shouldShowIds.has(offer.id)) {
+            newDisplayed.set(offer.id, offer);
+          }
+        });
+        setDisplayedOffers(newDisplayed);
+      }
+    }
+  }, [exitingOffers.size]);
 
   const offersToDisplay = Array.from(displayedOffers.values());
 
@@ -175,7 +224,6 @@ export default function Dashboard() {
       />
       
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-        
         <div className="flex-1 min-w-0 border-r border-gray-200 flex flex-col order-2 md:order-1 h-full">
           <SessionTypeTabs
             courseType={selectedCourse.type}
@@ -201,7 +249,6 @@ export default function Dashboard() {
         </div>
         
         <div className="w-full md:w-[470px] shrink-0 bg-white flex flex-col overflow-hidden order-1 md:order-2 border-b md:border-b-0 md:border-l border-gray-200 h-[40%] md:h-auto">
-          {/* Barter Header */}
           <div className="flex flex-col items-left px-4 py-3 bg-gray-50 flex-shrink-0 border-b border-gray-200">
             <div className="flex flex-row gap-1 items-center">
               <div className="mr-auto flex flex-col items-left">
@@ -209,8 +256,7 @@ export default function Dashboard() {
                 <h1 className="text-[11px] font-normal text-gray-600">Real Time: {offersToDisplay.length} Offers</h1>
               </div>
 
-              <button
-                onClick={()=> setFilterByCourse(!filterByCourse)}>
+              <button onClick={() => setFilterByCourse(!filterByCourse)}>
                 <svg 
                   width="14" 
                   height="14" 
@@ -237,7 +283,6 @@ export default function Dashboard() {
             </div>
           </div>
           
-          {/* Barter Cards Space */}
           <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
             {offersToDisplay.length > 0 ? (
               offersToDisplay.map((offer, index) => {
@@ -261,10 +306,9 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* Barter Footer */}
           <div className="p-4 bg-gray-50 border-t border-gray-200">
             <button 
-              onClick={() => {/* open create barter offer modal */}}
+              onClick={() => {}}
               className="w-full bg-green-600 text-white text-[11px] font-bold py-2 px-2.5 border-0 cursor-pointer hover:bg-green-700 active:bg-green-800 transition-colors rounded-sm"
             >
               CREATE BARTER OFFER
