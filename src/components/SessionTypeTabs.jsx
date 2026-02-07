@@ -1,15 +1,20 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useMemo } from 'react';
 
 export default function SessionTypeTabs({ courseType, selectedSessionType, onSessionTypeSelect }) {
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
   const [isReady, setIsReady] = useState(false);
   const tabsRef = useRef([]);
 
-  const tabs = [
+  const tabs = useMemo(() => [
     { id: 'kuliah', label: 'KULIAH (K)' },
     ...(courseType === 1 ? [{ id: 'praktikum', label: 'PRAKTIKUM (P)' }] : []),
     ...(courseType === 2 ? [{ id: 'responsi', label: 'RESPONSI (R)' }] : []),
-  ];
+  ], [courseType]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsReady(true), 50);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const selectedIndex = tabs.findIndex(t => t.id === selectedSessionType);
@@ -20,13 +25,8 @@ export default function SessionTypeTabs({ courseType, selectedSessionType, onSes
         left: selectedTab.offsetLeft,
         width: selectedTab.offsetWidth,
       });
-      
-      // Enable transition after first render
-      if (!isReady) {
-        setTimeout(() => setIsReady(true), 50);
-      }
     }
-  }, [selectedSessionType, tabs, isReady]);
+  }, [selectedSessionType, tabs]);
 
   return (
     <div className="flex bg-gray-50 px-4 border-b border-gray-200 flex-shrink-0 relative">

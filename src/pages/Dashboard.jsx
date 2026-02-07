@@ -14,7 +14,6 @@ export default function Dashboard() {
   const [filterForYou, setFilterForYou] = useState(false);
   const [displayedOffers, setDisplayedOffers] = useState(new Map());
   const [exitingOffers, setExitingOffers] = useState(new Map());
-  const [filterVersion, setFilterVersion] = useState(0);
 
   const getStudentsInClass = (parallelClassId) => {
     return enrollments
@@ -35,12 +34,15 @@ export default function Dashboard() {
     const wantedClass = parallelClasses.find(pc => pc.id === offer.wantedClassId);
     const offerer = users.find(u => u.nim === offer.offererNim);
     
+    if (!myClass || !wantedClass || !offerer) return null;
+    
     return {
       ...offer,
       myClass,
       wantedClass,
       offerer,
       seekingCourse: wantedClass.courseCode,
+      seekingCourseName: wantedClass.courseName,
       offeringClass: myClass.classCode,
       seekingClass: wantedClass.classCode,
       studentName: offerer.name,
@@ -93,94 +95,39 @@ export default function Dashboard() {
   const enrichedOffers = useMemo(() => {
     return barterOffers
       .map(enrichBarterOffer)
+      .filter(Boolean)
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   }, []);
 
-  const shouldShowOffer = (offer) => {
-    if (filterByCourse && offer.seekingCourse !== selectedCourse?.code) {
-      return false;
-    }
-
-    if (filterForYou) {
-      const userCurrentClass = myEnrollmentMap[offer.seekingCourse];
-      if (userCurrentClass !== offer.seekingClass) {
+  const shouldShowOffer = useMemo(() => {
+    return (offer) => {
+      if (filterByCourse && offer.seekingCourse !== selectedCourse?.code) {
         return false;
       }
-    }
 
-    return true;
-  };
+      if (filterForYou) {
+        const userCurrentClass = myEnrollmentMap[offer.seekingCourse];
+        if (userCurrentClass !== offer.seekingClass) {
+          return false;
+        }
+      }
 
-  // When filters change, cancel animations and force refresh
+      return true;
+    };
+  }, [filterByCourse, filterForYou, selectedCourse?.code, myEnrollmentMap]);
+
+  // Reset animations and update displayed offers
   useEffect(() => {
     setExitingOffers(new Map());
-    setFilterVersion(v => v + 1);
-  }, [filterByCourse, filterForYou, selectedCourse?.code]);
-
-  // Handle display updates
-  useEffect(() => {
-    const currentIds = new Set(displayedOffers.keys());
-    const shouldShowIds = new Set();
     
+    const newDisplayed = new Map();
     enrichedOffers.forEach(offer => {
       if (shouldShowOffer(offer)) {
-        shouldShowIds.add(offer.id);
+        newDisplayed.set(offer.id, offer);
       }
     });
-
-    const idsToRemove = Array.from(currentIds).filter(id => !shouldShowIds.has(id));
-    const idsToAdd = Array.from(shouldShowIds).filter(id => !currentIds.has(id));
-
-    if (idsToRemove.length > 0) {
-      const newExiting = new Map();
-      const displayedArray = Array.from(displayedOffers.values());
-      
-      idsToRemove.forEach(id => {
-        const idx = displayedArray.findIndex(o => o.id === id);
-        if (idx >= 0) {
-          const exitIdx = displayedArray.length - 1 - idx;
-          newExiting.set(id, exitIdx);
-        }
-      });
-      
-      setExitingOffers(newExiting);
-    }
-
-    if (idsToAdd.length > 0 && idsToRemove.length === 0) {
-      const newDisplayed = new Map(displayedOffers);
-      enrichedOffers.forEach(offer => {
-        if (shouldShowIds.has(offer.id)) {
-          newDisplayed.set(offer.id, offer);
-        }
-      });
-      setDisplayedOffers(newDisplayed);
-    }
-  }, [filterVersion]);
-
-  // After exits complete, add new cards
-  useEffect(() => {
-    if (exitingOffers.size === 0) {
-      const shouldShowIds = new Set();
-      enrichedOffers.forEach(offer => {
-        if (shouldShowOffer(offer)) {
-          shouldShowIds.add(offer.id);
-        }
-      });
-
-      const currentIds = new Set(displayedOffers.keys());
-      const idsToAdd = Array.from(shouldShowIds).filter(id => !currentIds.has(id));
-
-      if (idsToAdd.length > 0) {
-        const newDisplayed = new Map();
-        enrichedOffers.forEach(offer => {
-          if (shouldShowIds.has(offer.id)) {
-            newDisplayed.set(offer.id, offer);
-          }
-        });
-        setDisplayedOffers(newDisplayed);
-      }
-    }
-  }, [exitingOffers.size]);
+    setDisplayedOffers(newDisplayed);
+  }, [filterByCourse, filterForYou, selectedCourse?.code, enrichedOffers, shouldShowOffer]);
 
   const offersToDisplay = Array.from(displayedOffers.values());
 

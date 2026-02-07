@@ -1,12 +1,19 @@
-import { useRef, useLayoutEffect, useState, useEffect } from 'react';
+import { useRef, useLayoutEffect, useState, useEffect, useMemo } from 'react';
 
 export default function CourseTabs({ courses, selectedCourse, onCourseSelect }) {
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
   const [isReady, setIsReady] = useState(false);
   const tabsRef = useRef([]);
 
+  // Enable transition after initial render
+  useEffect(() => {
+    const timer = setTimeout(() => setIsReady(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Update indicator position when selection or courses change
   useLayoutEffect(() => {
-    const selectedIndex = courses.findIndex(c => c.code === selectedCourse.code);
+    const selectedIndex = courses.findIndex(c => c.code === selectedCourse?.code);
     const selectedTab = tabsRef.current[selectedIndex];
     
     if (selectedTab) {
@@ -17,11 +24,6 @@ export default function CourseTabs({ courses, selectedCourse, onCourseSelect }) 
     }
   }, [selectedCourse, courses]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setIsReady(true), 100);
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <div className="border-b border-gray-200 flex flex-row bg-white flex-shrink-0 px-4 relative">
       {courses.map((course, index) => (
@@ -29,7 +31,7 @@ export default function CourseTabs({ courses, selectedCourse, onCourseSelect }) 
           key={course.code}
           ref={el => tabsRef.current[index] = el}
           className={`min-w-[120px] bg-transparent border-0 cursor-pointer px-4 py-2.5 transition-colors duration-150 ${
-            selectedCourse.code === course.code 
+            selectedCourse?.code === course.code 
               ? 'bg-green-50' 
               : 'hover:bg-gray-100'
           }`}
