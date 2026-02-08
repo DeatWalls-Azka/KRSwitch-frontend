@@ -5,7 +5,8 @@ export default function BarterCard({
   offer, 
   index = 0, 
   exitIndex = 0, 
-  shouldExit = false, 
+  shouldExit = false,
+  shouldEnter = false,
   onAnimationComplete, 
   onExitClick 
 }) {
@@ -15,11 +16,19 @@ export default function BarterCard({
   const [showModal, setShowModal] = useState(false);
   const wrapperRef = useRef(null);
 
+  // Entry animation: WebSocket offers animate immediately, others stagger by index
   useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(true), index * 30);
-    return () => clearTimeout(timer);
-  }, [index]);
+    if (shouldEnter) {
+      setIsVisible(false);
+      const timer = setTimeout(() => setIsVisible(true), 50);
+      return () => clearTimeout(timer);
+    } else {
+      const timer = setTimeout(() => setIsVisible(true), index * 30);
+      return () => clearTimeout(timer);
+    }
+  }, [index, shouldEnter]);
 
+  // Exit animation: capture height, then collapse
   useEffect(() => {
     if (shouldExit && isVisible && !isExiting) {
       if (wrapperRef.current) {
@@ -33,10 +42,12 @@ export default function BarterCard({
           setHeight(0);
         });
       }, exitIndex * 30);
+      
       return () => clearTimeout(timer);
     }
   }, [shouldExit, isVisible, exitIndex, isExiting]);
 
+  // Notify parent when exit completes
   useEffect(() => {
     if (isExiting) {
       const timer = setTimeout(() => {

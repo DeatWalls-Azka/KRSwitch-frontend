@@ -45,7 +45,6 @@ export default function SessionTypeTabs({ courseType, selectedSessionType, onSes
         </button>
       ))}
       
-      {/* Sliding indicator line */}
       <div 
         className={`absolute bottom-0 left-0 h-0.5 bg-green-600 will-change-transform ${isReady ? 'transition-all duration-300 ease-out' : ''}`}
         style={{

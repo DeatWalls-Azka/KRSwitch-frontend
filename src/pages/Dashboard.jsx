@@ -1,20 +1,32 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
+import io from 'socket.io-client';
 import Header from '../components/Header';
 import CourseTabs from '../components/CourseTabs';
 import SessionTypeTabs from '../components/SessionTypeTabs';
 import ClassCard from '../components/ClassCard';
 import BarterCard from '../components/BarterCard';
 import FilterButton from '../components/FilterButton';
-import { users, parallelClasses, enrollments, barterOffers, currentUser } from '../testData';
+import { users, parallelClasses, enrollments, currentUser } from '../testData';
+import { getOffers } from '../api';
+
+const STAGGER_DELAY = 30;
+const ANIMATION_DURATION = 100;
 
 export default function Dashboard() {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [selectedSessionType, setSelectedSessionType] = useState('kuliah');
   const [filterByCourse, setFilterByCourse] = useState(false);
   const [filterForYou, setFilterForYou] = useState(false);
-  const [displayedOffers, setDisplayedOffers] = useState(new Map());
-  const [exitingOffers, setExitingOffers] = useState(new Map());
-  const [filterVersion, setFilterVersion] = useState(0);
+  const [apiOffers, setApiOffers] = useState([]);
+  
+  const [visibleOfferIds, setVisibleOfferIds] = useState(new Set());
+  const [exitingOfferIds, setExitingOfferIds] = useState(new Map());
+  const [enteringOfferIds, setEnteringOfferIds] = useState(new Set());
+  
+  const animationLockRef = useRef(false);
+  const pendingChangesRef = useRef(null);
+  const previousOfferIdsRef = useRef(new Set());
+  const [animationVersion, setAnimationVersion] = useState(0);
 
   const getStudentsInClass = (parallelClassId) => {
     return enrollments
@@ -79,25 +91,15 @@ export default function Dashboard() {
     return map;
   }, []);
 
-  useEffect(() => {
-    if (courses.length > 0 && !selectedCourse) {
-      setSelectedCourse(courses[0]);
-    }
-  }, [courses, selectedCourse]);
-
-  useEffect(() => {
-    setSelectedSessionType('kuliah');
-  }, [selectedCourse?.code]);
-
   const enrichedOffers = useMemo(() => {
-    return barterOffers
+    return apiOffers
       .map(enrichBarterOffer)
       .filter(Boolean)
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  }, []);
+  }, [apiOffers]);
 
-  const shouldShowOffer = useMemo(() => {
-    return (offer) => {
+  const shouldBeVisibleIds = useMemo(() => {
+    const visible = enrichedOffers.filter(offer => {
       if (filterByCourse && offer.seekingCourse !== selectedCourse?.code) {
         return false;
       }
@@ -108,97 +110,128 @@ export default function Dashboard() {
         }
       }
       return true;
-    };
-  }, [filterByCourse, filterForYou, selectedCourse?.code, myEnrollmentMap]);
+    });
+    return new Set(visible.map(o => o.id));
+  }, [enrichedOffers, filterByCourse, filterForYou, selectedCourse?.code, myEnrollmentMap]);
 
   useEffect(() => {
-    setFilterVersion(v => v + 1);
-  }, [filterByCourse, filterForYou, selectedCourse?.code]);
-
-  useEffect(() => {
-    const currentIds = new Set(displayedOffers.keys());
-    const shouldShowIds = new Set();
+    const socket = io('http://localhost:5000');
     
-    enrichedOffers.forEach(offer => {
-      if (shouldShowOffer(offer)) {
-        shouldShowIds.add(offer.id);
+    socket.on('connect', () => console.log('WebSocket connected'));
+    socket.on('new-offer', (offer) => {
+      console.log('New offer received:', offer);
+      setApiOffers(prev => [offer, ...prev]);
+    });
+    socket.on('offer-taken', ({ offerId }) => {
+      console.log('Offer taken:', offerId);
+      setApiOffers(prev => prev.filter(o => o.id !== offerId));
+    });
+    
+    return () => socket.disconnect();
+  }, []);
+
+  useEffect(() => {
+    getOffers()
+      .then(response => setApiOffers(response.data))
+      .catch(error => console.error('Failed to fetch offers:', error));
+  }, []);
+
+  useEffect(() => {
+    if (courses.length > 0 && !selectedCourse) {
+      setSelectedCourse(courses[0]);
+    }
+  }, [courses, selectedCourse]);
+
+  useEffect(() => {
+    setSelectedSessionType('kuliah');
+  }, [selectedCourse?.code]);
+
+  const startExitAnimation = useCallback((idsToRemove) => {
+    const visibleArray = Array.from(visibleOfferIds);
+    const exitMap = new Map();
+    
+    idsToRemove.forEach(id => {
+      const idx = visibleArray.indexOf(id);
+      if (idx >= 0) {
+        exitMap.set(id, visibleArray.length - 1 - idx);
       }
     });
-
-    const idsToRemove = Array.from(currentIds).filter(id => !shouldShowIds.has(id));
-    const idsToAdd = Array.from(shouldShowIds).filter(id => !currentIds.has(id));
-
-    if (idsToRemove.length > 0) {
-      const newExiting = new Map();
-      const displayedArray = Array.from(displayedOffers.values());
-      
-      idsToRemove.forEach(id => {
-        const idx = displayedArray.findIndex(o => o.id === id);
-        if (idx >= 0) {
-          const exitIdx = displayedArray.length - 1 - idx;
-          newExiting.set(id, exitIdx);
-        }
+    
+    setExitingOfferIds(exitMap);
+    animationLockRef.current = true;
+    
+    const maxExitIndex = Math.max(...Array.from(exitMap.values()));
+    const totalTime = (maxExitIndex * STAGGER_DELAY) + ANIMATION_DURATION + 50;
+    
+    setTimeout(() => {
+      setVisibleOfferIds(prev => {
+        const next = new Set(prev);
+        idsToRemove.forEach(id => next.delete(id));
+        return next;
       });
+      setExitingOfferIds(new Map());
+      animationLockRef.current = false;
+      setAnimationVersion(v => v + 1);
       
-      setExitingOffers(newExiting);
-    }
-
-    if (idsToAdd.length > 0 && idsToRemove.length === 0) {
-      const newDisplayed = new Map(displayedOffers);
-      enrichedOffers.forEach(offer => {
-        if (shouldShowIds.has(offer.id)) {
-          newDisplayed.set(offer.id, offer);
+      if (pendingChangesRef.current) {
+        const pending = pendingChangesRef.current;
+        pendingChangesRef.current = null;
+        
+        if (pending.toAdd.length > 0) {
+          startEnterAnimation(pending.toAdd, pending.isWebSocket);
         }
-      });
-      setDisplayedOffers(newDisplayed);
+      }
+    }, totalTime);
+  }, [visibleOfferIds]);
+
+  const startEnterAnimation = useCallback((idsToAdd, isWebSocketAddition) => {
+    setVisibleOfferIds(prev => {
+      const next = new Set(prev);
+      idsToAdd.forEach(id => next.add(id));
+      return next;
+    });
+    
+    if (isWebSocketAddition && idsToAdd.length > 0) {
+      setEnteringOfferIds(new Set(idsToAdd));
+      setTimeout(() => setEnteringOfferIds(new Set()), 200);
     }
-  }, [filterVersion]);
+    
+    animationLockRef.current = false;
+    setAnimationVersion(v => v + 1);
+  }, []);
 
   useEffect(() => {
-    if (exitingOffers.size === 0) {
-      const shouldShowIds = new Set();
-      enrichedOffers.forEach(offer => {
-        if (shouldShowOffer(offer)) {
-          shouldShowIds.add(offer.id);
-        }
-      });
+    if (animationLockRef.current) return;
 
-      const currentIds = new Set(displayedOffers.keys());
-      const idsToAdd = Array.from(shouldShowIds).filter(id => !currentIds.has(id));
-
+    const currentIds = visibleOfferIds;
+    const targetIds = shouldBeVisibleIds;
+    
+    const idsToRemove = Array.from(currentIds).filter(id => !targetIds.has(id));
+    const idsToAdd = Array.from(targetIds).filter(id => !currentIds.has(id));
+    
+    const currentOfferIds = new Set(enrichedOffers.map(o => o.id));
+    const newOfferIds = [...currentOfferIds].filter(id => !previousOfferIdsRef.current.has(id));
+    const isWebSocket = idsToAdd.some(id => newOfferIds.includes(id));
+    previousOfferIdsRef.current = currentOfferIds;
+    
+    if (idsToRemove.length > 0) {
       if (idsToAdd.length > 0) {
-        const newDisplayed = new Map();
-        enrichedOffers.forEach(offer => {
-          if (shouldShowIds.has(offer.id)) {
-            newDisplayed.set(offer.id, offer);
-          }
-        });
-        setDisplayedOffers(newDisplayed);
+        pendingChangesRef.current = { toAdd: idsToAdd, isWebSocket };
       }
+      startExitAnimation(idsToRemove);
+    } else if (idsToAdd.length > 0) {
+      const wasEmpty = visibleOfferIds.size === 0;
+      startEnterAnimation(idsToAdd, isWebSocket && !wasEmpty);
     }
-  }, [exitingOffers.size]);
+  }, [shouldBeVisibleIds, visibleOfferIds, enrichedOffers, startExitAnimation, startEnterAnimation, animationVersion]);
 
-  const offersToDisplay = Array.from(displayedOffers.values());
+  const offersToDisplay = useMemo(() => {
+    return enrichedOffers.filter(offer => visibleOfferIds.has(offer.id));
+  }, [enrichedOffers, visibleOfferIds]);
 
   const handleExitClick = (offerId) => {
-    const currentIndex = offersToDisplay.findIndex(o => o.id === offerId);
-    if (currentIndex >= 0) {
-      const exitIdx = offersToDisplay.length - 1 - currentIndex;
-      setExitingOffers(prev => new Map([...prev, [offerId, exitIdx]]));
-    }
-  };
-
-  const handleAnimationComplete = (offerId) => {
-    setDisplayedOffers(prev => {
-      const next = new Map(prev);
-      next.delete(offerId);
-      return next;
-    });
-    setExitingOffers(prev => {
-      const next = new Map(prev);
-      next.delete(offerId);
-      return next;
-    });
+    if (animationLockRef.current) return;
+    startExitAnimation([offerId]);
   };
 
   if (!selectedCourse) return null;
@@ -286,8 +319,9 @@ export default function Dashboard() {
           <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
             {offersToDisplay.length > 0 ? (
               offersToDisplay.map((offer, index) => {
-                const isExiting = exitingOffers.has(offer.id);
-                const exitIndex = isExiting ? exitingOffers.get(offer.id) : 0;
+                const isExiting = exitingOfferIds.has(offer.id);
+                const isEntering = enteringOfferIds.has(offer.id);
+                const exitIndex = isExiting ? exitingOfferIds.get(offer.id) : 0;
                 
                 return (
                   <BarterCard 
@@ -296,7 +330,8 @@ export default function Dashboard() {
                     index={index}
                     exitIndex={exitIndex}
                     shouldExit={isExiting}
-                    onAnimationComplete={handleAnimationComplete}
+                    shouldEnter={isEntering}
+                    onAnimationComplete={() => {}}
                     onExitClick={handleExitClick}
                   />
                 );
