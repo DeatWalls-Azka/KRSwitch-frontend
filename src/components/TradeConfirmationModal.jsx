@@ -6,9 +6,10 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [isClosing, setIsClosing] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
 
   useEffect(() => {
-    // Only set up socket if modal is open AND we have a valid offer
     if (!isOpen || !offer?.id) {
       return;
     }
@@ -16,10 +17,6 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
     const socket = io('http://localhost:5000');
     
     socket.on('offer-taken', ({ offerId }) => {
-      // Show error kalo:
-      // 1. It's our offer
-      // 2. We're not currently processing (we handle our own result)
-      // 3. We don't already have a success message (we took it ourselves)
       if (offer?.id && offerId === offer.id && !isProcessing && !successMessage) {
         setIsAvailable(false);
         setErrorMessage('Offer already taken by someone else');
@@ -30,15 +27,22 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
     return () => socket.disconnect();
   }, [isOpen, offer?.id, isProcessing, successMessage]);
 
-  // Reset state when modal closes
   useEffect(() => {
     if (!isOpen) {
       setIsAvailable(true);
       setIsProcessing(false);
       setErrorMessage('');
       setSuccessMessage('');
+      setIsClosing(false);
+      setShowMessage(false);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (errorMessage || successMessage) {
+      setShowMessage(true);
+    }
+  }, [errorMessage, successMessage]);
 
   const handleAccept = async () => {
     if (!isAvailable || isProcessing || !offer?.id) return;
@@ -46,6 +50,7 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
     setIsProcessing(true);
     setErrorMessage('');
     setSuccessMessage('');
+    setShowMessage(false);
 
     try {
       const response = await fetch(`http://localhost:5000/api/offers/${offer.id}/take`, {
@@ -64,7 +69,6 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
         }
       }
 
-      // Trigger exit animation but keep modal open
       onAccept(offer.id);
       setIsAvailable(false);
       setSuccessMessage('Trade completed successfully!');
@@ -77,69 +81,76 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
     }
   };
 
-  const handleBackdropClick = () => {
-    // Only prevent closing while actively processing
-    if (!isProcessing) {
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
       onClose();
+    }, 150);
+  };
+
+  const handleBackdropClick = () => {
+    if (!isProcessing) {
+      handleClose();
     }
   };
 
   const handleKeyDown = (e) => {
-    // Only prevent Escape while actively processing
     if (e.key === 'Escape' && !isProcessing) {
-      onClose();
+      handleClose();
     }
     if (e.key === 'Enter' && isAvailable && !isProcessing) handleAccept();
   };
 
-  // Render modal in DOM but hide when not open  
+  if (!isOpen) return null;
+
   return (
     <div 
-      className={`fixed inset-0 bg-gray-900/60 z-50 p-4 ${!isOpen ? 'hidden' : ''}`}
+      className={`fixed inset-0 bg-gray-900/60 z-50 p-4 ${
+        isClosing ? 'animate-fadeOut' : 'animate-fadeIn'
+      }`}
       onKeyDown={handleKeyDown}
       onClick={handleBackdropClick}
     >
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
-        <div className="bg-white rounded-lg shadow-2xl" onClick={(e) => e.stopPropagation()}>
-
-            <div className="space-y-4 mx-8 pt-4">
-              <div className="flex items-baseline justify-between">
-                
-                <div className="text-left">
-                  <div className="text-lg font-bold text-gray-900">{offer?.seekingCourse || ''}</div>
-                  <div className="text-xs text-gray-500">{offer?.seekingCourseName || ''}</div>
-                </div>
-                
-                <div className="text-right">
-                  <div className="font-bold text-gray-900">{offer?.studentName || ''}</div>
-                  <div className="text-xs text-gray-500">{offer?.nim || ''}</div>
-                </div>
-              </div>
-
-              <div className="py-2 border-y border-gray-200">
-                <div className="flex items-center gap-4">
-                  
-                  <div className="flex-1 text-center">
-                    <div className="text-xs text-gray-500">Melepas</div>
-                    <div className="text-red-600 font-bold text-lg">{offer?.seekingClass || ''}</div>
-                  </div>
-
-                    <div className="text-gray-400 text-2xl font-bold">⇌</div>
-                  
-                  <div className="flex-1 text-center">
-                    <div className="text-xs text-gray-500">Mendapat</div>
-                    <div className="text-green-600 font-bold text-lg">{offer?.offeringClass || ''}</div>
-                  </div>
-                  
-                </div>
+        <div 
+          className={`bg-white rounded-lg shadow-2xl ${
+            isClosing ? 'animate-popDown' : 'animate-popUp'
+          }`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="space-y-4 mx-8 pt-4">
+            <div className="flex items-baseline justify-between">
+              <div className="text-left">
+                <div className="text-lg font-bold text-gray-900">{offer?.seekingCourse || ''}</div>
+                <div className="text-xs text-gray-500">{offer?.seekingCourseName || ''}</div>
               </div>
               
+              <div className="text-right">
+                <div className="font-bold text-gray-900">{offer?.studentName || ''}</div>
+                <div className="text-xs text-gray-500">{offer?.nim || ''}</div>
+              </div>
             </div>
-            
+
+            <div className="py-2 border-y border-gray-200">
+              <div className="flex items-center gap-4">
+                <div className="flex-1 text-center">
+                  <div className="text-xs text-gray-500">Melepas</div>
+                  <div className="text-red-600 font-bold text-lg">{offer?.seekingClass || ''}</div>
+                </div>
+
+                <div className="text-gray-400 text-2xl font-bold">⇌</div>
+                
+                <div className="flex-1 text-center">
+                  <div className="text-xs text-gray-500">Mendapat</div>
+                  <div className="text-green-600 font-bold text-lg">{offer?.offeringClass || ''}</div>
+                </div>
+              </div>
+            </div>
+          </div>
 
           <div className="px-8 py-5 rounded-b-lg flex gap-3">
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="flex-1 text-sm font-bold py-3 px-4 border border-gray-300 rounded hover:bg-gray-200 transition-colors"
             >
               {successMessage ? 'CLOSE' : 'CANCEL'}
@@ -156,17 +167,93 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
 
         <div className="h-12 flex items-start justify-center pt-3">
           {errorMessage && (
-            <div className="bg-red-600 text-white text-xs font-bold px-4 py-2 rounded shadow-lg">
+            <div 
+              className="bg-red-600 text-white text-xs font-bold px-4 py-2 rounded shadow-lg"
+              style={showMessage ? { animation: 'shake 0.4s ease-in-out' } : {}}
+            >
               &lt;!&gt; {errorMessage} &lt;!&gt;
             </div>
           )}
           {successMessage && (
-            <div className="bg-green-600 text-white text-xs font-bold px-4 py-2 rounded shadow-lg">
+            <div 
+              className="bg-green-600 text-white text-xs font-bold px-4 py-2 rounded shadow-lg"
+              style={showMessage ? { animation: 'shake 0.4s ease-in-out' } : {}}
+            >
               &lt;✓&gt; {successMessage} &lt;✓&gt;
             </div>
           )}
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes popUp {
+          0% {
+            transform: scale(0.95);
+            opacity: 0;
+          }
+          100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+
+        @keyframes popDown {
+          0% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          100% {
+            transform: scale(0.95);
+            opacity: 0;
+          }
+        }
+
+        @keyframes fadeIn {
+          0% {
+            opacity: 0;
+          }
+          100% {
+            opacity: 1;
+          }
+        }
+
+        @keyframes fadeOut {
+          0% {
+            opacity: 1;
+          }
+          100% {
+            opacity: 0;
+          }
+        }
+
+        @keyframes shake {
+          0%, 100% {
+            transform: translateX(0);
+          }
+          25% {
+            transform: translateX(-3px);
+          }
+          75% {
+            transform: translateX(3px);
+          }
+        }
+
+        .animate-popUp {
+          animation: popUp 0.15s ease-out;
+        }
+
+        .animate-popDown {
+          animation: popDown 0.15s ease-out;
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 0.15s ease-out;
+        }
+
+        .animate-fadeOut {
+          animation: fadeOut 0.15s ease-out;
+        }
+      `}</style>
     </div>
   );
 }
