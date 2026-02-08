@@ -5,6 +5,7 @@ import CourseTabs from '../components/CourseTabs';
 import SessionTypeTabs from '../components/SessionTypeTabs';
 import ClassCard from '../components/ClassCard';
 import BarterCard from '../components/BarterCard';
+import TradeConfirmationModal from '../components/TradeConfirmationModal';
 import FilterButton from '../components/FilterButton';
 import { getOffers, getUsers, getClasses, getEnrollments, getCurrentUser } from '../api';
 
@@ -17,25 +18,23 @@ export default function Dashboard() {
   const [filterByCourse, setFilterByCourse] = useState(false);
   const [filterForYou, setFilterForYou] = useState(false);
   const [apiOffers, setApiOffers] = useState([]);
-  
-  // Data from API
   const [users, setUsers] = useState([]);
   const [parallelClasses, setParallelClasses] = useState([]);
   const [enrollments, setEnrollments] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  
   const [visibleOfferIds, setVisibleOfferIds] = useState(new Set());
   const [exitingOfferIds, setExitingOfferIds] = useState(new Map());
   const [enteringOfferIds, setEnteringOfferIds] = useState(new Set());
+  const [modalOffer, setModalOffer] = useState(null);
+  const [showModal, setShowModal] = useState(false);
   
-  // Prevents state updates during animations, queues changes for after animation completes
+  const exitingOffersCache = useRef(new Map());
   const animationLockRef = useRef(false);
   const pendingChangesRef = useRef(null);
   const previousOfferIdsRef = useRef(new Set());
   const [animationVersion, setAnimationVersion] = useState(0);
 
-  // Fetch all initial data
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -62,6 +61,81 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const socket = io('http://localhost:5000');
+    
+    socket.on('connect', () => console.log('WebSocket connected'));
+    
+    socket.on('new-offer', (offer) => {
+      console.log('New offer received:', offer);
+      setApiOffers(prev => [offer, ...prev]);
+    });
+    
+    socket.on('offer-taken', ({ offerId }) => {
+      console.log('Offer taken:', offerId);
+      
+      setApiOffers(prev => {
+        const offerToCache = prev.find(o => o.id === offerId);
+        if (offerToCache) {
+          setUsers(currentUsers => {
+            setParallelClasses(currentClasses => {
+              const myClass = currentClasses.find(pc => pc.id === offerToCache.myClassId);
+              const wantedClass = currentClasses.find(pc => pc.id === offerToCache.wantedClassId);
+              const offerer = currentUsers.find(u => u.nim === offerToCache.offererNim);
+              
+              if (myClass && wantedClass && offerer) {
+                exitingOffersCache.current.set(offerId, {
+                  ...offerToCache,
+                  myClass,
+                  wantedClass,
+                  offerer,
+                  seekingCourse: wantedClass.courseCode,
+                  seekingCourseName: wantedClass.courseName,
+                  offeringClass: myClass.classCode,
+                  seekingClass: wantedClass.classCode,
+                  studentName: offerer.name,
+                  nim: offerer.nim,
+                  timestamp: new Date(offerToCache.createdAt).toLocaleString('id-ID', { 
+                    day: '2-digit', 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                  }).replace(',', ' -')
+                });
+              }
+              return currentClasses;
+            });
+            return currentUsers;
+          });
+        }
+        
+        return prev.filter(o => o.id !== offerId);
+      });
+    });
+    
+    socket.on('enrollments-swapped', ({ swaps }) => {
+      console.log('Received swaps:', swaps);
+      
+      setEnrollments(prev => {
+        const updated = prev.map(enrollment => {
+          const swap = swaps.find(s => 
+            s.nim === enrollment.nim && 
+            s.oldClassId === enrollment.parallelClassId
+          );
+          
+          if (swap) {
+            console.log('Swapping:', enrollment.nim, swap.oldClassId, '->', swap.newClassId);
+            return { ...enrollment, parallelClassId: swap.newClassId };
+          }
+          return enrollment;
+        });
+        console.log('Updated enrollments:', updated);
+        return updated;
+      });
+    });
+    
+    return () => socket.disconnect();
+  }, []);
+
   const getStudentsInClass = (parallelClassId) => {
     return enrollments
       .filter(e => e.parallelClassId === parallelClassId)
@@ -77,7 +151,6 @@ export default function Dashboard() {
   };
 
   const enrichBarterOffer = (offer) => {
-    // API response already includes related data
     const myClass = offer.myClass || parallelClasses.find(pc => pc.id === offer.myClassId);
     const wantedClass = offer.wantedClass || parallelClasses.find(pc => pc.id === offer.wantedClassId);
     const offerer = offer.offerer || users.find(u => u.nim === offer.offererNim);
@@ -126,7 +199,7 @@ export default function Dashboard() {
       map[pc.courseCode] = pc.classCode;
     });
     return map;
-  }, [currentUser, enrollments]);
+  }, [currentUser, enrollments, parallelClasses]);
 
   const enrichedOffers = useMemo(() => {
     return apiOffers
@@ -152,44 +225,6 @@ export default function Dashboard() {
   }, [enrichedOffers, filterByCourse, filterForYou, selectedCourse?.code, myEnrollmentMap]);
 
   useEffect(() => {
-    const socket = io('http://localhost:5000');
-    
-    socket.on('connect', () => console.log('WebSocket connected'));
-    socket.on('new-offer', (offer) => {
-      console.log('New offer received:', offer);
-      setApiOffers(prev => [offer, ...prev]);
-    });
-    socket.on('offer-taken', ({ offerId }) => {
-      console.log('Offer taken:', offerId);
-      setApiOffers(prev => prev.filter(o => o.id !== offerId));
-    });
-    
-    socket.on('enrollments-swapped', ({ swaps }) => {
-      console.log('Received swaps:', swaps);
-      
-      setEnrollments(prev => {
-        console.log('Current enrollments:', prev);
-        const updated = prev.map(enrollment => {
-          const swap = swaps.find(s => 
-            s.nim === enrollment.nim && 
-            s.oldClassId === enrollment.parallelClassId
-          );
-          
-          if (swap) {
-            console.log('Swapping:', enrollment.nim, swap.oldClassId, '->', swap.newClassId);
-            return { ...enrollment, parallelClassId: swap.newClassId };
-          }
-          return enrollment;
-        });
-        console.log('Updated enrollments:', updated);
-        return updated;
-      });
-    });
-    
-    return () => socket.disconnect();
-  }, []);
-
-  useEffect(() => {
     if (courses.length > 0 && !selectedCourse) {
       setSelectedCourse(courses[0]);
     }
@@ -203,7 +238,6 @@ export default function Dashboard() {
     const visibleArray = Array.from(visibleOfferIds);
     const exitMap = new Map();
     
-    // Bottom items exit first (reverse index)
     idsToRemove.forEach(id => {
       const idx = visibleArray.indexOf(id);
       if (idx >= 0) {
@@ -220,14 +254,16 @@ export default function Dashboard() {
     setTimeout(() => {
       setVisibleOfferIds(prev => {
         const next = new Set(prev);
-        idsToRemove.forEach(id => next.delete(id));
+        idsToRemove.forEach(id => {
+          next.delete(id);
+          exitingOffersCache.current.delete(id);
+        });
         return next;
       });
       setExitingOfferIds(new Map());
       animationLockRef.current = false;
       setAnimationVersion(v => v + 1);
       
-      // Process queued additions
       if (pendingChangesRef.current) {
         const pending = pendingChangesRef.current;
         pendingChangesRef.current = null;
@@ -246,7 +282,6 @@ export default function Dashboard() {
       return next;
     });
     
-    // WebSocket offers get immediate animation
     if (isWebSocketAddition && idsToAdd.length > 0) {
       setEnteringOfferIds(new Set(idsToAdd));
       setTimeout(() => setEnteringOfferIds(new Set()), 200);
@@ -256,7 +291,6 @@ export default function Dashboard() {
     setAnimationVersion(v => v + 1);
   }, []);
 
-  // Sync visible offers with filtered results
   useEffect(() => {
     if (animationLockRef.current) return;
 
@@ -266,13 +300,11 @@ export default function Dashboard() {
     const idsToRemove = Array.from(currentIds).filter(id => !targetIds.has(id));
     const idsToAdd = Array.from(targetIds).filter(id => !currentIds.has(id));
     
-    // Detect WebSocket additions
     const currentOfferIds = new Set(enrichedOffers.map(o => o.id));
     const newOfferIds = [...currentOfferIds].filter(id => !previousOfferIdsRef.current.has(id));
     const isWebSocket = idsToAdd.some(id => newOfferIds.includes(id));
     previousOfferIdsRef.current = currentOfferIds;
     
-    // Exits take priority, queue additions for after
     if (idsToRemove.length > 0) {
       if (idsToAdd.length > 0) {
         pendingChangesRef.current = { toAdd: idsToAdd, isWebSocket };
@@ -284,12 +316,33 @@ export default function Dashboard() {
   }, [shouldBeVisibleIds, visibleOfferIds, enrichedOffers, startExitAnimation, startEnterAnimation, animationVersion]);
 
   const offersToDisplay = useMemo(() => {
-    return enrichedOffers.filter(offer => visibleOfferIds.has(offer.id));
+    const displayOffers = enrichedOffers.filter(offer => visibleOfferIds.has(offer.id));
+    
+    visibleOfferIds.forEach(id => {
+      if (!enrichedOffers.find(o => o.id === id) && exitingOffersCache.current.has(id)) {
+        displayOffers.push(exitingOffersCache.current.get(id));
+      }
+    });
+    
+    return displayOffers.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   }, [enrichedOffers, visibleOfferIds]);
 
   const handleExitClick = (offerId) => {
     if (animationLockRef.current) return;
     startExitAnimation([offerId]);
+  };
+
+  const handleOpenModal = (offer) => {
+    setModalOffer({ ...offer });
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
+  const handleAcceptTrade = (offerId) => {
+    handleExitClick(offerId);
   };
 
   if (loading) {
@@ -403,6 +456,7 @@ export default function Dashboard() {
                     canAccept={canAccept}
                     onAnimationComplete={() => {}}
                     onExitClick={handleExitClick}
+                    onOpenModal={handleOpenModal}
                   />
                 );
               })
@@ -421,6 +475,13 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      <TradeConfirmationModal
+        offer={modalOffer || {}}
+        isOpen={showModal}
+        onClose={handleCloseModal}
+        onAccept={handleAcceptTrade}
+      />
     </div>
   );
 }
