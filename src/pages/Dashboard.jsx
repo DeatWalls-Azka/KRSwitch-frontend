@@ -6,8 +6,7 @@ import SessionTypeTabs from '../components/SessionTypeTabs';
 import ClassCard from '../components/ClassCard';
 import BarterCard from '../components/BarterCard';
 import FilterButton from '../components/FilterButton';
-import { users, parallelClasses, enrollments, currentUser } from '../testData';
-import { getOffers } from '../api';
+import { getOffers, getUsers, getClasses, getEnrollments, getCurrentUser } from '../api';
 
 const STAGGER_DELAY = 30;
 const ANIMATION_DURATION = 100;
@@ -19,14 +18,49 @@ export default function Dashboard() {
   const [filterForYou, setFilterForYou] = useState(false);
   const [apiOffers, setApiOffers] = useState([]);
   
+  // Data from API
+  const [users, setUsers] = useState([]);
+  const [parallelClasses, setParallelClasses] = useState([]);
+  const [enrollments, setEnrollments] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  
   const [visibleOfferIds, setVisibleOfferIds] = useState(new Set());
   const [exitingOfferIds, setExitingOfferIds] = useState(new Map());
   const [enteringOfferIds, setEnteringOfferIds] = useState(new Set());
   
+  // Prevents state updates during animations, queues changes for after animation completes
   const animationLockRef = useRef(false);
   const pendingChangesRef = useRef(null);
   const previousOfferIdsRef = useRef(new Set());
   const [animationVersion, setAnimationVersion] = useState(0);
+
+  // Fetch all initial data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [usersRes, classesRes, enrollmentsRes, currentUserRes, offersRes] = await Promise.all([
+          getUsers(),
+          getClasses(),
+          getEnrollments(),
+          getCurrentUser(),
+          getOffers()
+        ]);
+        
+        setUsers(usersRes.data);
+        setParallelClasses(classesRes.data);
+        setEnrollments(enrollmentsRes.data);
+        setCurrentUser(currentUserRes.data);
+        setApiOffers(offersRes.data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Failed to fetch initial data:', error);
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, []);
 
   const getStudentsInClass = (parallelClassId) => {
     return enrollments
@@ -43,9 +77,10 @@ export default function Dashboard() {
   };
 
   const enrichBarterOffer = (offer) => {
-    const myClass = parallelClasses.find(pc => pc.id === offer.myClassId);
-    const wantedClass = parallelClasses.find(pc => pc.id === offer.wantedClassId);
-    const offerer = users.find(u => u.nim === offer.offererNim);
+    // API response already includes related data
+    const myClass = offer.myClass || parallelClasses.find(pc => pc.id === offer.myClassId);
+    const wantedClass = offer.wantedClass || parallelClasses.find(pc => pc.id === offer.wantedClassId);
+    const offerer = offer.offerer || users.find(u => u.nim === offer.offererNim);
     
     if (!myClass || !wantedClass || !offerer) return null;
     
@@ -80,23 +115,25 @@ export default function Dashboard() {
         
         return { code, name: firstClass.courseName, type };
       });
-  }, []);
+  }, [parallelClasses]);
 
   const myEnrollmentMap = useMemo(() => {
+    if (!currentUser) return {};
+    
     const myEnrollments = getUserEnrollments(currentUser.nim);
     const map = {};
     myEnrollments.forEach(pc => {
       map[pc.courseCode] = pc.classCode;
     });
     return map;
-  }, []);
+  }, [currentUser, enrollments]);
 
   const enrichedOffers = useMemo(() => {
     return apiOffers
       .map(enrichBarterOffer)
       .filter(Boolean)
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  }, [apiOffers]);
+  }, [apiOffers, users, parallelClasses]);
 
   const shouldBeVisibleIds = useMemo(() => {
     const visible = enrichedOffers.filter(offer => {
@@ -131,12 +168,6 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    getOffers()
-      .then(response => setApiOffers(response.data))
-      .catch(error => console.error('Failed to fetch offers:', error));
-  }, []);
-
-  useEffect(() => {
     if (courses.length > 0 && !selectedCourse) {
       setSelectedCourse(courses[0]);
     }
@@ -150,6 +181,7 @@ export default function Dashboard() {
     const visibleArray = Array.from(visibleOfferIds);
     const exitMap = new Map();
     
+    // Bottom items exit first (reverse index)
     idsToRemove.forEach(id => {
       const idx = visibleArray.indexOf(id);
       if (idx >= 0) {
@@ -173,6 +205,7 @@ export default function Dashboard() {
       animationLockRef.current = false;
       setAnimationVersion(v => v + 1);
       
+      // Process queued additions
       if (pendingChangesRef.current) {
         const pending = pendingChangesRef.current;
         pendingChangesRef.current = null;
@@ -191,6 +224,7 @@ export default function Dashboard() {
       return next;
     });
     
+    // WebSocket offers get immediate animation
     if (isWebSocketAddition && idsToAdd.length > 0) {
       setEnteringOfferIds(new Set(idsToAdd));
       setTimeout(() => setEnteringOfferIds(new Set()), 200);
@@ -200,6 +234,7 @@ export default function Dashboard() {
     setAnimationVersion(v => v + 1);
   }, []);
 
+  // Sync visible offers with filtered results
   useEffect(() => {
     if (animationLockRef.current) return;
 
@@ -209,19 +244,20 @@ export default function Dashboard() {
     const idsToRemove = Array.from(currentIds).filter(id => !targetIds.has(id));
     const idsToAdd = Array.from(targetIds).filter(id => !currentIds.has(id));
     
+    // Detect WebSocket additions
     const currentOfferIds = new Set(enrichedOffers.map(o => o.id));
     const newOfferIds = [...currentOfferIds].filter(id => !previousOfferIdsRef.current.has(id));
     const isWebSocket = idsToAdd.some(id => newOfferIds.includes(id));
     previousOfferIdsRef.current = currentOfferIds;
     
+    // Exits take priority, queue additions for after
     if (idsToRemove.length > 0) {
       if (idsToAdd.length > 0) {
         pendingChangesRef.current = { toAdd: idsToAdd, isWebSocket };
       }
       startExitAnimation(idsToRemove);
     } else if (idsToAdd.length > 0) {
-      const wasEmpty = visibleOfferIds.size === 0;
-      startEnterAnimation(idsToAdd, isWebSocket && !wasEmpty);
+      startEnterAnimation(idsToAdd, isWebSocket);
     }
   }, [shouldBeVisibleIds, visibleOfferIds, enrichedOffers, startExitAnimation, startEnterAnimation, animationVersion]);
 
@@ -233,6 +269,14 @@ export default function Dashboard() {
     if (animationLockRef.current) return;
     startExitAnimation([offerId]);
   };
+
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-gray-600">Loading...</div>
+      </div>
+    );
+  }
 
   if (!selectedCourse) return null;
 
