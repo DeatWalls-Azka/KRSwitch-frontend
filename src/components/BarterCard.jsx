@@ -7,6 +7,7 @@ export default function BarterCard({
   exitIndex = 0, 
   shouldExit = false,
   shouldEnter = false,
+  canAccept = true,
   onAnimationComplete, 
   onExitClick 
 }) {
@@ -16,7 +17,6 @@ export default function BarterCard({
   const [showModal, setShowModal] = useState(false);
   const wrapperRef = useRef(null);
 
-  // Entry animation: WebSocket offers animate immediately, others stagger by index
   useEffect(() => {
     if (shouldEnter) {
       setIsVisible(false);
@@ -28,7 +28,6 @@ export default function BarterCard({
     }
   }, [index, shouldEnter]);
 
-  // Exit animation: capture height, then collapse
   useEffect(() => {
     if (shouldExit && isVisible && !isExiting) {
       if (wrapperRef.current) {
@@ -47,7 +46,6 @@ export default function BarterCard({
     }
   }, [shouldExit, isVisible, exitIndex, isExiting]);
 
-  // Notify parent when exit completes
   useEffect(() => {
     if (isExiting) {
       const timer = setTimeout(() => {
@@ -60,6 +58,7 @@ export default function BarterCard({
   }, [isExiting, offer.id, onAnimationComplete]);
 
   const handleOpenTrade = () => {
+    if (!canAccept) return;
     setShowModal(true);
   };
 
@@ -105,8 +104,8 @@ export default function BarterCard({
             <div className="ml-auto shrink-0">
               <button 
                 onClick={handleOpenTrade}
-                disabled={shouldExit}
-                className="bg-green-600 text-white text-[11px] min-w-[90px] font-bold py-1 px-2.5 border-0 cursor-pointer hover:bg-green-700 active:bg-green-800 transition-colors rounded-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={shouldExit || !canAccept}
+                className="bg-green-600 text-white text-[11px] min-w-[90px] font-bold py-1 px-2.5 border-0 cursor-pointer hover:bg-green-700 active:bg-green-800 transition-colors rounded-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400"
               >
                 OPEN TRADE
               </button>

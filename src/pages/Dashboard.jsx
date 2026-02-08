@@ -388,6 +388,9 @@ export default function Dashboard() {
                 const isExiting = exitingOfferIds.has(offer.id);
                 const isEntering = enteringOfferIds.has(offer.id);
                 const exitIndex = isExiting ? exitingOfferIds.get(offer.id) : 0;
+
+                const userCurrentClass = myEnrollmentMap[offer.seekingCourse];
+                const canAccept = userCurrentClass === offer.seekingClass;
                 
                 return (
                   <BarterCard 
@@ -397,6 +400,7 @@ export default function Dashboard() {
                     exitIndex={exitIndex}
                     shouldExit={isExiting}
                     shouldEnter={isEntering}
+                    canAccept={canAccept}
                     onAnimationComplete={() => {}}
                     onExitClick={handleExitClick}
                   />
