@@ -3,42 +3,15 @@ import { useState, useEffect } from 'react';
 export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccept }) {
   const [isAvailable, setIsAvailable] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     if (!isOpen) {
       setIsAvailable(true);
       setIsProcessing(false);
-      return;
+      setErrorMessage('');
     }
-
-    const checkAvailability = async () => {
-      try {
-        const response = await fetch(`/api/trades/${offer.id}/status`);
-        
-        // Check if response is OK and JSON
-        if (!response.ok) {
-          console.warn(`Availability check returned ${response.status}`);
-          return; // Keep current availability state
-        }
-
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-          console.warn('Availability check returned non-JSON response');
-          return; // Keep current availability state
-        }
-
-        const data = await response.json();
-        setIsAvailable(data.available);
-      } catch (error) {
-        console.error('Availability check failed:', error);
-      }
-    };
-
-    checkAvailability();
-    const interval = setInterval(checkAvailability, 1000);
-
-    return () => clearInterval(interval);
-  }, [isOpen, offer.id]);
+  }, [isOpen]);
 
   const handleAccept = async () => {
     if (!isAvailable || isProcessing) return;
@@ -46,20 +19,17 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
     setIsProcessing(true);
 
     try {
-      const response = await fetch(`/api/trades/${offer.id}/accept`, {
+      const response = await fetch(`http://localhost:5000/api/offers/${offer.id}/take`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ takerNim: 'M6401211002' })
       });
 
       if (!response.ok) {
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
           const error = await response.json();
-          if (error.code === 'TRADE_NOT_AVAILABLE') {
-            setIsAvailable(false);
-            return;
-          }
-          throw new Error(error.message);
+          throw new Error(error.error);
         } else {
           throw new Error(`Server returned ${response.status}`);
         }
@@ -70,6 +40,7 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
     } catch (error) {
       console.error('Trade acceptance failed:', error);
       setIsAvailable(false);
+      setErrorMessage(error.message);
     } finally {
       setIsProcessing(false);
     }
@@ -94,20 +65,17 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
             <div className="space-y-4 mx-8 pt-4">
               <div className="flex items-baseline justify-between">
                 
-                {/* Mata Kuliah */}
                 <div className="text-left">
                   <div className="text-lg font-bold text-gray-900">{offer.seekingCourse}</div>
                   <div className="text-xs text-gray-500">{offer.seekingCourseName}</div>
                 </div>
                 
-                {/* Mahasiswa */}
                 <div className="text-right">
                   <div className="font-bold text-gray-900">{offer.studentName}</div>
                   <div className="text-xs text-gray-500">{offer.nim}</div>
                 </div>
               </div>
 
-              {/* Trade Details */}
               <div className="py-2 border-y border-gray-200">
                 <div className="flex items-center gap-4">
                   
@@ -147,9 +115,9 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
         </div>
 
         <div className="h-12 flex items-start justify-center pt-3">
-          {!isAvailable && (
+          {errorMessage && (
             <div className="bg-red-600 text-white text-xs font-bold px-4 py-2 rounded shadow-lg">
-              &lt;!&gt; Trade no longer available &lt;!&gt;
+              &lt;!&gt; {errorMessage} &lt;!&gt;
             </div>
           )}
         </div>

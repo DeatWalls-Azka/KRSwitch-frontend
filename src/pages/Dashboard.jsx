@@ -164,6 +164,28 @@ export default function Dashboard() {
       setApiOffers(prev => prev.filter(o => o.id !== offerId));
     });
     
+    socket.on('enrollments-swapped', ({ swaps }) => {
+      console.log('Received swaps:', swaps);
+      
+      setEnrollments(prev => {
+        console.log('Current enrollments:', prev);
+        const updated = prev.map(enrollment => {
+          const swap = swaps.find(s => 
+            s.nim === enrollment.nim && 
+            s.oldClassId === enrollment.parallelClassId
+          );
+          
+          if (swap) {
+            console.log('Swapping:', enrollment.nim, swap.oldClassId, '->', swap.newClassId);
+            return { ...enrollment, parallelClassId: swap.newClassId };
+          }
+          return enrollment;
+        });
+        console.log('Updated enrollments:', updated);
+        return updated;
+      });
+    });
+    
     return () => socket.disconnect();
   }, []);
 
