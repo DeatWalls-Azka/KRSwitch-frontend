@@ -169,7 +169,7 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
           {errorMessage && (
             <div 
               className="bg-red-600 text-white text-xs font-bold px-4 py-2 rounded shadow-lg"
-              style={showMessage ? { animation: 'shake 0.4s ease-in-out' } : {}}
+              style={showMessage ? { animation: 'shake 0.25s ease-in-out' } : {}}
             >
               &lt;!&gt; {errorMessage} &lt;!&gt;
             </div>
@@ -177,7 +177,7 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
           {successMessage && (
             <div 
               className="bg-green-600 text-white text-xs font-bold px-4 py-2 rounded shadow-lg"
-              style={showMessage ? { animation: 'shake 0.4s ease-in-out' } : {}}
+              style={showMessage ? { animation: 'shake 0.25s ease-in-out' } : {}}
             >
               &lt;✓&gt; {successMessage} &lt;✓&gt;
             </div>
