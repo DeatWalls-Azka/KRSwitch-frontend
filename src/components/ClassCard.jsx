@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-export default function ClassCard({ classItem, index = 0, activeOffers = [], onTooltipChange, onMouseMove }) {
+export default function ClassCard({ classItem, index = 0, activeOffers = [], currentUserNim, onTooltipChange, onMouseMove }) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -46,6 +46,7 @@ export default function ClassCard({ classItem, index = 0, activeOffers = [], onT
               {classItem.students.map((student, idx) => {
                 const offer = getStudentOffer(student.nim);
                 const hasOffer = !!offer;
+                const isCurrentUser = student.nim === currentUserNim;
                 
                 return (
                   <tr 
@@ -55,12 +56,20 @@ export default function ClassCard({ classItem, index = 0, activeOffers = [], onT
                     onMouseMove={hasOffer ? onMouseMove : undefined}
                     onMouseLeave={() => hasOffer && onTooltipChange(null)}
                   >
-                    <td className="px-3 py-2 border-t border-gray-100 text-gray-500 font-mono text-[11px]">
+                    <td className={`px-3 py-2 border-t border-gray-100 font-mono text-[11px] ${isCurrentUser ? 'text-gray-900 font-bold' : 'text-gray-500'}`}>
                       {String(idx + 1).padStart(2, '0')}
                     </td>
-                    <td className="px-3 py-2 border-t border-gray-100 text-gray-900 text-[11px]">
+                    <td className="px-3 py-2 border-t border-gray-100 text-[11px]">
                       <span className="relative inline-block">
-                        {student.name}
+                        <span className={isCurrentUser ? 'font-bold text-gray-900' : 'text-gray-900'}>
+                          {student.name}
+                        </span>
+                        
+                        {isCurrentUser && (
+                          <span className="ml-1 text-gray-900 font-bold">
+                            (YOU)
+                          </span>
+                        )}
                         
                         {hasOffer && (
                           <span className="absolute -top-0.5 -right-2 flex h-1 w-1">
@@ -70,7 +79,7 @@ export default function ClassCard({ classItem, index = 0, activeOffers = [], onT
                         )}
                       </span>
                     </td>
-                    <td className="px-3 py-2 border-t border-gray-100 text-gray-500 font-mono text-[11px]">
+                    <td className={`px-3 py-2 border-t border-gray-100 font-mono text-[11px] ${isCurrentUser ? 'text-gray-900 font-bold' : 'text-gray-500'}`}>
                       {student.nim}
                     </td>
                   </tr>

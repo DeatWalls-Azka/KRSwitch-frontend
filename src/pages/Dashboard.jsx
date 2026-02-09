@@ -445,22 +445,29 @@ export default function Dashboard() {
 
   return (
     <div className="h-screen flex flex-col font-mono bg-gray-50">
+      {/* HEADER */}
       <Header />
       
+      {/* COURSE TABS */}
       <CourseTabs 
         courses={courses}
         selectedCourse={selectedCourse}
         onCourseSelect={setSelectedCourse}
       />
       
+      {/* MAIN CONTENT AREA */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+        
+        {/* LEFT PANEL: CLASS CARDS */}
         <div className="flex-1 min-w-0 border-r border-gray-200 flex flex-col order-2 md:order-1 h-full">
+          {/* Session Type Tabs */}
           <SessionTypeTabs
             courseType={selectedCourse.type}
             selectedSessionType={selectedSessionType}
             onSessionTypeSelect={setSelectedSessionType}
           />
 
+          {/* Horizontal Scrollable Class Cards */}
           <div className="flex-1 flex gap-3 overflow-x-auto overflow-y-hidden p-4 bg-gray-50">
             {filteredClasses.map((pc, index) => (
               <ClassCard 
@@ -474,6 +481,7 @@ export default function Dashboard() {
                   students: getStudentsInClass(pc.id)
                 }}
                 activeOffers={getOffersForClass(pc.id)}
+                currentUserNim={currentUser?.nim}
                 onTooltipChange={setTooltipContent}
                 onMouseMove={handleTooltipMove}
               />
@@ -481,7 +489,10 @@ export default function Dashboard() {
           </div>
         </div>
         
+        {/* RIGHT PANEL: BARTER FEED */}
         <div className="w-full md:w-[470px] shrink-0 bg-white flex flex-col overflow-hidden order-1 md:order-2 border-b md:border-b-0 md:border-l border-gray-200 h-[40%] md:h-auto">
+          
+          {/* Feed Header */}
           <div className="flex flex-col items-left px-4 py-3 bg-gray-50 flex-shrink-0 border-b border-gray-200">
             <div className="flex flex-row gap-1 items-center">
               <div className="mr-auto flex flex-col items-left">
@@ -516,6 +527,7 @@ export default function Dashboard() {
             </div>
           </div>
           
+          {/* Feed Content - Scrollable Offers */}
           <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
             {offersToDisplay.length > 0 ? (
               offersToDisplay.map((offer, index) => {
@@ -546,6 +558,7 @@ export default function Dashboard() {
             )}
           </div>
 
+          {/* Feed Footer - Create Button */}
           <div className="p-4 bg-gray-50 border-t border-gray-200">
             <button 
               onClick={() => {}}
@@ -557,6 +570,7 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* MODAL*/}
       <TradeConfirmationModal
         offer={modalOffer || {}}
         isOpen={showModal}
@@ -564,6 +578,7 @@ export default function Dashboard() {
         onAccept={handleAcceptTrade}
       />
 
+      {/* TOOLTIP */}
       {tooltipContent && (
         <div 
           id="custom-tooltip"
