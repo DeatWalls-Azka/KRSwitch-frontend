@@ -28,13 +28,28 @@ export default function Dashboard() {
   const [enteringOfferIds, setEnteringOfferIds] = useState(new Set());
   const [modalOffer, setModalOffer] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [tooltipContent, setTooltipContent] = useState(null);
+  const [tooltipVisible, setTooltipVisible] = useState(false);
   
   const exitingOffersCache = useRef(new Map());
   const animationLockRef = useRef(false);
   const pendingChangesRef = useRef(null);
   const previousOfferIdsRef = useRef(new Set());
+  const rafRef = useRef(null);
   const [animationVersion, setAnimationVersion] = useState(0);
 
+  // Refs buat smooth tooltip interpolation
+  const mousePos = useRef({ x: 0, y: 0 });
+  const tooltipPos = useRef({ x: 0, y: 0 });
+  const tooltipAnimationRef = useRef(null);
+  const tooltipInitialized = useRef(false);
+
+  // Lerp biar tooltip ngikut smooth
+  const lerp = useCallback((start, end, factor) => {
+    return start + (end - start) * factor;
+  }, []);
+
+  // Load semua data di awal
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -61,6 +76,7 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
+  // WebSocket buat real-time updates
   useEffect(() => {
     const socket = io('http://localhost:5000');
     
@@ -74,6 +90,7 @@ export default function Dashboard() {
     socket.on('offer-taken', ({ offerId }) => {
       console.log('Offer taken:', offerId);
       
+      // Cache dulu sebelum dihapus buat exit animation
       setApiOffers(prev => {
         const offerToCache = prev.find(o => o.id === offerId);
         if (offerToCache) {
@@ -136,6 +153,54 @@ export default function Dashboard() {
     return () => socket.disconnect();
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, []);
+
+  // Loop RAF buat tooltip smooth 60fps, pake transform (GPU) bukan left/top
+  useEffect(() => {
+    const animate = () => {
+      // Frame pertama snap langsung, ga pake lerp biar ga jarring
+      if (!tooltipInitialized.current) {
+        tooltipPos.current.x = mousePos.current.x;
+        tooltipPos.current.y = mousePos.current.y;
+        tooltipInitialized.current = true;
+      } else {
+        // 0.2 = sweet spot smooth vs responsive
+        tooltipPos.current.x = lerp(tooltipPos.current.x, mousePos.current.x, 0.2);
+        tooltipPos.current.y = lerp(tooltipPos.current.y, mousePos.current.y, 0.2);
+      }
+
+      const tooltipEl = document.getElementById('custom-tooltip');
+      if (tooltipEl && tooltipContent) {
+        tooltipEl.style.transform = `translate(${tooltipPos.current.x + 15}px, ${tooltipPos.current.y + 15}px)`;
+      }
+
+      tooltipAnimationRef.current = requestAnimationFrame(animate);
+    };
+
+    if (tooltipContent) {
+      // Delay 1 frame biar posisi udah bener
+      requestAnimationFrame(() => {
+        setTooltipVisible(true);
+      });
+      tooltipAnimationRef.current = requestAnimationFrame(animate);
+    } else {
+      setTooltipVisible(false);
+      tooltipInitialized.current = false;
+    }
+
+    return () => {
+      if (tooltipAnimationRef.current) {
+        cancelAnimationFrame(tooltipAnimationRef.current);
+      }
+    };
+  }, [tooltipContent, lerp]);
+
   const getStudentsInClass = (parallelClassId) => {
     return enrollments
       .filter(e => e.parallelClassId === parallelClassId)
@@ -150,6 +215,7 @@ export default function Dashboard() {
       .filter(Boolean);
   };
 
+  // Enrich offer data, return null kalo ga complete
   const enrichBarterOffer = (offer) => {
     const myClass = offer.myClass || parallelClasses.find(pc => pc.id === offer.myClassId);
     const wantedClass = offer.wantedClass || parallelClasses.find(pc => pc.id === offer.wantedClassId);
@@ -234,6 +300,7 @@ export default function Dashboard() {
     setSelectedSessionType('kuliah');
   }, [selectedCourse?.code]);
 
+  // Stagger exit animation dari bawah ke atas
   const startExitAnimation = useCallback((idsToRemove) => {
     const visibleArray = Array.from(visibleOfferIds);
     const exitMap = new Map();
@@ -246,7 +313,7 @@ export default function Dashboard() {
     });
     
     setExitingOfferIds(exitMap);
-    animationLockRef.current = true;
+    animationLockRef.current = true; // Lock biar ga overlap
     
     const maxExitIndex = Math.max(...Array.from(exitMap.values()));
     const totalTime = (maxExitIndex * STAGGER_DELAY) + ANIMATION_DURATION + 50;
@@ -264,6 +331,7 @@ export default function Dashboard() {
       animationLockRef.current = false;
       setAnimationVersion(v => v + 1);
       
+      // Jalanin pending add kalo ada
       if (pendingChangesRef.current) {
         const pending = pendingChangesRef.current;
         pendingChangesRef.current = null;
@@ -292,7 +360,7 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    if (animationLockRef.current) return;
+    if (animationLockRef.current) return; // Skip kalo lagi animasi
 
     const currentIds = visibleOfferIds;
     const targetIds = shouldBeVisibleIds;
@@ -300,6 +368,7 @@ export default function Dashboard() {
     const idsToRemove = Array.from(currentIds).filter(id => !targetIds.has(id));
     const idsToAdd = Array.from(targetIds).filter(id => !currentIds.has(id));
     
+    // Detect offer baru dari WebSocket
     const currentOfferIds = new Set(enrichedOffers.map(o => o.id));
     const newOfferIds = [...currentOfferIds].filter(id => !previousOfferIdsRef.current.has(id));
     const isWebSocket = idsToAdd.some(id => newOfferIds.includes(id));
@@ -318,6 +387,7 @@ export default function Dashboard() {
   const offersToDisplay = useMemo(() => {
     const displayOffers = enrichedOffers.filter(offer => visibleOfferIds.has(offer.id));
     
+    // Tambahin dari cache buat yang lagi exit
     visibleOfferIds.forEach(id => {
       if (!enrichedOffers.find(o => o.id === id) && exitingOffersCache.current.has(id)) {
         displayOffers.push(exitingOffersCache.current.get(id));
@@ -326,6 +396,14 @@ export default function Dashboard() {
     
     return displayOffers.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   }, [enrichedOffers, visibleOfferIds]);
+
+  const getOffersForClass = (parallelClassId) => {
+    return enrichedOffers.filter(offer => offer.myClassId === parallelClassId);
+  };
+
+  const handleTooltipMove = useCallback((e) => {
+    mousePos.current = { x: e.clientX, y: e.clientY };
+  }, []);
 
   const handleExitClick = (offerId) => {
     if (animationLockRef.current) return;
@@ -394,7 +472,10 @@ export default function Dashboard() {
                   time: `${pc.timeStart}-${pc.timeEnd}`,
                   room: pc.room,
                   students: getStudentsInClass(pc.id)
-                }} 
+                }}
+                activeOffers={getOffersForClass(pc.id)}
+                onTooltipChange={setTooltipContent}
+                onMouseMove={handleTooltipMove}
               />
             ))}
           </div>
@@ -482,6 +563,29 @@ export default function Dashboard() {
         onClose={handleCloseModal}
         onAccept={handleAcceptTrade}
       />
+
+      {tooltipContent && (
+        <div 
+          id="custom-tooltip"
+          className="fixed pointer-events-none z-[99999] transition-opacity duration-150"
+          style={{
+            transform: `translate(${tooltipPos.current.x + 15}px, ${tooltipPos.current.y + 15}px)`,
+            opacity: tooltipVisible ? 1 : 0,
+            willChange: 'transform',
+            backfaceVisibility: 'hidden',
+          }}
+        >
+          <div className="bg-gray-900 text-white text-[10px] px-2.5 py-1.5 rounded shadow-xl whitespace-nowrap">
+            <div className="font-bold mb-0.5">Active Barter Offer</div>
+            <div className="text-gray-300">
+              Offering: <span className="text-green-400 font-semibold">{tooltipContent.offeringClass}</span>
+            </div>
+            <div className="text-gray-300">
+              Seeking: <span className="text-green-400 font-semibold">{tooltipContent.seekingClass}</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

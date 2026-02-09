@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-export default function ClassCard({ classItem, index = 0 }) {
+export default function ClassCard({ classItem, index = 0, activeOffers = [], onTooltipChange, onMouseMove }) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -10,6 +10,10 @@ export default function ClassCard({ classItem, index = 0 }) {
 
     return () => clearTimeout(timer);
   }, [index]);
+
+  const getStudentOffer = (nim) => {
+    return activeOffers.find(offer => offer.nim === nim);
+  };
 
   return (
     <div 
@@ -39,19 +43,39 @@ export default function ClassCard({ classItem, index = 0 }) {
               </tr>
             </thead>
             <tbody>
-              {classItem.students.map((student, index) => (
-                <tr key={student.nim + index} className="hover:bg-gray-50">
-                  <td className="px-3 py-2 border-t border-gray-100 text-gray-500 font-mono text-[11px]">
-                    {String(index + 1).padStart(2, '0')}
-                  </td>
-                  <td className="px-3 py-2 border-t border-gray-100 text-gray-900 text-[11px]">
-                    {student.name}
-                  </td>
-                  <td className="px-3 py-2 border-t border-gray-100 text-gray-500 font-mono text-[11px]">
-                    {student.nim}
-                  </td>
-                </tr>
-              ))}
+              {classItem.students.map((student, idx) => {
+                const offer = getStudentOffer(student.nim);
+                const hasOffer = !!offer;
+                
+                return (
+                  <tr 
+                    key={student.nim + idx} 
+                    className="hover:bg-gray-50"
+                    onMouseEnter={() => hasOffer && onTooltipChange(offer)}
+                    onMouseMove={hasOffer ? onMouseMove : undefined}
+                    onMouseLeave={() => hasOffer && onTooltipChange(null)}
+                  >
+                    <td className="px-3 py-2 border-t border-gray-100 text-gray-500 font-mono text-[11px]">
+                      {String(idx + 1).padStart(2, '0')}
+                    </td>
+                    <td className="px-3 py-2 border-t border-gray-100 text-gray-900 text-[11px]">
+                      <span className="relative inline-block">
+                        {student.name}
+                        
+                        {hasOffer && (
+                          <span className="absolute -top-0.5 -right-2 flex h-1 w-1">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-1 w-1 bg-green-500"></span>
+                          </span>
+                        )}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2 border-t border-gray-100 text-gray-500 font-mono text-[11px]">
+                      {student.nim}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}
