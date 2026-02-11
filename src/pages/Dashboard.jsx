@@ -30,6 +30,7 @@ export default function Dashboard() {
   const [showModal, setShowModal] = useState(false);
   const [tooltipContent, setTooltipContent] = useState(null);
   const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
   
   const exitingOffersCache = useRef(new Map());
   const animationLockRef = useRef(false);
@@ -80,7 +81,20 @@ export default function Dashboard() {
   useEffect(() => {
     const socket = io('http://localhost:5000');
     
-    socket.on('connect', () => console.log('WebSocket connected'));
+    socket.on('connect', () => {
+      console.log('WebSocket connected');
+      setIsConnected(true);
+    });
+
+    socket.on('disconnect', () => {
+      console.log('WebSocket disconnected');
+      setIsConnected(false);
+    });
+
+    socket.on('connect_error', (error) => {
+      console.error('WebSocket connection error:', error);
+      setIsConnected(false);
+    });
     
     socket.on('new-offer', (offer) => {
       console.log('New offer received:', offer);
@@ -446,7 +460,7 @@ export default function Dashboard() {
   return (
     <div className="h-screen flex flex-col font-mono bg-gray-50">
       {/* HEADER */}
-      <Header />
+      <Header isConnected={isConnected} />
       
       {/* COURSE TABS */}
       <CourseTabs 
