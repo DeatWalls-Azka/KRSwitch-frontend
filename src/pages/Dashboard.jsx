@@ -609,6 +609,7 @@ export default function Dashboard() {
         isOpen={showModal}
         onClose={handleCloseModal}
         onAccept={handleAcceptTrade}
+        currentUser={currentUser}
       />
 
       {/* --- [TAMBAHAN 4] Render Form Popup --- */}

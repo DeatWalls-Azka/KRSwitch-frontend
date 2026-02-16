@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
-export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccept }) {
+export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccept, currentUser }) {
   const [isAvailable, setIsAvailable] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -45,7 +45,7 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
   }, [errorMessage, successMessage]);
 
   const handleAccept = async () => {
-    if (!isAvailable || isProcessing || !offer?.id) return;
+    if (!isAvailable || isProcessing || !offer?.id || !currentUser) return;
 
     setIsProcessing(true);
     setErrorMessage('');
@@ -56,7 +56,7 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
       const response = await fetch(`http://localhost:5000/api/offers/${offer.id}/take`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ takerNim: 'M6401211002' })
+        body: JSON.stringify({ takerNim: currentUser.nim })
       });
 
       if (!response.ok) {
