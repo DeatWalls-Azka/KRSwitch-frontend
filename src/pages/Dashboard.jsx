@@ -7,6 +7,9 @@ import ClassCard from '../components/ClassCard';
 import BarterCard from '../components/BarterCard';
 import TradeConfirmationModal from '../components/TradeConfirmationModal';
 import FilterButton from '../components/FilterButton';
+// --- [TAMBAHAN 1] Import Form Barter ---
+import CreateOfferForm from '../components/CreateOfferForm'; 
+// ---------------------------------------
 import { getOffers, getUsers, getClasses, getEnrollments, getCurrentUser } from '../api';
 
 const STAGGER_DELAY = 30;
@@ -32,6 +35,9 @@ export default function Dashboard() {
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   
+  
+  const [isFormOpen, setIsFormOpen] = useState(false);
+
   const exitingOffersCache = useRef(new Map());
   const animationLockRef = useRef(false);
   const pendingChangesRef = useRef(null);
@@ -175,7 +181,6 @@ export default function Dashboard() {
     };
   }, []);
 
-  // Loop RAF buat tooltip smooth 60fps, pake transform (GPU) bukan left/top
   useEffect(() => {
     const animate = () => {
       // Frame pertama snap langsung, ga pake lerp biar ga jarring
@@ -314,7 +319,7 @@ export default function Dashboard() {
     setSelectedSessionType('kuliah');
   }, [selectedCourse?.code]);
 
-  // Stagger exit animation dari bawah ke atas
+ 
   const startExitAnimation = useCallback((idsToRemove) => {
     const visibleArray = Array.from(visibleOfferIds);
     const exitMap = new Map();
@@ -327,7 +332,7 @@ export default function Dashboard() {
     });
     
     setExitingOfferIds(exitMap);
-    animationLockRef.current = true; // Lock biar ga overlap
+    animationLockRef.current = true; 
     
     const maxExitIndex = Math.max(...Array.from(exitMap.values()));
     const totalTime = (maxExitIndex * STAGGER_DELAY) + ANIMATION_DURATION + 50;
@@ -522,6 +527,8 @@ export default function Dashboard() {
                   fill="none" 
                   stroke="currentColor" 
                   strokeWidth="1.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
                   className="text-gray-600"
                 >
                   <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
@@ -575,7 +582,9 @@ export default function Dashboard() {
           {/* Feed Footer - Create Button */}
           <div className="p-4 bg-gray-50 border-t border-gray-200">
             <button 
-              onClick={() => {}}
+              // --- [TAMBAHAN 3] Aksi Klik Tombol ---
+              onClick={() => setIsFormOpen(true)}
+              // -------------------------------------
               className="w-full bg-green-600 text-white text-[11px] font-bold py-2 px-2.5 border-0 cursor-pointer hover:bg-green-700 active:bg-green-800 transition-colors rounded-sm"
             >
               CREATE BARTER OFFER
@@ -591,6 +600,15 @@ export default function Dashboard() {
         onClose={handleCloseModal}
         onAccept={handleAcceptTrade}
       />
+
+      {/* --- [TAMBAHAN 4] Render Form Popup --- */}
+      {isFormOpen && (
+        <CreateOfferForm 
+          onSuccess={() => window.location.reload()} 
+          onClose={() => setIsFormOpen(false)} 
+        />
+      )}
+      {/* -------------------------------------- */}
 
       {/* TOOLTIP */}
       {tooltipContent && (
