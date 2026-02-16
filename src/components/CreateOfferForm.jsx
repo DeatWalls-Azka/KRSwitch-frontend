@@ -77,8 +77,10 @@ export default function CreateOfferForm({ onSuccess, onClose }) {
     const current = myClasses.find(m => m.id === parseInt(selectedMyClass));
     if (!current) return false;
     
-    // Same course code but different class
-    return c.courseCode === current.courseCode && c.id !== current.id;
+    // Same course code, same type, but different class
+    return c.courseCode === current.courseCode && 
+          c.classCode[0] === current.classCode[0] && 
+          c.id !== current.id;
   });
 
   const handleSubmit = async () => {
@@ -160,7 +162,7 @@ export default function CreateOfferForm({ onSuccess, onClose }) {
             disabled={loading}
             aria-label="Close modal"
             style={{ fontFamily: '"JetBrains Mono", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
-            className="absolute -top-8 -right-8 z-10 w-8 h-8 flex items-center justify-center text-white hover:text-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="absolute -top-6.5 -right-6 z-10 w-8 h-8 flex items-center justify-center text-white active:scale-50 hover:scale-120 transition-transform duration-60 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span className="text-2xl leading-none font-light">✕</span>
           </button>
@@ -168,7 +170,7 @@ export default function CreateOfferForm({ onSuccess, onClose }) {
           <div className="space-y-4 mx-8 pt-4">
             {/* Header */}
             <div>
-              <h3 className="text-lg font-bold text-gray-900">💱 New Offer</h3>
+              <h3 className="text-lg font-bold text-gray-900">CREATE NEW OFFER</h3>
             </div>
 
             {/* Content */}

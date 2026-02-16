@@ -124,7 +124,7 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
             disabled={isProcessing}
             aria-label="Close modal"
             style={{ fontFamily: '"JetBrains Mono", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
-            className="absolute -top-6.5 -right-6 z-10 w-8 h-8 flex items-center justify-center text-white hover:text-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="absolute -top-6.5 -right-6 z-10 w-8 h-8 flex items-center justify-center text-white active:scale-50 hover:scale-120 transition-transform duration-60 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span className="text-2xl leading-none font-light">✕</span>
           </button>
