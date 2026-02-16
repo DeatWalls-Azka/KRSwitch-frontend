@@ -604,7 +604,7 @@ export default function Dashboard() {
       {/* --- [TAMBAHAN 4] Render Form Popup --- */}
       {isFormOpen && (
         <CreateOfferForm 
-          onSuccess={() => window.location.reload()} 
+          onSuccess={() => {}}
           onClose={() => setIsFormOpen(false)} 
         />
       )}

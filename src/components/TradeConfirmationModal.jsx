@@ -113,11 +113,22 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
     >
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
         <div 
-          className={`bg-white rounded-lg shadow-2xl ${
+          className={`bg-white rounded-lg shadow-2xl relative ${
             isClosing ? 'animate-popDown' : 'animate-popUp'
           }`}
           onClick={(e) => e.stopPropagation()}
         >
+          {/* Floating Close Button */}
+          <button 
+            onClick={handleClose}
+            disabled={isProcessing}
+            aria-label="Close modal"
+            style={{ fontFamily: '"JetBrains Mono", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
+            className="absolute -top-6.5 -right-6 z-10 w-8 h-8 flex items-center justify-center text-white hover:text-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span className="text-2xl leading-none font-light">✕</span>
+          </button>
+
           <div className="space-y-4 mx-8 pt-4">
             <div className="flex items-baseline justify-between">
               <div className="text-left">
