@@ -33,9 +33,9 @@ export default function Header({ isConnected = false, user = null, onlineCount =
 
 
       {/* === BAGIAN KANAN: HANYA PROFIL (Count sudah pindah) === */}
-      <div className="flex items-center gap-3 pl-4 border-l border-gray-200 ml-auto">
-        <div className="text-right hidden sm:block">
-          <p className="text-sm font-bold text-gray-900 leading-none mb-1">
+      <div className="flex items-center gap-3 pl-4 ml-auto">
+        <div className="text-right hidden sm:block flex flex-col items-center justify-center mt-1">
+          <p className="text-sm font-bold text-gray-900 leading-none">
             {displayName}
           </p>
           <p className="text-[10px] text-gray-500 font-mono tracking-wide">
