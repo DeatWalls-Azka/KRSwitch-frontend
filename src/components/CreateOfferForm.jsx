@@ -170,7 +170,7 @@ export default function CreateOfferForm({ onSuccess, onClose }) {
           <div className="space-y-4 mx-8 pt-4">
             {/* Header */}
             <div>
-              <h3 className="text-lg font-bold text-gray-900">CREATE NEW OFFER</h3>
+              <h3 className="text-lg font-bold text-gray-900 text-center">Create New Offer</h3>
             </div>
 
             {/* Content */}

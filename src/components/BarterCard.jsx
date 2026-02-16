@@ -7,6 +7,7 @@ export default function BarterCard({
   shouldExit = false,
   shouldEnter = false,
   canAccept = true,
+  isOwnOffer = false,
   onAnimationComplete, 
   onExitClick,
   onOpenModal
@@ -56,16 +57,29 @@ export default function BarterCard({
     }
   }, [isExiting, offer.id, onAnimationComplete]);
 
-  const handleOpenTrade = () => {
-    if (!canAccept || !onOpenModal) return;
-    // Call parent's callback to open modal
-    // Parent (Dashboard) will snapshot the offer data
-    onOpenModal(offer);
+  const handleButtonClick = () => {
+    if (isOwnOffer) {
+      // Open cancel confirmation modal for user's own offers
+      if (onOpenModal) {
+        onOpenModal(offer, 'cancel');
+      }
+    } else {
+      // Open trade modal for other users' offers
+      if (canAccept && onOpenModal) {
+        onOpenModal(offer, 'accept');
+      }
+    }
   };
 
   const animationClasses = (isVisible && !isExiting)
     ? 'opacity-100 translate-x-0 scale-100'
     : 'opacity-0 translate-x-8 scale-y-0';
+
+  const buttonDisabled = shouldExit || (!isOwnOffer && !canAccept);
+  const buttonText = isOwnOffer ? 'CANCEL TRD' : 'OPEN TRADE';
+  const buttonColor = isOwnOffer 
+    ? 'bg-red-600 hover:bg-red-700 active:bg-red-800' 
+    : 'bg-green-600 hover:bg-green-700 active:bg-green-800';
 
   return (
     <div 
@@ -97,11 +111,11 @@ export default function BarterCard({
 
           <div className="ml-auto shrink-0">
             <button 
-              onClick={handleOpenTrade}
-              disabled={shouldExit || !canAccept}
-              className="bg-green-600 text-white text-[11px] min-w-[90px] font-bold py-1 px-2.5 border-0 cursor-pointer hover:bg-green-700 active:bg-green-800 transition-colors rounded-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400"
+              onClick={handleButtonClick}
+              disabled={buttonDisabled}
+              className={`${buttonColor} text-white text-[11px] min-w-[90px] font-bold py-1 px-2.5 border-0 cursor-pointer transition-colors rounded-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400`}
             >
-              OPEN TRADE
+              {buttonText}
             </button>
           </div>
         </div>

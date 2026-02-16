@@ -20,6 +20,7 @@ export default function Dashboard() {
   const [selectedSessionType, setSelectedSessionType] = useState('kuliah');
   const [filterByCourse, setFilterByCourse] = useState(false);
   const [filterForYou, setFilterForYou] = useState(false);
+  const [filterByYou, setFilterByYou] = useState(false);
   const [apiOffers, setApiOffers] = useState([]);
   const [users, setUsers] = useState([]);
   const [parallelClasses, setParallelClasses] = useState([]);
@@ -31,6 +32,7 @@ export default function Dashboard() {
   const [enteringOfferIds, setEnteringOfferIds] = useState(new Set());
   const [modalOffer, setModalOffer] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [modalMode, setModalMode] = useState('accept');
   const [tooltipContent, setTooltipContent] = useState(null);
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
@@ -310,10 +312,15 @@ export default function Dashboard() {
           return false;
         }
       }
+      if (filterByYou) {
+        if (offer.nim !== currentUser?.nim) {
+          return false;
+        }
+      }
       return true;
     });
     return new Set(visible.map(o => o.id));
-  }, [enrichedOffers, filterByCourse, filterForYou, selectedCourse?.code, myEnrollmentMap]);
+  }, [enrichedOffers, filterByCourse, filterForYou, filterByYou, selectedCourse?.code, myEnrollmentMap, currentUser?.nim]);
 
   useEffect(() => {
     if (courses.length > 0 && !selectedCourse) {
@@ -435,8 +442,9 @@ export default function Dashboard() {
     startExitAnimation([offerId]);
   };
 
-  const handleOpenModal = (offer) => {
+  const handleOpenModal = (offer, mode = 'accept') => {
     setModalOffer({ ...offer });
+    setModalMode(mode);
     setShowModal(true);
   };
 
@@ -445,6 +453,10 @@ export default function Dashboard() {
   };
 
   const handleAcceptTrade = (offerId) => {
+    handleExitClick(offerId);
+  };
+
+  const handleCancelOffer = (offerId) => {
     handleExitClick(offerId);
   };
 
@@ -555,6 +567,11 @@ export default function Dashboard() {
                 isActive={filterForYou}
                 onClick={() => setFilterForYou(!filterForYou)}
               />
+              <FilterButton 
+                label="BY YOU"
+                isActive={filterByYou}
+                onClick={() => setFilterByYou(!filterByYou)}
+              />
             </div>
           </div>
           
@@ -568,6 +585,7 @@ export default function Dashboard() {
 
                 const userCurrentClass = myEnrollmentMap[offer.seekingCourse];
                 const canAccept = userCurrentClass === offer.seekingClass;
+                const isOwnOffer = offer.nim === currentUser?.nim;
                 
                 return (
                   <BarterCard 
@@ -578,6 +596,7 @@ export default function Dashboard() {
                     shouldExit={isExiting}
                     shouldEnter={isEntering}
                     canAccept={canAccept}
+                    isOwnOffer={isOwnOffer}
                     onAnimationComplete={() => {}}
                     onExitClick={handleExitClick}
                     onOpenModal={handleOpenModal}
@@ -609,7 +628,9 @@ export default function Dashboard() {
         isOpen={showModal}
         onClose={handleCloseModal}
         onAccept={handleAcceptTrade}
+        onCancel={handleCancelOffer}
         currentUser={currentUser}
+        mode={modalMode}
       />
 
       {/* --- [TAMBAHAN 4] Render Form Popup --- */}
@@ -634,12 +655,12 @@ export default function Dashboard() {
           }}
         >
           <div className="bg-gray-900 text-white text-[10px] px-2.5 py-1.5 rounded shadow-xl whitespace-nowrap">
-            <div className="font-bold mb-0.5">Active Barter Offer</div>
+            <div className="font-bold mb-0.5">Penawaran Barter Aktif</div>
             <div className="text-gray-300">
-              Offering: <span className="text-green-400 font-semibold">{tooltipContent.offeringClass}</span>
+              Menawarkan: <span className="text-red-600 font-semibold">{tooltipContent.offeringClass}</span>
             </div>
             <div className="text-gray-300">
-              Seeking: <span className="text-green-400 font-semibold">{tooltipContent.seekingClass}</span>
+              Mencari: <span className="text-green-400 font-semibold">{tooltipContent.seekingClass}</span>
             </div>
           </div>
         </div>

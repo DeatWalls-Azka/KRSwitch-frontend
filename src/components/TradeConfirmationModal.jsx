@@ -1,13 +1,23 @@
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
-export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccept, currentUser }) {
+export default function TradeConfirmationModal({ 
+  offer, 
+  isOpen, 
+  onClose, 
+  onAccept, 
+  onCancel,
+  currentUser,
+  mode = 'accept' // 'accept' or 'cancel'
+}) {
   const [isAvailable, setIsAvailable] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [isClosing, setIsClosing] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
+
+  const isCancel = mode === 'cancel';
 
   useEffect(() => {
     if (!isOpen || !offer?.id) {
@@ -19,13 +29,13 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
     socket.on('offer-taken', ({ offerId }) => {
       if (offer?.id && offerId === offer.id && !isProcessing && !successMessage) {
         setIsAvailable(false);
-        setErrorMessage('Offer already taken by someone else');
+        setErrorMessage(isCancel ? 'Penawaran sudah diambil orang lain' : 'Penawaran sudah diambil orang lain');
         setIsProcessing(false);
       }
     });
 
     return () => socket.disconnect();
-  }, [isOpen, offer?.id, isProcessing, successMessage]);
+  }, [isOpen, offer?.id, isProcessing, successMessage, isCancel]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -71,13 +81,64 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
 
       onAccept(offer.id);
       setIsAvailable(false);
-      setSuccessMessage('Trade completed successfully!');
+      setSuccessMessage('Pertukaran berhasil diselesaikan!');
     } catch (error) {
-      console.error('Trade acceptance failed:', error);
+      console.error('Penerimaan pertukaran gagal:', error);
       setIsAvailable(false);
       setErrorMessage(error.message);
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const handleCancelOffer = async () => {
+    if (!isAvailable || isProcessing || !offer?.id) return;
+
+    setIsProcessing(true);
+    setErrorMessage('');
+    setSuccessMessage('');
+    setShowMessage(false);
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/offers/${offer.id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const error = await response.json();
+          throw new Error(error.error);
+        } else {
+          throw new Error(`Server returned ${response.status}`);
+        }
+      }
+
+      if (onCancel) {
+        onCancel(offer.id);
+      }
+      setIsAvailable(false);
+      setSuccessMessage('Penawaran berhasil dibatalkan!');
+      
+      // Tutup otomatis setelah 1 detik jika berhasil
+      setTimeout(() => {
+        handleClose();
+      }, 1000);
+    } catch (error) {
+      console.error('Pembatalan penawaran gagal:', error);
+      setIsAvailable(false);
+      setErrorMessage(error.message);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handlePrimaryAction = () => {
+    if (isCancel) {
+      handleCancelOffer();
+    } else {
+      handleAccept();
     }
   };
 
@@ -98,10 +159,20 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
     if (e.key === 'Escape' && !isProcessing) {
       handleClose();
     }
-    if (e.key === 'Enter' && isAvailable && !isProcessing) handleAccept();
+    if (e.key === 'Enter' && isAvailable && !isProcessing) {
+      handlePrimaryAction();
+    }
   };
 
   if (!isOpen) return null;
+
+  const primaryButtonColor = isCancel 
+    ? 'bg-red-600 hover:bg-red-700 active:bg-red-800'
+    : 'bg-green-600 hover:bg-green-700 active:bg-green-800';
+  
+  const primaryButtonText = isCancel
+    ? (isProcessing ? 'MEMBATALKAN...' : successMessage ? 'DIBATALKAN' : 'BATALKAN PENAWARAN')
+    : (isProcessing ? 'MENERIMA...' : successMessage ? 'SELESAI' : 'TERIMA PERTUKARAN');
 
   return (
     <div 
@@ -122,7 +193,7 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
           <button 
             onClick={handleClose}
             disabled={isProcessing}
-            aria-label="Close modal"
+            aria-label="Tutup modal"
             style={{ fontFamily: '"JetBrains Mono", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
             className="absolute -top-6.5 -right-6 z-10 w-8 h-8 flex items-center justify-center text-white active:scale-50 hover:scale-120 transition-transform duration-60 disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -130,6 +201,17 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
           </button>
 
           <div className="space-y-4 mx-8 pt-4">
+            <div className="text-center pb-2">
+              <h3 className="text-lg font-bold text-gray-900">
+                {isCancel ? 'Batalkan Penawaran' : 'Konfirmasi Pertukaran'}
+              </h3>
+              <p className="text-xs text-gray-500 mt-1">
+                {isCancel 
+                  ? 'Apakah Anda yakin ingin membatalkan penawaran ini?' 
+                  : 'Apakah Anda yakin ingin menerima pertukaran ini?'}
+              </p>
+            </div>
+
             <div className="flex items-baseline justify-between">
               <div className="text-left">
                 <div className="text-lg font-bold text-gray-900">{offer?.seekingCourse || ''}</div>
@@ -145,15 +227,15 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
             <div className="py-2 border-y border-gray-200">
               <div className="flex items-center gap-4">
                 <div className="flex-1 text-center">
-                  <div className="text-xs text-gray-500">Melepas</div>
-                  <div className="text-red-600 font-bold text-lg">{offer?.seekingClass || ''}</div>
+                  <div className="text-xs text-gray-500">{isCancel ? 'Menawarkan' : 'Melepas'}</div>
+                  <div className="text-red-600 font-bold text-lg">{isCancel ? offer?.offeringClass : offer?.seekingClass || ''}</div>
                 </div>
 
                 <div className="text-gray-400 text-2xl font-bold">⇌</div>
                 
                 <div className="flex-1 text-center">
-                  <div className="text-xs text-gray-500">Mendapat</div>
-                  <div className="text-green-600 font-bold text-lg">{offer?.offeringClass || ''}</div>
+                  <div className="text-xs text-gray-500">{isCancel ? 'Mencari' : 'Mendapat'}</div>
+                  <div className="text-green-600 font-bold text-lg">{isCancel ? offer?.seekingClass : offer?.offeringClass || ''}</div>
                 </div>
               </div>
             </div>
@@ -162,16 +244,17 @@ export default function TradeConfirmationModal({ offer, isOpen, onClose, onAccep
           <div className="px-8 py-5 rounded-b-lg flex gap-3">
             <button
               onClick={handleClose}
-              className="flex-1 text-sm font-bold py-3 px-4 border border-gray-300 rounded hover:bg-gray-200 transition-colors"
+              disabled={isProcessing}
+              className="flex-1 text-sm font-bold py-3 px-4 border border-gray-300 rounded hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {successMessage ? 'CLOSE' : 'CANCEL'}
+              {successMessage ? 'TUTUP' : 'KEMBALI'}
             </button>
             <button
-              onClick={handleAccept}
+              onClick={handlePrimaryAction}
               disabled={!isAvailable || isProcessing || !offer?.id}
-              className="flex-1 bg-green-600 text-white text-sm font-bold py-3 px-4 rounded hover:bg-green-700 active:bg-green-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className={`flex-1 text-white text-sm font-bold py-3 px-4 rounded transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed ${primaryButtonColor}`}
             >
-              {isProcessing ? 'ACCEPTING...' : successMessage ? 'COMPLETED' : 'ACCEPT TRADE'}
+              {primaryButtonText}
             </button>
           </div>
         </div>
