@@ -1,9 +1,8 @@
-export default function Header({ isConnected = false }) {
-  const user = {
-    name: "Azka Julian",
-    nim: "M0403241029",
-  };
-  const onlineCount = 45; 
+export default function Header({ isConnected = false, user = null, onlineCount = 0 }) {
+  // Fallback values for when data is loading
+  const displayName = user?.name || 'Loading...';
+  const displayNim = user?.nim || '—';
+  const displayInitial = user?.name ? user.name.charAt(0).toUpperCase() : '?';
 
   return (
     <header className="bg-white border-b border-gray-200 px-4 py-2 flex-shrink-0 flex items-center justify-between">
@@ -37,15 +36,15 @@ export default function Header({ isConnected = false }) {
       <div className="flex items-center gap-3 pl-4 border-l border-gray-200 ml-auto">
         <div className="text-right hidden sm:block">
           <p className="text-sm font-bold text-gray-900 leading-none mb-1">
-            {user.name}
+            {displayName}
           </p>
           <p className="text-[10px] text-gray-500 font-mono tracking-wide">
-            {user.nim}
+            {displayNim}
           </p>
         </div>
 
         <div className="w-9 h-9 rounded-full bg-green-500 text-white flex items-center justify-center font-bold text-sm shadow-sm cursor-pointer hover:bg-green-700 transition">
-          {user.name.charAt(0)}
+          {displayInitial}
         </div>
       </div>
 

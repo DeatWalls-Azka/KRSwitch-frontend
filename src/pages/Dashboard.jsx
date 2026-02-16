@@ -34,6 +34,7 @@ export default function Dashboard() {
   const [tooltipContent, setTooltipContent] = useState(null);
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
+  const [onlineCount, setOnlineCount] = useState(0);
   
   
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -100,6 +101,11 @@ export default function Dashboard() {
     socket.on('connect_error', (error) => {
       console.error('WebSocket connection error:', error);
       setIsConnected(false);
+    });
+
+    socket.on('online-count', (count) => {
+      console.log('Online users:', count);
+      setOnlineCount(count);
     });
     
     socket.on('new-offer', (offer) => {
@@ -465,7 +471,11 @@ export default function Dashboard() {
   return (
     <div className="h-screen flex flex-col font-mono bg-gray-50">
       {/* HEADER */}
-      <Header isConnected={isConnected} />
+      <Header 
+        isConnected={isConnected} 
+        user={currentUser}
+        onlineCount={onlineCount}
+      />
       
       {/* COURSE TABS */}
       <CourseTabs 
