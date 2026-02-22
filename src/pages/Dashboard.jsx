@@ -7,10 +7,7 @@ import ClassCard from '../components/ClassCard';
 import BarterCard from '../components/BarterCard';
 import TradeConfirmationModal from '../components/TradeConfirmationModal';
 import FilterButton from '../components/FilterButton';
-// --- [TAMBAHAN 1] Import Form Barter ---
-import CreateOfferForm from '../components/CreateOfferForm'; 
-// ---------------------------------------
-import { getOffers, getUsers, getClasses, getEnrollments, getCurrentUser } from '../api';
+import CreateOfferForm from '../components/CreateOfferForm';import { getOffers, getUsers, getClasses, getEnrollments, getCurrentUser } from '../api';
 
 const STAGGER_DELAY = 30;
 const ANIMATION_DURATION = 100;
@@ -40,6 +37,8 @@ export default function Dashboard() {
   
   
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [toasts, setToasts] = useState([]);
+  const socketRef = useRef(null);
 
   const exitingOffersCache = useRef(new Map());
   const animationLockRef = useRef(false);
@@ -86,9 +85,18 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
+  // Authenticate ke socket room setelah currentUser tersedia
+  // Harus dipisah dari socket useEffect karena currentUser diload async
+  useEffect(() => {
+    if (currentUser && socketRef.current) {
+      socketRef.current.emit('authenticate', currentUser.nim);
+    }
+  }, [currentUser]);
+
   // WebSocket buat real-time updates
   useEffect(() => {
     const socket = io('http://localhost:5000');
+    socketRef.current = socket;
     
     socket.on('connect', () => {
       console.log('WebSocket connected');
@@ -178,6 +186,16 @@ export default function Dashboard() {
       });
     });
     
+    socket.on('offer-auto-cancelled', ({ offerId, reason, conflictingClass }) => {
+      const message = reason === 'no_longer_enrolled'
+        ? `Penawaran #${offerId} dibatalkan otomatis — kelas yang ditawarkan sudah tidak kamu miliki.`
+        : `Penawaran #${offerId} dibatalkan otomatis — bentrok jadwal dengan ${conflictingClass}.`;
+
+      const id = Date.now();
+      setToasts(prev => [...prev, { id, message }]);
+      setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 5000);
+    });
+
     return () => socket.disconnect();
   }, []);
 
@@ -610,11 +628,8 @@ export default function Dashboard() {
 
           {/* Feed Footer - Create Button */}
           <div className="p-4 bg-gray-50 border-t border-gray-200">
-            <button 
-              // --- [TAMBAHAN 3] Aksi Klik Tombol ---
-              onClick={() => setIsFormOpen(true)}
-              // -------------------------------------
-              className="w-full bg-green-600 text-white text-[11px] font-bold py-2 px-2.5 border-0 cursor-pointer hover:bg-green-700 active:bg-green-800 transition-colors rounded-sm"
+            <button
+              onClick={() => setIsFormOpen(true)}              className="w-full bg-green-600 text-white text-[11px] font-bold py-2 px-2.5 border-0 cursor-pointer hover:bg-green-700 active:bg-green-800 transition-colors rounded-sm"
             >
               CREATE BARTER OFFER
             </button>
@@ -633,7 +648,6 @@ export default function Dashboard() {
         mode={modalMode}
       />
 
-      {/* --- [TAMBAHAN 4] Render Form Popup --- */}
       {isFormOpen && (
         <CreateOfferForm 
           onSuccess={() => {}}
@@ -641,6 +655,27 @@ export default function Dashboard() {
         />
       )}
       {/* -------------------------------------- */}
+
+      {/* TOAST: notifikasi penawaran yang dibatalkan otomatis oleh server */}
+      {toasts.length > 0 && (
+        <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
+          {toasts.map(toast => (
+            <div
+              key={toast.id}
+              className="bg-red-600 text-white text-xs font-bold px-4 py-3 rounded shadow-lg max-w-xs flex items-start gap-2"
+            >
+              <span className="shrink-0">⚠</span>
+              <span>{toast.message}</span>
+              <button
+                onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))}
+                className="ml-auto shrink-0 opacity-75 hover:opacity-100"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* TOOLTIP */}
       {tooltipContent && (
