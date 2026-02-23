@@ -73,7 +73,7 @@ function NotificationRow({ notification, parallelClasses }) {
           </p>
         </div>
 
-        {/* Timestamp + chevron — right aligned, stacked */}
+        {/* Timestamp + drop down icon — right aligned, stacked */}
         <div className="flex flex-col items-end justify-center gap-1 shrink-0">
           <span className="text-[11px] text-gray-400">{timestamp}</span>
           <svg
