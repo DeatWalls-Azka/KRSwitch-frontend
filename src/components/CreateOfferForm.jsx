@@ -128,8 +128,12 @@ export default function CreateOfferForm({ onSuccess, onClose }) {
         throw new Error(errorData.error || 'Failed to create offer');
       }
 
+      const data = await response.json();
       if (onSuccess) onSuccess();
-      setSuccessMessage('Offer created successfully!');
+      setSuccessMessage(data.autoMatched
+        ? 'Auto-match! Pertukaran otomatis oleh sistem.'
+        : 'Offer created successfully!'
+      );
     } catch (err) {
       setError(err.message);
     } finally {
@@ -227,7 +231,7 @@ export default function CreateOfferForm({ onSuccess, onClose }) {
                   {availableTargets.map(c => (
                     <option key={c.id} value={c.id}>
                       {c.conflictWith
-                        ? `⚠ ${c.classCode} - ${c.day}, ${c.timeStart} [bentrok dengan ${c.conflictWith.courseCode}-${c.conflictWith.classCode}]`
+                        ? `<!> ${c.classCode} - ${c.day}, ${c.timeStart} [bentrok dengan ${c.conflictWith.courseCode}-${c.conflictWith.classCode}]`
                         : `${c.classCode} - ${c.day}, ${c.timeStart} (${c.room})`}
                     </option>
                   ))}
@@ -235,7 +239,7 @@ export default function CreateOfferForm({ onSuccess, onClose }) {
 
                 {selectedTargetHasConflict && (
                   <p className="mt-1.5 text-xs text-red-600 font-bold">
-                    ⚠ Kelas ini bentrok dengan {selectedTargetHasConflict.courseCode}-{selectedTargetHasConflict.classCode} ({selectedTargetHasConflict.day} {selectedTargetHasConflict.timeStart}–{selectedTargetHasConflict.timeEnd}). Penawaran akan ditolak server.
+                    &lt;!&gt; Kelas ini bentrok dengan {selectedTargetHasConflict.courseCode}-{selectedTargetHasConflict.classCode} ({selectedTargetHasConflict.day} {selectedTargetHasConflict.timeStart}–{selectedTargetHasConflict.timeEnd}). Penawaran akan ditolak server.
                   </p>
                 )}
 

@@ -5,8 +5,13 @@ function NotificationRow({ notification, parallelClasses }) {
   const [hasSeen, setHasSeen] = useState(false);
   const { type, data, read, createdAt } = notification;
 
+  const isAutoMatched = type === 'barter_auto_matched';
   const isOfferer = type === 'barter_matched_as_offerer';
-  const counterpartName = isOfferer ? data.takerName : data.offererName;
+
+  // Defensive fallback — old notifications might not have all fields
+  const counterpartName = (isAutoMatched
+    ? data.counterpartName
+    : isOfferer ? data.takerName : data.offererName) || '—';
 
   const timestamp = new Date(createdAt).toLocaleString('id-ID', {
     day: '2-digit',
@@ -23,8 +28,22 @@ function NotificationRow({ notification, parallelClasses }) {
     setIsExpanded(prev => !prev);
   };
 
+  // Title per type
+  const title = isAutoMatched
+    ? 'Auto-Match Berhasil'
+    : isOfferer
+      ? 'Penawaran Anda Diterima'
+      : 'Anda Menerima Penawaran';
+
+  // Subtitle label per type
+  const counterpartLabel = isAutoMatched ? 'dengan' : isOfferer ? 'oleh' : 'dari';
+
+  // Border + ping color — all green, consistent with platform
+  const borderColor = read ? 'border-gray-200' : 'border-green-300';
+  const pingColor = 'bg-green-500';
+
   return (
-    <div className={`border rounded-sm mb-3 overflow-hidden ${read ? 'border-gray-200 bg-white' : 'border-green-300 bg-white'}`}>
+    <div className={`border rounded-sm mb-2 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.08)] ${borderColor} bg-white`}>
 
       {/* Collapsed row */}
       <button
@@ -35,40 +54,42 @@ function NotificationRow({ notification, parallelClasses }) {
           <div className="flex items-baseline justify-between gap-2 mb-1">
             <div className="relative inline-flex shrink min-w-0">
               <span className="text-xs font-bold text-gray-900 truncate block pr-4">
-                {isOfferer ? 'Penawaran Anda Diterima' : 'Anda Menerima Penawaran'}
+                {title}
               </span>
               {showPing && (
                 <span className="absolute -top-0 right-1 flex">
-                  <span className="animate-ping absolute inline-flex h-1.5 w-1.5 rounded-full bg-green-500 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500" />
+                  <span className={`animate-ping absolute inline-flex h-1.5 w-1.5 rounded-full ${pingColor} opacity-75`} />
+                  <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${pingColor}`} />
                 </span>
               )}
             </div>
-            <span className="text-[11px] text-gray-400 shrink-0">{timestamp}</span>
           </div>
           <p className="text-[11px] text-gray-500 truncate">
-            <span className="text-red-500 font-semibold">{data.yourOldClass.classCode}</span>
+            <span className="text-red-500 font-semibold">{data.yourOldClass?.classCode || '—'}</span>
             {' ⇌ '}
-            <span className="text-green-600 font-semibold">{data.yourNewClass.classCode}</span>
+            <span className="text-green-600 font-semibold">{data.yourNewClass?.classCode || '—'}</span>
             {' · '}
-            {isOfferer ? 'oleh' : 'dari'} <span className="text-gray-700 font-semibold">{counterpartName}</span>
+            {counterpartLabel} <span className="text-gray-700 font-semibold">{counterpartName}</span>
           </p>
         </div>
 
-        {/* Chevron */}
-        <svg
-          width="13"
-          height="13"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={`shrink-0 text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
-        >
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
+        {/* Timestamp + chevron — right aligned, stacked */}
+        <div className="flex flex-col items-end justify-center gap-1 shrink-0">
+          <span className="text-[11px] text-gray-400">{timestamp}</span>
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={`text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
       </button>
 
       {/* Expanded detail — grid-template-rows avoids max-height delay artifact */}
@@ -88,14 +109,14 @@ function NotificationRow({ notification, parallelClasses }) {
                 <div className="text-center">
                   <div className="text-[11px] text-gray-400 mb-1">Dilepas</div>
                   <div className="text-red-600 font-bold text-base">
-                    {data.yourOldClass.courseCode}-{data.yourOldClass.classCode}
+                    {data.yourOldClass?.courseCode}-{data.yourOldClass?.classCode}
                   </div>
                 </div>
                 <div className="text-gray-300 font-bold text-xl">⇌</div>
                 <div className="text-center">
                   <div className="text-[11px] text-gray-400 mb-1">Didapat</div>
                   <div className="text-green-600 font-bold text-base">
-                    {data.yourNewClass.courseCode}-{data.yourNewClass.classCode}
+                    {data.yourNewClass?.courseCode}-{data.yourNewClass?.classCode}
                   </div>
                 </div>
               </div>
@@ -162,7 +183,7 @@ export default function NotificationModal({ isOpen, onClose, notifications = [],
       onClick={handleBackdropClick}
       onKeyDown={handleKeyDown}
     >
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
         <div
           className={`bg-white rounded-lg shadow-2xl relative flex flex-col ${isClosing ? 'animate-popDown' : 'animate-popUp'}`}
           style={{ height: '75vh', maxHeight: '680px' }}
