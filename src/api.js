@@ -4,6 +4,7 @@ const api = axios.create({
   baseURL: 'http://localhost:5000'
 });
 
+// TODO: rapihin
 export const getUsers = () => api.get('/api/users');
 export const getCurrentUser = () => api.get('/api/me');
 export const getClasses = () => api.get('/api/classes');
@@ -12,5 +13,7 @@ export const getOffers = () => api.get('/api/offers');
 export const createOffer = (data) => api.post('/api/offers', data);
 export const deleteOffer = (offerId) => api.delete(`/api/offers/${offerId}`);
 export const takeOffer = (offerId, takerNim) => api.post(`/api/offers/${offerId}/take`, { takerNim });
+export const getNotifications = () => api.get('/api/notifications');
+export const markAllNotificationsRead = () => api.patch('/api/notifications/read-all');
 
 export default api;

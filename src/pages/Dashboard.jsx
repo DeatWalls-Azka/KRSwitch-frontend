@@ -6,8 +6,10 @@ import SessionTypeTabs from '../components/SessionTypeTabs';
 import ClassCard from '../components/ClassCard';
 import BarterCard from '../components/BarterCard';
 import TradeConfirmationModal from '../components/TradeConfirmationModal';
+import NotificationModal from '../components/NotificationModal';
 import FilterButton from '../components/FilterButton';
-import CreateOfferForm from '../components/CreateOfferForm';import { getOffers, getUsers, getClasses, getEnrollments, getCurrentUser } from '../api';
+import CreateOfferForm from '../components/CreateOfferForm';
+import { getOffers, getUsers, getClasses, getEnrollments, getCurrentUser, getNotifications, markAllNotificationsRead } from '../api';
 
 const STAGGER_DELAY = 30;
 const ANIMATION_DURATION = 100;
@@ -34,8 +36,11 @@ export default function Dashboard() {
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [onlineCount, setOnlineCount] = useState(0);
-  
-  
+
+  // Notification state
+  const [notifications, setNotifications] = useState([]);
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
+
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [toasts, setToasts] = useState([]);
   const socketRef = useRef(null);
@@ -58,16 +63,22 @@ export default function Dashboard() {
     return start + (end - start) * factor;
   }, []);
 
+  // Unread count — derived from notifications state
+  const unreadCount = useMemo(() => {
+    return notifications.filter(n => !n.read).length;
+  }, [notifications]);
+
   // Load semua data di awal
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [usersRes, classesRes, enrollmentsRes, currentUserRes, offersRes] = await Promise.all([
+        const [usersRes, classesRes, enrollmentsRes, currentUserRes, offersRes, notificationsRes] = await Promise.all([
           getUsers(),
           getClasses(),
           getEnrollments(),
           getCurrentUser(),
-          getOffers()
+          getOffers(),
+          getNotifications()
         ]);
         
         setUsers(usersRes.data);
@@ -75,6 +86,7 @@ export default function Dashboard() {
         setEnrollments(enrollmentsRes.data);
         setCurrentUser(currentUserRes.data);
         setApiOffers(offersRes.data);
+        setNotifications(notificationsRes.data);
         setLoading(false);
       } catch (error) {
         console.error('Failed to fetch initial data:', error);
@@ -194,6 +206,12 @@ export default function Dashboard() {
       const id = Date.now();
       setToasts(prev => [...prev, { id, message }]);
       setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 5000);
+    });
+
+    // Real-time notification delivery buat user yang sedang online
+    socket.on('new-notification', (notification) => {
+      console.log('New notification received:', notification);
+      setNotifications(prev => [notification, ...prev]);
     });
 
     return () => socket.disconnect();
@@ -478,6 +496,21 @@ export default function Dashboard() {
     handleExitClick(offerId);
   };
 
+  // Tutup notification modal + mark all as read
+  const handleCloseNotificationModal = async () => {
+    setShowNotificationModal(false);
+
+    // Hanya hit API kalau ada yang belum dibaca
+    if (unreadCount > 0) {
+      try {
+        await markAllNotificationsRead();
+        setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      } catch (error) {
+        console.error('Failed to mark notifications as read:', error);
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center bg-gray-50">
@@ -505,6 +538,8 @@ export default function Dashboard() {
         isConnected={isConnected} 
         user={currentUser}
         onlineCount={onlineCount}
+        unreadCount={unreadCount}
+        onOpenNotifications={() => setShowNotificationModal(true)}
       />
       
       {/* COURSE TABS */}
@@ -646,6 +681,14 @@ export default function Dashboard() {
         onCancel={handleCancelOffer}
         currentUser={currentUser}
         mode={modalMode}
+      />
+
+      {/* NOTIFICATION MODAL */}
+      <NotificationModal
+        isOpen={showNotificationModal}
+        onClose={handleCloseNotificationModal}
+        notifications={notifications}
+        parallelClasses={parallelClasses}
       />
 
       {isFormOpen && (
