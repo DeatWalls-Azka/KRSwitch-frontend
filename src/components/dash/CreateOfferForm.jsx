@@ -1,12 +1,6 @@
 import { useState, useEffect } from 'react';
+import { getCurrentUser, getEnrollments, getClasses, createOffer } from '../../api';
 
-const API_BASE_URL = 'http://localhost:5000';
-
-/**
- * Cek apakah dua kelas bentrok jadwalnya.
- * Harus sama persis dengan logika di backend (index.ts -> hasScheduleConflict).
- * Dipakai untuk menandai opsi di dropdown sebelum request dikirim ke server.
- */
 function hasScheduleConflict(classA, classB) {
   if (classA.day !== classB.day) return false;
   return classA.timeStart < classB.timeEnd && classB.timeStart < classA.timeEnd;
@@ -33,27 +27,22 @@ export default function CreateOfferForm({ onSuccess, onClose }) {
     if (error || successMessage) setShowMessage(true);
   }, [error, successMessage]);
 
-  /**
-   * Ambil data awal: user saat ini, semua enrollment, semua kelas paralel.
-   * Enrollment user di-join manual dengan data kelas karena API tidak mengembalikan relasi.
-   */
   const fetchInitialData = async () => {
     try {
       setLoading(true);
       setError('');
 
-      const userResponse = await fetch(`${API_BASE_URL}/api/me`);
-      if (!userResponse.ok) throw new Error('Failed to fetch user data');
-      const userData = await userResponse.json();
+      const [userRes, enrollmentsRes, classesRes] = await Promise.all([
+        getCurrentUser(),
+        getEnrollments(),
+        getClasses()
+      ]);
+
+      const userData = userRes.data;
+      const enrollments = enrollmentsRes.data;
+      const classes = classesRes.data;
+
       setCurrentUser(userData);
-
-      const enrollmentsResponse = await fetch(`${API_BASE_URL}/api/enrollments`);
-      if (!enrollmentsResponse.ok) throw new Error('Failed to fetch enrollments');
-      const enrollments = await enrollmentsResponse.json();
-
-      const classesResponse = await fetch(`${API_BASE_URL}/api/classes`);
-      if (!classesResponse.ok) throw new Error('Failed to fetch classes');
-      const classes = await classesResponse.json();
       setAllClasses(classes);
 
       const userEnrollments = enrollments.filter(e => e.nim === userData.nim);
@@ -72,22 +61,15 @@ export default function CreateOfferForm({ onSuccess, onClose }) {
       });
       setMyClasses(enrichedClasses);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.error || err.message);
     } finally {
       setLoading(false);
     }
   };
 
   const currentClass = myClasses.find(m => m.id === parseInt(selectedMyClass));
-
-  // Kelas yang tetap dimiliki user setelah swap (tidak termasuk yang ditawarkan)
   const otherOwnClasses = currentClass ? myClasses.filter(m => m.id !== currentClass.id) : [];
 
-  /**
-   * Kelas paralel yang bisa jadi target: mata kuliah sama, tipe sama, beda kelas.
-   * Setiap opsi diberi flag conflictWith jika bentrok dengan kelas yang tetap dimiliki user.
-   * Flag ini hanya untuk UI — validasi final tetap di server.
-   */
   const availableTargets = allClasses
     .filter(c => {
       if (!currentClass) return false;
@@ -102,10 +84,6 @@ export default function CreateOfferForm({ onSuccess, onClose }) {
       conflictWith: otherOwnClasses.find(own => hasScheduleConflict(own, c)) || null
     }));
 
-  /**
-   * Kirim penawaran barter ke server.
-   * Server akan re-validasi semua kondisi, termasuk cek bentrok jadwal.
-   */
   const handleSubmit = async () => {
     setLoading(true);
     setError('');
@@ -113,29 +91,17 @@ export default function CreateOfferForm({ onSuccess, onClose }) {
     setShowMessage(false);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/offers`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          myClassId: parseInt(selectedMyClass),
-          wantedClassId: parseInt(selectedTargetClass),
-          offererNim: currentUser.nim
-        })
+      const res = await createOffer({
+        myClassId: parseInt(selectedMyClass),
+        wantedClassId: parseInt(selectedTargetClass),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create offer');
-      }
-
-      const data = await response.json();
       if (onSuccess) onSuccess();
-      setSuccessMessage(data.autoMatched
+      setSuccessMessage(res.data.autoMatched
         ? 'Auto-match! Pertukaran otomatis oleh sistem.'
         : 'Offer created successfully!'
       );
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.error || err.message);
     } finally {
       setLoading(false);
     }

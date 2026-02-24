@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
+import { takeOffer, deleteOffer } from '../../api';
 
 export default function TradeConfirmationModal({ 
   offer, 
@@ -20,16 +21,14 @@ export default function TradeConfirmationModal({
   const isCancel = mode === 'cancel';
 
   useEffect(() => {
-    if (!isOpen || !offer?.id) {
-      return;
-    }
+    if (!isOpen || !offer?.id) return;
 
     const socket = io('http://localhost:5000');
     
     socket.on('offer-taken', ({ offerId }) => {
       if (offer?.id && offerId === offer.id && !isProcessing && !successMessage) {
         setIsAvailable(false);
-        setErrorMessage(isCancel ? 'Penawaran sudah diambil orang lain' : 'Penawaran sudah diambil orang lain');
+        setErrorMessage('Penawaran sudah diambil orang lain');
         setIsProcessing(false);
       }
     });
@@ -49,9 +48,7 @@ export default function TradeConfirmationModal({
   }, [isOpen]);
 
   useEffect(() => {
-    if (errorMessage || successMessage) {
-      setShowMessage(true);
-    }
+    if (errorMessage || successMessage) setShowMessage(true);
   }, [errorMessage, successMessage]);
 
   const handleAccept = async () => {
@@ -63,29 +60,13 @@ export default function TradeConfirmationModal({
     setShowMessage(false);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/offers/${offer.id}/take`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ takerNim: currentUser.nim })
-      });
-
-      if (!response.ok) {
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          const error = await response.json();
-          throw new Error(error.error);
-        } else {
-          throw new Error(`Server returned ${response.status}`);
-        }
-      }
-
+      await takeOffer(offer.id, currentUser.nim);
       onAccept(offer.id);
       setIsAvailable(false);
       setSuccessMessage('Pertukaran berhasil diselesaikan!');
-    } catch (error) {
-      console.error('Penerimaan pertukaran gagal:', error);
+    } catch (err) {
       setIsAvailable(false);
-      setErrorMessage(error.message);
+      setErrorMessage(err.response?.data?.error || err.message);
     } finally {
       setIsProcessing(false);
     }
@@ -100,35 +81,16 @@ export default function TradeConfirmationModal({
     setShowMessage(false);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/offers/${offer.id}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' }
-      });
-
-      if (!response.ok) {
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          const error = await response.json();
-          throw new Error(error.error);
-        } else {
-          throw new Error(`Server returned ${response.status}`);
-        }
-      }
-
-      if (onCancel) {
-        onCancel(offer.id);
-      }
+      await deleteOffer(offer.id);
+      if (onCancel) onCancel(offer.id);
       setIsAvailable(false);
       setSuccessMessage('Penawaran berhasil dibatalkan!');
       
       // Tutup otomatis setelah 1 detik jika berhasil
-      setTimeout(() => {
-        handleClose();
-      }, 1000);
-    } catch (error) {
-      console.error('Pembatalan penawaran gagal:', error);
+      setTimeout(() => handleClose(), 1000);
+    } catch (err) {
       setIsAvailable(false);
-      setErrorMessage(error.message);
+      setErrorMessage(err.response?.data?.error || err.message);
     } finally {
       setIsProcessing(false);
     }
@@ -144,24 +106,14 @@ export default function TradeConfirmationModal({
 
   const handleClose = () => {
     setIsClosing(true);
-    setTimeout(() => {
-      onClose();
-    }, 150);
+    setTimeout(() => onClose(), 150);
   };
 
-  const handleBackdropClick = () => {
-    if (!isProcessing) {
-      handleClose();
-    }
-  };
+  const handleBackdropClick = () => { if (!isProcessing) handleClose(); };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Escape' && !isProcessing) {
-      handleClose();
-    }
-    if (e.key === 'Enter' && isAvailable && !isProcessing) {
-      handlePrimaryAction();
-    }
+    if (e.key === 'Escape' && !isProcessing) handleClose();
+    if (e.key === 'Enter' && isAvailable && !isProcessing) handlePrimaryAction();
   };
 
   if (!isOpen) return null;
@@ -176,17 +128,13 @@ export default function TradeConfirmationModal({
 
   return (
     <div 
-      className={`fixed inset-0 bg-gray-900/60 z-50 p-4 ${
-        isClosing ? 'animate-fadeOut' : 'animate-fadeIn'
-      }`}
+      className={`fixed inset-0 bg-gray-900/60 z-50 p-4 ${isClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`}
       onKeyDown={handleKeyDown}
       onClick={handleBackdropClick}
     >
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
         <div 
-          className={`bg-white rounded-lg shadow-2xl relative ${
-            isClosing ? 'animate-popDown' : 'animate-popUp'
-          }`}
+          className={`bg-white rounded-lg shadow-2xl relative ${isClosing ? 'animate-popDown' : 'animate-popUp'}`}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Floating Close Button */}
@@ -280,73 +228,15 @@ export default function TradeConfirmationModal({
       </div>
 
       <style jsx>{`
-        @keyframes popUp {
-          0% {
-            transform: scale(0.95);
-            opacity: 0;
-          }
-          100% {
-            transform: scale(1);
-            opacity: 1;
-          }
-        }
-
-        @keyframes popDown {
-          0% {
-            transform: scale(1);
-            opacity: 1;
-          }
-          100% {
-            transform: scale(0.95);
-            opacity: 0;
-          }
-        }
-
-        @keyframes fadeIn {
-          0% {
-            opacity: 0;
-          }
-          100% {
-            opacity: 1;
-          }
-        }
-
-        @keyframes fadeOut {
-          0% {
-            opacity: 1;
-          }
-          100% {
-            opacity: 0;
-          }
-        }
-
-        @keyframes shake {
-          0%, 100% {
-            transform: translateX(0);
-          }
-          25% {
-            transform: translateX(-3px);
-          }
-          75% {
-            transform: translateX(3px);
-          }
-        }
-
-        .animate-popUp {
-          animation: popUp 0.15s ease-out;
-        }
-
-        .animate-popDown {
-          animation: popDown 0.15s ease-out;
-        }
-
-        .animate-fadeIn {
-          animation: fadeIn 0.15s ease-out;
-        }
-
-        .animate-fadeOut {
-          animation: fadeOut 0.15s ease-out;
-        }
+        @keyframes popUp { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes popDown { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(0.95); opacity: 0; } }
+        @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+        @keyframes fadeOut { 0% { opacity: 1; } 100% { opacity: 0; } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+        .animate-popUp { animation: popUp 0.15s ease-out; }
+        .animate-popDown { animation: popDown 0.15s ease-out; }
+        .animate-fadeIn { animation: fadeIn 0.15s ease-out; }
+        .animate-fadeOut { animation: fadeOut 0.15s ease-out; }
       `}</style>
     </div>
   );

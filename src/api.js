@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5000'
+  baseURL: 'http://localhost:5000',
+  withCredentials: true,
 });
 
 // TODO: rapihin
@@ -15,5 +16,7 @@ export const deleteOffer = (offerId) => api.delete(`/api/offers/${offerId}`);
 export const takeOffer = (offerId, takerNim) => api.post(`/api/offers/${offerId}/take`, { takerNim });
 export const getNotifications = () => api.get('/api/notifications');
 export const markAllNotificationsRead = () => api.patch('/api/notifications/read-all');
+export const getSocketToken = () => api.get('/api/socket-token');
+
 
 export default api;

@@ -18,8 +18,11 @@ export default {
         }
       },
       animation: {
-        'slide-up': 'slide-up 0.4s ease-out both'  // Changed to 'both' instead of 'forwards'
-      }
+        'slide-up': 'slide-up 0.4s ease-out both'  
+      },
+      fontFamily: {
+         sans: ['JetBrains Mono', 'monospace'],
+      },
     },
   },
   plugins: [],

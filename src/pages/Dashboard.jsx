@@ -1,15 +1,15 @@
 import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import io from 'socket.io-client';
-import Header from '../components/Header';
-import CourseTabs from '../components/CourseTabs';
-import SessionTypeTabs from '../components/SessionTypeTabs';
-import ClassCard from '../components/ClassCard';
-import BarterCard from '../components/BarterCard';
-import TradeConfirmationModal from '../components/TradeConfirmationModal';
-import NotificationModal from '../components/NotificationModal';
-import FilterButton from '../components/FilterButton';
-import CreateOfferForm from '../components/CreateOfferForm';
-import { getOffers, getUsers, getClasses, getEnrollments, getCurrentUser, getNotifications, markAllNotificationsRead } from '../api';
+import Header from '../components/dash/Header';
+import CourseTabs from '../components/dash/CourseTabs';
+import SessionTypeTabs from '../components/dash/SessionTypeTabs';
+import ClassCard from '../components/dash/ClassCard';
+import BarterCard from '../components/dash/BarterCard';
+import TradeConfirmationModal from '../components/dash/TradeConfirmationModal';
+import NotificationModal from '../components/dash/NotificationModal';
+import FilterButton from '../components/dash/FilterButton';
+import CreateOfferForm from '../components/dash/CreateOfferForm';
+import { getOffers, getUsers, getClasses, getEnrollments, getCurrentUser, getNotifications, markAllNotificationsRead, getSocketToken } from '../api';
 
 const STAGGER_DELAY = 30;
 const ANIMATION_DURATION = 100;
@@ -97,11 +97,14 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
-  // Authenticate ke socket room setelah currentUser tersedia
-  // Harus dipisah dari socket useEffect karena currentUser diload async
+  // Authenticate ke socket room setelah currentUser tersedia.
+  // Fetch short-lived socket token dari server — jangan kirim NIM mentah.
+  // Harus dipisah dari socket useEffect karena currentUser diload async.
   useEffect(() => {
     if (currentUser && socketRef.current) {
-      socketRef.current.emit('authenticate', currentUser.nim);
+      getSocketToken()
+        .then(res => socketRef.current?.emit('authenticate', res.data.token))
+        .catch(err => console.error('Failed to get socket token:', err));
     }
   }, [currentUser]);
 
