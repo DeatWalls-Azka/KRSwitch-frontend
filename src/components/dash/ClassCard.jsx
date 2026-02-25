@@ -15,6 +15,8 @@ export default function ClassCard({ classItem, index = 0, activeOffers = [], cur
     return activeOffers.find(offer => offer.nim === nim);
   };
 
+  const isCurrentUserInClass = classItem.students.some(s => s.nim === currentUserNim);
+
   return (
     <div 
       className={`min-w-[300px] max-w-[300px] border-2 border-green-600 rounded-md bg-white flex flex-col h-fit max-h-full flex-shrink-0 shadow-md transition-all duration-300 ${
@@ -24,6 +26,11 @@ export default function ClassCard({ classItem, index = 0, activeOffers = [], cur
       <div className="bg-green-100 p-3 border-b border-gray-200 rounded-t flex-shrink-0">
         <div className="flex justify-between items-center">
           <h3 className="text-sm font-bold text-green-600 m-0">{classItem.code}</h3>
+          {isCurrentUserInClass && (
+            <span className="text-[9px] font-bold text-white bg-green-600 px-1.5 py-0.5 rounded-sm">
+              YOU
+            </span>
+          )}
         </div>
         <p className="text-[10px] text-gray-500">{classItem.day} · {classItem.time}</p>
       </div>
@@ -60,22 +67,28 @@ export default function ClassCard({ classItem, index = 0, activeOffers = [], cur
                       {String(idx + 1).padStart(2, '0')}
                     </td>
                     <td className="px-3 py-2 border-t border-gray-100 text-[11px]">
-                      <span className="relative inline-block">
-                        <span className={isCurrentUser ? 'font-bold text-gray-900' : 'text-gray-900'}>
-                          {student.name}
+                      <span className="relative flex items-center gap-1">
+                        {/* name - truncate jadi ... kalo kepanjangn */}
+                        <span
+                          className="relative shrink-0"
+                          style={{ maxWidth: isCurrentUser ? '75px' : '120px' }}
+                        >
+                          <span
+                            className={`truncate block ${isCurrentUser ? 'font-bold text-gray-900' : 'text-gray-900'}`}
+                            title={student.name}
+                          >
+                            {student.name}
+                          </span>
+                          {hasOffer && (
+                            <span className="absolute -top-0.5 -right-1.5 flex h-1 w-1">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-600 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-1 w-1 bg-red-600"></span>
+                            </span>
+                          )}
                         </span>
-                        
+
                         {isCurrentUser && (
-                          <span className="ml-1 text-gray-900 font-bold">
-                            (YOU)
-                          </span>
-                        )}
-                        
-                        {hasOffer && (
-                          <span className="absolute -top-0.5 -right-2 flex h-1 w-1">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-600 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-1 w-1 bg-red-600"></span>
-                          </span>
+                          <span className="shrink-0 font-bold text-gray-900">#YOU</span>
                         )}
                       </span>
                     </td>
