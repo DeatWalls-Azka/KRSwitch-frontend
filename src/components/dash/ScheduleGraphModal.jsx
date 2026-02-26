@@ -377,7 +377,7 @@ export default function ScheduleGraphModal({
             </div>
 
             {/* Grid jadwal */}
-            <div className="flex flex-1 min-h-0 overflow-hidden p-3 gap-2">
+            <div className="flex flex-1 min-h-0 overflow-hidden p-3 pb-4 gap-2">
               {!hasSchedule ? (
                 <div className="flex flex-1 items-center justify-center text-gray-400 text-sm">Tidak ada jadwal.</div>
               ) : (
@@ -503,23 +503,20 @@ export default function ScheduleGraphModal({
               )}
             </div>
 
-          </div>
-
-          {/* footer di luar card biar ga nutup grid */}
-          <div
-            className="px-1 pt-2 flex items-center justify-between"
-          >
-            <p className="text-[11px] text-gray-400">Jadwal diperbarui otomatis setelah pertukaran berhasil.</p>
-            <div className="flex items-center gap-4">
-              {presentTypes.map(p => {
-                const s = getClassTypeStyle(`${p}1`);
-                return (
-                  <div key={p} className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-sm border-2" style={{ backgroundColor: s.bg, borderColor: s.border }} />
-                    <span className="text-[11px] font-bold text-gray-400">{s.label}</span>
-                  </div>
-                );
-              })}
+            {/* footer, ga ikut di-export */}
+            <div data-export-exclude className="px-5 py-2.5 border-t border-gray-200 bg-gray-50 flex items-center justify-between flex-shrink-0">
+              <p className="text-[11px] text-gray-400">Jadwal diperbarui otomatis setelah pertukaran berhasil.</p>
+              <div className="flex items-center gap-4">
+                {presentTypes.map(p => {
+                  const s = getClassTypeStyle(`${p}1`);
+                  return (
+                    <div key={p} className="flex items-center gap-1.5">
+                      <span className="w-3 h-3 rounded-sm border-2" style={{ backgroundColor: s.bg, borderColor: s.border }} />
+                      <span className="text-[11px] font-bold text-gray-600">{s.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
