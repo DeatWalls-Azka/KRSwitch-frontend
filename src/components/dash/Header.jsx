@@ -2,7 +2,14 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api';
 
-export default function Header({ isConnected = false, user = null, onlineCount = 0, unreadCount = 0, onOpenNotifications }) {
+export default function Header({
+  isConnected = false,
+  user = null,
+  onlineCount = 0,
+  unreadCount = 0,
+  onOpenNotifications,
+  onOpenSchedule,    
+}) {
   const displayName  = user?.name  || 'Loading...';
   const displayNim   = user?.nim   || '—';
   const displayEmail = user?.email || '';
@@ -16,11 +23,10 @@ export default function Header({ isConnected = false, user = null, onlineCount =
 
   const closeDropdown = useCallback(() => setDropdownOpen(false), []);
 
-  // Proximity-based closing biar keren
+  // Proximity-based closing
   const handleMouseMove = useCallback((e) => {
     if (!dropdownOpen || !dropdownRef.current) return;
 
-    // Check the wrapper + each direct child (trigger + dropdown panel)
     const elements = [dropdownRef.current, ...Array.from(dropdownRef.current.children)];
     const inside = elements.some(el => {
       const rect = el.getBoundingClientRect();
@@ -100,14 +106,13 @@ export default function Header({ isConnected = false, user = null, onlineCount =
             </svg>
           </button>
 
-          {/* Dropdown — grid-template-rows animation, same as NotificationRow */}
+          {/* Dropdown */}
           <div
             className="absolute right-0 top-full mt-1.5 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50 overflow-hidden"
             style={{
               display: 'grid',
               gridTemplateRows: dropdownOpen ? '1fr' : '0fr',
               transition: 'grid-template-rows 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-              // Hide border/shadow when fully closed
               opacity: dropdownOpen ? 1 : 0,
               pointerEvents: dropdownOpen ? 'auto' : 'none',
               transitionProperty: 'grid-template-rows, opacity',
@@ -138,6 +143,22 @@ export default function Header({ isConnected = false, user = null, onlineCount =
             </div>
           </div>
         </div>
+
+        {/* Schedule Graph button */}
+        <button
+          onClick={onOpenSchedule}
+          aria-label="Lihat jadwal"
+          title="Jadwal Kuliah"
+          className="relative flex items-center justify-center w-8 h-8 text-gray-500 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
+        >
+          {/* Calendar grid icon */}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8"  y1="2" x2="8"  y2="6" />
+            <line x1="3"  y1="10" x2="21" y2="10" />
+          </svg>
+        </button>
 
         {/* Bell */}
         <button

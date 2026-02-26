@@ -9,6 +9,7 @@ import TradeConfirmationModal from '../components/dash/TradeConfirmationModal';
 import NotificationModal from '../components/dash/NotificationModal';
 import FilterButton from '../components/dash/FilterButton';
 import CreateOfferForm from '../components/dash/CreateOfferForm';
+import ScheduleGraphModal from '../components/dash/ScheduleGraphModal';
 import { getOffers, getUsers, getClasses, getEnrollments, getCurrentUser, getNotifications, markAllNotificationsRead, getSocketToken } from '../api';
 
 const STAGGER_DELAY = 30;
@@ -36,6 +37,7 @@ export default function Dashboard() {
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [onlineCount, setOnlineCount] = useState(0);
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
 
   // Notification state
   const [notifications, setNotifications] = useState([]);
@@ -543,6 +545,7 @@ export default function Dashboard() {
         onlineCount={onlineCount}
         unreadCount={unreadCount}
         onOpenNotifications={() => setShowNotificationModal(true)}
+        onOpenSchedule={() => setShowScheduleModal(true)}
       />
       
       {/* COURSE TABS */}
@@ -692,6 +695,15 @@ export default function Dashboard() {
         onClose={handleCloseNotificationModal}
         notifications={notifications}
         parallelClasses={parallelClasses}
+      />
+
+      {/* SCHEDULE GRAPH MODAL */}
+      <ScheduleGraphModal
+        isOpen={showScheduleModal}
+        onClose={() => setShowScheduleModal(false)}
+        enrollments={enrollments}
+        parallelClasses={parallelClasses}
+        currentUser={currentUser}
       />
 
       {isFormOpen && (
