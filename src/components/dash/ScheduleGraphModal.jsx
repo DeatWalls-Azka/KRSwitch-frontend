@@ -284,7 +284,7 @@ export default function ScheduleGraphModal({
         onClick={handleClose}
         onMouseMove={e => { mousePos.current = { x: e.clientX, y: e.clientY }; }}
       >
-        <div className="relative w-full max-w-4xl" style={{ height: '80vh' }}>
+        <div className="relative" style={{ width: '60vw', height: '80vh' }}>
 
           <button
             onClick={handleClose}
