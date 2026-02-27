@@ -426,9 +426,9 @@ export default function ScheduleGraphModal({
                               const s       = getClassTypeStyle(pc.classCode);
                               const topPct  = toTopPct(toMinutes(pc.timeStart));
                               const hPct    = toDurationPct(toMinutes(pc.timeEnd) - toMinutes(pc.timeStart));
-                              const isFull  = hPct >= 15;
-                              const isShort = hPct >= 8;
-                              const isTiny  = hPct >= 3;
+                              const isFull  = hPct >= 10;  
+                              const isShort = hPct >= 5;   
+                              const isTiny  = hPct >= 2;  
                               return (
                                 <div
                                   key={pc.id}
