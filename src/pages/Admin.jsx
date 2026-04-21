@@ -1,44 +1,61 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../api';
+
+// Import komponen-komponen kecil yang baru dibuat
+import UploadScheduleCard from "../components/dash/admin/UploadScheduleCard";
+import SystemStatsCard from "../components/dash/admin/SystemStatsCard";
+import ExportRecapCard from "../components/dash/admin/ExportRecapCard";
+import DangerZoneCard from "../components/dash/admin/DangerZoneCard";
 
 export default function Admin() {
+  const navigate = useNavigate();
+  const [stats, setStats] = useState({
+    totalClasses: 0, activeOffers: 0, successfulTrades: 0, totalStudents: 0
+  });
+
+  const fetchStats = async () => {
+    try {
+      const res = await api.get('/api/admin/stats');
+      setStats(res.data);
+    } catch (err) {
+      console.error('Gagal mengambil statistik:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-gray-50 p-8 font-mono">
       {/* Header Admin */}
       <div className="max-w-4xl mx-auto flex justify-between items-center mb-10">
         <div>
-          <h1 className="text-3xl font-black text-slate-900">Admin Panel</h1>
-          <p className="text-slate-500">Khusus Komti - Manajemen Jadwal KRSwitch</p>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Admin Panel</h1>
+          <p className="text-slate-500 text-sm mt-1">Manajemen Jadwal & Sistem KRSwitch</p>
         </div>
-        <a href="/" className="text-sm font-semibold text-blue-600 hover:underline">
-          Kembali ke Dashboard
-        </a>
+        <button 
+          onClick={() => navigate('/')} 
+          className="text-xs font-bold px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors"
+        >
+          KEMBALI KE DASHBOARD
+        </button>
       </div>
 
-      <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Card 1: Upload Data */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-          <h2 className="text-lg font-bold mb-4 text-slate-800">Upload Jadwal Baru</h2>
-          <div className="border-2 border-dashed border-slate-200 rounded-xl p-10 text-center hover:border-blue-400 transition-colors cursor-pointer">
-            <p className="text-sm text-slate-500">Klik atau seret file CSV jadwal di sini</p>
+      <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+        {/* Kolom Kiri */}
+        <div className="md:col-span-2 flex flex-col gap-6">
+          <UploadScheduleCard onSuccess={fetchStats} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <ExportRecapCard />
+            <DangerZoneCard onSuccess={fetchStats} />
           </div>
-          <button className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
-            Proses Jadwal
-          </button>
         </div>
 
-        {/* Card 2: Statistik Ringkas */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-          <h2 className="text-lg font-bold mb-4 text-slate-800">Status Sistem</h2>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
-              <span className="text-sm text-slate-600">Total Jadwal</span>
-              <span className="font-bold text-slate-900">124</span>
-            </div>
-            <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
-              <span className="text-sm text-slate-600">Permintaan Tukar</span>
-              <span className="font-bold text-blue-600">12 Aktif</span>
-            </div>
-          </div>
+        {/* Kolom Kanan */}
+        <div className="flex flex-col gap-6">
+          <SystemStatsCard stats={stats} />
         </div>
       </div>
     </div>

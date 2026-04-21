@@ -17,6 +17,11 @@ export const takeOffer = (offerId, takerNim) => api.post(`/api/offers/${offerId}
 export const getNotifications = () => api.get('/api/notifications');
 export const markAllNotificationsRead = () => api.patch('/api/notifications/read-all');
 export const getSocketToken = () => api.get('/api/socket-token');
-
+export const getAdminStats = () => api.get('/api/admin/stats');
+export const uploadScheduleCsv = (formData) => api.post('/api/admin/upload-schedule', formData, {
+  headers: { 'Content-Type': 'multipart/form-data' }
+});
+export const purgeAllOffers = () => api.delete('/api/admin/purge-offers');
+export const exportRecapSchedules = () => api.get('/api/admin/export-recap', { responseType: 'blob' });
 
 export default api;
