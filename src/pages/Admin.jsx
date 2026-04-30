@@ -2,16 +2,20 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
-// Import komponen-komponen kecil yang baru dibuat
+// 1. Pastikan Path Import BENAR sesuai struktur folder kamu
 import UploadScheduleCard from "../components/dash/admin/UploadScheduleCard";
 import SystemStatsCard from "../components/dash/admin/SystemStatsCard";
 import ExportRecapCard from "../components/dash/admin/ExportRecapCard";
 import DangerZoneCard from "../components/dash/admin/DangerZoneCard";
+import AdminLogTable from '../components/dash/admin/AdminLogTable';
 
 export default function Admin() {
   const navigate = useNavigate();
   const [stats, setStats] = useState({
-    totalClasses: 0, activeOffers: 0, successfulTrades: 0, totalStudents: 0
+    totalClasses: 0, 
+    activeOffers: 0, 
+    successfulTrades: 0, 
+    totalStudents: 0
   });
 
   const fetchStats = async () => {
@@ -43,19 +47,27 @@ export default function Admin() {
         </button>
       </div>
 
-      <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-        {/* Kolom Kiri */}
-        <div className="md:col-span-2 flex flex-col gap-6">
-          <UploadScheduleCard onSuccess={fetchStats} />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <ExportRecapCard />
-            <DangerZoneCard onSuccess={fetchStats} />
+      <div className="max-w-4xl mx-auto flex flex-col gap-6">
+        {/* Row 1: Controls & Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+          {/* Kolom Kiri: Upload & Buttons */}
+          <div className="md:col-span-2 flex flex-col gap-6">
+            <UploadScheduleCard onSuccess={fetchStats} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <ExportRecapCard />
+              <DangerZoneCard onSuccess={fetchStats} />
+            </div>
+          </div>
+
+          {/* Kolom Kanan: Info Statis */}
+          <div className="flex flex-col gap-6">
+            <SystemStatsCard stats={stats} />
           </div>
         </div>
 
-        {/* Kolom Kanan */}
-        <div className="flex flex-col gap-6">
-          <SystemStatsCard stats={stats} />
+        {/* Row 2: Logging (Full Width di bawah) */}
+        <div className="w-full mt-4">
+          <AdminLogTable />
         </div>
       </div>
     </div>
