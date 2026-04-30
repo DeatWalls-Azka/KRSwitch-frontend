@@ -46,11 +46,10 @@ export default function Admin() {
       </div>
 
       <div className="max-w-4xl mx-auto flex flex-col gap-8">
-        
-        {/* BARIS ATAS: Menggunakan Grid 3 Kolom untuk Kontrol Utama */}
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
           
-          {/* Kolom Kiri (2 Bagian): Kontrol & Edit */}
+
           <div className="md:col-span-2 flex flex-col gap-6">
             <UploadScheduleCard onSuccess={fetchStats} />
             <StudentManagementCard />
@@ -61,14 +60,14 @@ export default function Admin() {
             </div>
           </div>
 
-          {/* Kolom Kanan (1 Bagian): Status & Manual Override (Static, Tidak Sticky) */}
+      
           <div className="flex flex-col gap-6">
             <SystemStatsCard stats={stats} />
             <ManualOverrideCard /> 
           </div>
         </div>
 
-        {/* BARIS BAWAH: Tabel Logging (Lebar Penuh/Full Width) */}
+    
         <div className="w-full">
           <AdminLogTable />
         </div>
