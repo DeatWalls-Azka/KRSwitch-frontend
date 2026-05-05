@@ -96,15 +96,15 @@ export default function BarterCard({
 
             {/* Left Course Name*/}
             <div className="min-w-0">
-              <div className="text-gray-900 truncate font-bold text-xs md:hidden" title={offer.seekingCourseName}>
+              <div className="text-gray-900 truncate font-bold text-[12px] md:hidden mb-[-3px]" title={offer.seekingCourseName}>
                 {offer.seekingCourseName}
               </div>
-              <div className="font-medium font-mono text-gray-400 text-[11px] truncate md:hidden">{offer.studentName}</div>
+              <div className="font-medium font-mono text-gray-400 text-[10px] truncate md:hidden">{offer.studentName}</div>
 
-              <div className="hidden md:block text-gray-900 truncate font-bold text-[14px]" title={offer.seekingCourseName}>
+              <div className="hidden md:block mb-[-3px] text-gray-900 truncate font-bold text-[12px]" title={offer.seekingCourseName}>
                 {offer.seekingCourseName}
               </div>
-              <div className="hidden md:block font-medium font-sans text-gray-400 text-xs truncate">{offer.studentName}</div>
+              <div className="hidden md:block font-medium font-sans text-gray-400 text-[10px] truncate">{offer.studentName}</div>
             </div>
 
             {/* Middle codes */}
