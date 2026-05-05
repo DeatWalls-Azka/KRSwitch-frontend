@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { markAllNotificationsRead } from '../api';
 
 import Header from '../components/dash/Header';
@@ -8,15 +8,18 @@ import ClassCard from '../components/dash/ClassCard';
 import BarterCard from '../components/dash/BarterCard';
 import TradeConfirmationModal from '../components/dash/TradeConfirmationModal';
 import NotificationModal from '../components/dash/NotificationModal';
+import ScheduleGraphModal from '../components/dash/ScheduleGraphModal';
 import FilterButton from '../components/dash/FilterButton';
 import CreateOfferForm from '../components/dash/CreateOfferForm';
-import ScheduleGraphModal from '../components/dash/ScheduleGraphModal';
 
 import { useDashboardData } from '../hooks/useDashboardData';
 import { useSocket } from '../hooks/useSocket';
 import { useOfferAnimations } from '../hooks/useOfferAnimations';
 import { useTooltip } from '../hooks/useTooltip';
 import { enrichOffer, getStudentsInClass, hasScheduleConflict } from '../utils/offerUtils';
+
+// Height of the peek bar that's always visible when drawer is closed
+const PEEK_H = 64;
 
 export default function Dashboard() {
   // --- UI state -----------------------------------------------
@@ -31,6 +34,14 @@ export default function Dashboard() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
+
+  // Mobile drawer state
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const touchStartYRef = useRef(null);
+
+  // Refs for mobile card centering
+  const userCardRef = useRef(null);
+  const cardScrollContainerRef = useRef(null);
 
   // --- Data ---------------------------------------------------
   const {
@@ -90,12 +101,8 @@ export default function Dashboard() {
 
   // --- Socket -------------------------------------------------
   const { socketRef, isConnected, onlineCount, toasts, setToasts } = useSocket({
-    currentUser,
-    usersRef,
-    parallelClassesRef,
-    setApiOffers,
-    setEnrollments,
-    setNotifications,
+    currentUser, usersRef, parallelClassesRef,
+    setApiOffers, setEnrollments, setNotifications,
     exitingOffersCache,
   });
 
@@ -110,6 +117,35 @@ export default function Dashboard() {
   useEffect(() => {
     setSelectedSessionType('kuliah');
   }, [selectedCourse?.code]);
+
+  // --- Center user's class card on mobile after card animations settle ---
+  useEffect(() => {
+    if (typeof window === 'undefined' || window.innerWidth >= 768) return;
+
+    // Delay lets card enter-animations finish before scrolling
+    const timeout = setTimeout(() => {
+      const card = userCardRef.current;
+      const container = cardScrollContainerRef.current;
+      if (!card || !container) return;
+
+      // getBoundingClientRect gives viewport-relative positions that are always
+      // accurate regardless of offsetParent chain, padding, or intermediate wrappers.
+      // We combine it with the container's current scrollLeft to get the true
+      // document-relative position, then center from there.
+      const containerRect = container.getBoundingClientRect();
+      const cardRect = card.getBoundingClientRect();
+
+      const targetScrollLeft =
+        container.scrollLeft +               // current scroll offset
+        cardRect.left - containerRect.left + // card's position within container
+        cardRect.width / 2 -                 // move to card center
+        containerRect.width / 2;             // subtract half container width
+
+      container.scrollTo({ left: targetScrollLeft, behavior: 'smooth' });
+    }, 400);
+
+    return () => clearTimeout(timeout);
+  }, [selectedCourse?.code, selectedSessionType, myEnrollmentMap]);
 
   // --- Handlers -----------------------------------------------
   const handleExitClick = (offerId) => {
@@ -135,6 +171,19 @@ export default function Dashboard() {
     }
   };
 
+  // --- Mobile drawer touch handlers ---------------------------
+  const handleDrawerTouchStart = (e) => {
+    touchStartYRef.current = e.touches[0].clientY;
+  };
+
+  const handleDrawerTouchEnd = (e) => {
+    if (touchStartYRef.current === null) return;
+    const dy = touchStartYRef.current - e.changedTouches[0].clientY;
+    if (dy > 40) setDrawerOpen(true);
+    else if (dy < -40) setDrawerOpen(false);
+    touchStartYRef.current = null;
+  };
+
   // --- Render -------------------------------------------------
   if (loading) {
     return (
@@ -156,6 +205,43 @@ export default function Dashboard() {
     );
   });
 
+  // Shared barter feed content (used in both desktop panel and mobile drawer)
+  const barterFeedContent = (
+    <>
+      {offersToDisplay.length > 0 ? (
+        offersToDisplay.map((offer, index) => {
+          const isExiting = exitingOfferIds.has(offer.id);
+          const isEntering = enteringOfferIds.has(offer.id);
+          const incomingClass = parallelClasses.find(
+            pc => pc.courseCode === offer.seekingCourse && pc.classCode === offer.offeringClass
+          );
+          const conflictsWithSchedule = offer.nim !== currentUser?.nim && incomingClass
+            ? hasScheduleConflict(incomingClass.id, currentUser?.nim, enrollments, parallelClasses)
+            : false;
+
+          return (
+            <BarterCard
+              key={offer.id}
+              offer={offer}
+              index={index}
+              exitIndex={isExiting ? exitingOfferIds.get(offer.id) : 0}
+              shouldExit={isExiting}
+              shouldEnter={isEntering}
+              canAccept={myEnrollmentMap[offer.seekingCourse] === offer.seekingClass}
+              conflictsWithSchedule={conflictsWithSchedule}
+              isOwnOffer={offer.nim === currentUser?.nim}
+              onAnimationComplete={() => {}}
+              onExitClick={handleExitClick}
+              onOpenModal={handleOpenModal}
+            />
+          );
+        })
+      ) : (
+        <p className="text-center py-10 px-5 text-gray-500 text-sm">No active offers</p>
+      )}
+    </>
+  );
+
   return (
     <div className="h-screen flex flex-col font-mono bg-gray-50">
       <Header
@@ -175,36 +261,42 @@ export default function Dashboard() {
 
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
 
-        {/* Kiri: class cards */}
-        <div className="flex-1 min-w-0 border-r border-gray-200 flex flex-col order-2 md:order-1 h-full">
+        {/* Class cards — full width on mobile (pb accounts for drawer peek bar) */}
+        <div className="flex-1 min-w-0 md:border-r border-gray-200 flex flex-col overflow-hidden pb-16 md:pb-0">
           <SessionTypeTabs
             courseType={selectedCourse.type}
             selectedSessionType={selectedSessionType}
             onSessionTypeSelect={setSelectedSessionType}
           />
-          <div className="flex-1 flex gap-3 overflow-x-auto overflow-y-hidden p-4 bg-gray-50">
-            {filteredClasses.map((pc, index) => (
-              <ClassCard
-                key={pc.id}
-                index={index}
-                classItem={{
-                  code: pc.classCode,
-                  day: pc.day,
-                  time: `${pc.timeStart}-${pc.timeEnd}`,
-                  room: pc.room,
-                  students: getStudentsInClass(pc.id, enrollments, users),
-                }}
-                activeOffers={enrichedOffers.filter(o => o.myClassId === pc.id)}
-                currentUserNim={currentUser?.nim}
-                onTooltipChange={setTooltipContent}
-                onMouseMove={handleMouseMove}
-              />
-            ))}
+          <div ref={cardScrollContainerRef} className="flex-1 flex gap-1 overflow-x-auto overflow-y-hidden p-4 bg-gray-50">
+            {filteredClasses.map((pc, index) => {
+              const isUserClass = myEnrollmentMap[selectedCourse.code] === pc.classCode;
+              const card = (
+                <ClassCard
+                  key={pc.id}
+                  index={index}
+                  classItem={{
+                    code: pc.classCode,
+                    day: pc.day,
+                    time: `${pc.timeStart}-${pc.timeEnd}`,
+                    room: pc.room,
+                    students: getStudentsInClass(pc.id, enrollments, users),
+                  }}
+                  activeOffers={enrichedOffers.filter(o => o.myClassId === pc.id)}
+                  currentUserNim={currentUser?.nim}
+                  onTooltipChange={setTooltipContent}
+                  onMouseMove={handleMouseMove}
+                />
+              );
+              return isUserClass
+                ? <div key={pc.id} ref={userCardRef}>{card}</div>
+                : card;
+            })}
           </div>
         </div>
 
-        {/* Kanan: barter feed */}
-        <div className="w-full md:w-117.5 shrink-0 bg-white flex flex-col overflow-hidden order-1 md:order-2 border-b md:border-b-0 md:border-l border-gray-200 h-[40%] md:h-auto">
+        {/* Desktop barter panel — hidden on mobile */}
+        <div className="hidden md:flex w-117.5 shrink-0 bg-white flex-col overflow-hidden border-l border-gray-200">
           <div className="flex flex-col items-left px-4 py-3 bg-gray-50 shrink-0 border-b border-gray-200">
             <div className="flex flex-row gap-1 items-center">
               <div className="mr-auto flex flex-col items-left">
@@ -224,38 +316,7 @@ export default function Dashboard() {
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
-            {offersToDisplay.length > 0 ? (
-              offersToDisplay.map((offer, index) => {
-                const isExiting = exitingOfferIds.has(offer.id);
-                const isEntering = enteringOfferIds.has(offer.id);
-
-                const incomingClass = parallelClasses.find(
-                  pc => pc.courseCode === offer.seekingCourse && pc.classCode === offer.offeringClass
-                );
-                const conflictsWithSchedule = offer.nim !== currentUser?.nim && incomingClass
-                  ? hasScheduleConflict(incomingClass.id, currentUser?.nim, enrollments, parallelClasses)
-                  : false;
-
-                return (
-                  <BarterCard
-                    key={offer.id}
-                    offer={offer}
-                    index={index}
-                    exitIndex={isExiting ? exitingOfferIds.get(offer.id) : 0}
-                    shouldExit={isExiting}
-                    shouldEnter={isEntering}
-                    canAccept={myEnrollmentMap[offer.seekingCourse] === offer.seekingClass}
-                    conflictsWithSchedule={conflictsWithSchedule}
-                    isOwnOffer={offer.nim === currentUser?.nim}
-                    onAnimationComplete={() => {}}
-                    onExitClick={handleExitClick}
-                    onOpenModal={handleOpenModal}
-                  />
-                );
-              })
-            ) : (
-              <p className="text-center py-10 px-5 text-gray-500 text-sm">No active offers</p>
-            )}
+            {barterFeedContent}
           </div>
 
           <div className="p-4 bg-gray-50 border-t border-gray-200">
@@ -268,6 +329,89 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* ── Mobile bottom drawer ─────────────────────────────── */}
+
+      {/* Backdrop — dims content when drawer is fully open */}
+      <div
+        className="md:hidden fixed inset-0 z-30 bg-black/30 pointer-events-none"
+        style={{
+          opacity: drawerOpen ? 1 : 0,
+          transition: 'opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+          pointerEvents: drawerOpen ? 'auto' : 'none',
+        }}
+        onClick={() => setDrawerOpen(false)}
+      />
+
+      {/* Drawer */}
+      <div
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 h-[88vh] bg-white rounded-t-2xl shadow-2xl flex flex-col border-t border-gray-200"
+        style={{
+          transform: drawerOpen ? 'translateY(0)' : `translateY(calc(88vh - ${PEEK_H}px))`,
+          transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+        }}
+        onTouchStart={handleDrawerTouchStart}
+        onTouchEnd={handleDrawerTouchEnd}
+      >
+        {/* Peek bar — always visible, tappable to toggle */}
+        <div
+          className="shrink-0 px-4 pt-2.5 pb-15 cursor-pointer select-none"
+          style={{ height: PEEK_H }}
+          onClick={() => setDrawerOpen(prev => !prev)}
+        >
+          {/* Drag handle pill */}
+          <div className="flex justify-center mb-2">
+            <div className="w-8 h-1 rounded-full bg-gray-300" />
+          </div>
+
+          {/* Title + quick create */}
+          <div className="flex items-center gap-2">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5">
+                <h2 className="text-[12px] font-bold text-gray-900 ">LIVE BARTER FEED</h2>
+              </div>
+              <p className="text-[12px] text-gray-500 ">
+                {offersToDisplay.length === 0 ? 'No active offers' : `${offersToDisplay.length} active offer${offersToDisplay.length !== 1 ? 's' : ''}`}
+              </p>
+            </div>
+            <button
+              onClick={(e) => { e.stopPropagation(); setIsFormOpen(true); }}
+              className="shrink-0 bg-green-600 text-white text-[11px] font-bold py-1.5 px-3 rounded-sm hover:bg-green-700 active:bg-green-800 transition-colors whitespace-nowrap"
+            >
+              + CREATE
+            </button>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="h-px bg-gray-200 shrink-0" />
+
+        {/* Drawer body — filters + scrollable offer list */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Filter row */}
+          <div className="flex items-center gap-1 px-4 py-2 bg-gray-50 border-b border-gray-200 shrink-0 overflow-x-auto [&::-webkit-scrollbar]:hidden">
+            <button
+              onClick={() => setFilterByCourse(!filterByCourse)}
+              className="shrink-0"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-600">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+              </svg>
+            </button>
+            <p className="text-[11px] font-bold text-gray-600 shrink-0">:</p>
+            <FilterButton label={selectedCourse.code} isActive={filterByCourse} onClick={() => setFilterByCourse(!filterByCourse)} />
+            <FilterButton label="FOR YOU" isActive={filterForYou} onClick={() => setFilterForYou(!filterForYou)} />
+            <FilterButton label="BY YOU" isActive={filterByYou} onClick={() => setFilterByYou(!filterByYou)} />
+          </div>
+
+          {/* Offer list */}
+          <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+            {barterFeedContent}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Modals & overlays ────────────────────────────────── */}
 
       <TradeConfirmationModal
         offer={modalOffer || {}}
@@ -299,8 +443,9 @@ export default function Dashboard() {
         <CreateOfferForm onSuccess={() => {}} onClose={() => setIsFormOpen(false)} />
       )}
 
+      {/* Toasts — offset above the drawer peek bar on mobile */}
       {toasts.length > 0 && (
-        <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
+        <div className="fixed bottom-20 md:bottom-4 right-4 z-50 flex flex-col gap-2">
           {toasts.map(toast => (
             <div key={toast.id} className="bg-red-600 text-white text-xs font-bold px-4 py-3 rounded shadow-lg max-w-xs flex items-start gap-2">
               <span className="shrink-0">⚠</span>
@@ -316,10 +461,11 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* Tooltip — desktop only, pointless on touch */}
       {tooltipContent && (
         <div
           id="custom-tooltip"
-          className="fixed pointer-events-none z-99999 transition-opacity duration-150"
+          className="hidden md:block fixed pointer-events-none z-[99999] transition-opacity duration-150"
           style={{
             transform: `translate(${tooltipPos.current.x + 15}px, ${tooltipPos.current.y + 15}px)`,
             opacity: tooltipVisible ? 1 : 0,
