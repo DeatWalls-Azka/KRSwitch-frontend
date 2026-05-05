@@ -419,9 +419,9 @@ export default function Dashboard() {
             </div>
             <button
               onClick={(e) => { e.stopPropagation(); setIsFormOpen(true); }}
-              className="shrink-0 bg-green-600 text-white text-[11px] font-bold py-1.5 px-3 rounded-sm hover:bg-green-700 active:bg-green-800 transition-colors whitespace-nowrap"
+              className="shrink-0 bg-green-600 text-white text-[11px] font-bold pb-1 pt-2 px-3 rounded-sm hover:bg-green-700 active:bg-green-800 transition-colors whitespace-nowrap"
             >
-              + CREATE
+              CREATE OFFER
             </button>
           </div>
         </div>
