@@ -590,10 +590,10 @@ export default function Dashboard() {
         </div>
         
         {/* RIGHT PANEL: BARTER FEED */}
-        <div className="w-full md:w-[470px] shrink-0 bg-white flex flex-col overflow-hidden order-1 md:order-2 border-b md:border-b-0 md:border-l border-gray-200 h-[40%] md:h-auto">
+        <div className="w-full md:w-117.5 shrink-0 bg-white flex flex-col overflow-hidden order-1 md:order-2 border-b md:border-b-0 md:border-l border-gray-200 h-[40%] md:h-auto">
           
           {/* Feed Header */}
-          <div className="flex flex-col items-left px-4 py-3 bg-gray-50 flex-shrink-0 border-b border-gray-200">
+          <div className="flex flex-col items-left px-4 py-3 bg-gray-50 shrink-0 border-b border-gray-200">
             <div className="flex flex-row gap-1 items-center">
               <div className="mr-auto flex flex-col items-left">
                 <h2 className="text-xs font-bold text-gray-900">LIVE BARTER FEED PANEL</h2>

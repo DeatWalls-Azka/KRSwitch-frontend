@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
-import UploadScheduleCard from "../components/dash/admin/UploadScheduleCard";
-import SystemStatsCard from "../components/dash/admin/SystemStatsCard";
-import ExportRecapCard from "../components/dash/admin/ExportRecapCard";
-import DangerZoneCard from "../components/dash/admin/DangerZoneCard";
-import AdminLogTable from '../components/dash/admin/AdminLogTable';
-import ManualOverrideCard from "../components/dash/admin/ManualOverrideCard";
-import StudentManagementCard from "../components/dash/admin/StudentManagementCard";
+import UploadScheduleCard from "../components/admin/UploadScheduleCard";
+import SystemStatsCard from "../components/admin/SystemStatsCard";
+import ExportRecapCard from "../components/admin/ExportRecapCard";
+import DangerZoneCard from "../components/admin/DangerZoneCard";
+import AdminLogTable from '../components/admin/AdminLogTable';
+import ManualOverrideCard from "../components/admin/ManualOverrideCard";
+import StudentManagementCard from "../components/admin/StudentManagementCard";
 
 export default function Admin() {
   const navigate = useNavigate();
