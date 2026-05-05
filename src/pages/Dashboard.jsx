@@ -16,7 +16,7 @@ import { useDashboardData } from '../hooks/useDashboardData';
 import { useSocket } from '../hooks/useSocket';
 import { useOfferAnimations } from '../hooks/useOfferAnimations';
 import { useTooltip } from '../hooks/useTooltip';
-import { enrichOffer, getStudentsInClass } from '../utils/offerUtils';
+import { enrichOffer, getStudentsInClass, hasScheduleConflict } from '../utils/offerUtils';
 
 export default function Dashboard() {
   // --- UI state -----------------------------------------------
@@ -228,6 +228,14 @@ export default function Dashboard() {
               offersToDisplay.map((offer, index) => {
                 const isExiting = exitingOfferIds.has(offer.id);
                 const isEntering = enteringOfferIds.has(offer.id);
+
+                const incomingClass = parallelClasses.find(
+                  pc => pc.courseCode === offer.seekingCourse && pc.classCode === offer.offeringClass
+                );
+                const conflictsWithSchedule = offer.nim !== currentUser?.nim && incomingClass
+                  ? hasScheduleConflict(incomingClass.id, currentUser?.nim, enrollments, parallelClasses)
+                  : false;
+
                 return (
                   <BarterCard
                     key={offer.id}
@@ -237,6 +245,7 @@ export default function Dashboard() {
                     shouldExit={isExiting}
                     shouldEnter={isEntering}
                     canAccept={myEnrollmentMap[offer.seekingCourse] === offer.seekingClass}
+                    conflictsWithSchedule={conflictsWithSchedule}
                     isOwnOffer={offer.nim === currentUser?.nim}
                     onAnimationComplete={() => {}}
                     onExitClick={handleExitClick}

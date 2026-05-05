@@ -7,6 +7,7 @@ export default function BarterCard({
   shouldExit = false,
   shouldEnter = false,
   canAccept = true,
+  conflictsWithSchedule = false,
   isOwnOffer = false,
   onAnimationComplete, 
   onExitClick,
@@ -59,15 +60,9 @@ export default function BarterCard({
 
   const handleButtonClick = () => {
     if (isOwnOffer) {
-      // Open cancel confirmation modal for user's own offers
-      if (onOpenModal) {
-        onOpenModal(offer, 'cancel');
-      }
+      if (onOpenModal) onOpenModal(offer, 'cancel');
     } else {
-      // Open trade modal for other users' offers
-      if (canAccept && onOpenModal) {
-        onOpenModal(offer, 'accept');
-      }
+      if (canAccept && !conflictsWithSchedule && onOpenModal) onOpenModal(offer, 'accept');
     }
   };
 
@@ -75,11 +70,17 @@ export default function BarterCard({
     ? 'opacity-100 translate-x-0 scale-100'
     : 'opacity-0 translate-x-8 scale-y-0';
 
-  const buttonDisabled = shouldExit || (!isOwnOffer && !canAccept);
-  const buttonText = isOwnOffer ? 'CANCEL TRD' : 'OPEN TRADE';
+  const buttonDisabled = shouldExit || (!isOwnOffer && (!canAccept || conflictsWithSchedule));
+  const buttonText = isOwnOffer
+    ? 'CANCEL TRD'
+    : conflictsWithSchedule
+      ? 'BENTROK'
+      : 'OPEN TRADE';
   const buttonColor = isOwnOffer 
-    ? 'bg-red-600 hover:bg-red-700 active:bg-red-800' 
-    : 'bg-green-600 hover:bg-green-700 active:bg-green-800';
+    ? 'bg-red-600 hover:bg-red-700 active:bg-red-800'
+    : conflictsWithSchedule
+      ? 'bg-yellow-500'
+      : 'bg-green-600 hover:bg-green-700 active:bg-green-800';
 
   return (
     <div 
@@ -113,6 +114,7 @@ export default function BarterCard({
             <button 
               onClick={handleButtonClick}
               disabled={buttonDisabled}
+              title={conflictsWithSchedule ? 'Jadwal bertabrakan dengan kelas lain' : ''}
               className={`${buttonColor} text-white text-[11px] min-w-22.5 font-bold py-1 px-2.5 border-0 cursor-pointer transition-colors rounded-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400`}
             >
               {buttonText}
