@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import io from 'socket.io-client';
 import { takeOffer, deleteOffer } from '../../api';
 
 export default function TradeConfirmationModal({ 
@@ -9,7 +8,8 @@ export default function TradeConfirmationModal({
   onAccept, 
   onCancel,
   currentUser,
-  mode = 'accept' // 'accept' or 'cancel'
+  mode = 'accept', 
+  socketRef,
 }) {
   const [isAvailable, setIsAvailable] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -23,18 +23,22 @@ export default function TradeConfirmationModal({
   useEffect(() => {
     if (!isOpen || !offer?.id) return;
 
-    const socket = io('http://localhost:5000');
-    
-    socket.on('offer-taken', ({ offerId }) => {
-      if (offer?.id && offerId === offer.id && !isProcessing && !successMessage) {
+    const socket = socketRef?.current;
+    if (!socket) return;
+
+    const handleOfferTaken = ({ offerId }) => {
+      if (offerId === offer.id && !isProcessing && !successMessage) {
         setIsAvailable(false);
         setErrorMessage('Penawaran sudah diambil orang lain');
         setIsProcessing(false);
       }
-    });
+    };
 
-    return () => socket.disconnect();
-  }, [isOpen, offer?.id, isProcessing, successMessage, isCancel]);
+    socket.on('offer-taken', handleOfferTaken);
+
+    // Only remove the listener — never disconnect the shared socket
+    return () => socket.off('offer-taken', handleOfferTaken);
+  }, [isOpen, offer?.id, isProcessing, successMessage, socketRef]);
 
   useEffect(() => {
     if (!isOpen) {

@@ -92,7 +92,7 @@ export default function BarterCard({
         <div 
           className={`border border-gray-200 bg-white p-2 flex items-center gap-3 rounded-md shadow-xs transition-all duration-100 ease-out ${animationClasses}`}
         >
-          <div className="flex flex-col shrink-0 w-[90px]">
+          <div className="flex flex-col shrink-0 w-22.5">
             <div className="text-gray-900 truncate font-bold text-xs" title={offer.studentName}>
               {offer.studentName}
             </div>
@@ -113,7 +113,7 @@ export default function BarterCard({
             <button 
               onClick={handleButtonClick}
               disabled={buttonDisabled}
-              className={`${buttonColor} text-white text-[11px] min-w-[90px] font-bold py-1 px-2.5 border-0 cursor-pointer transition-colors rounded-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400`}
+              className={`${buttonColor} text-white text-[11px] min-w-22.5 font-bold py-1 px-2.5 border-0 cursor-pointer transition-colors rounded-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400`}
             >
               {buttonText}
             </button>
