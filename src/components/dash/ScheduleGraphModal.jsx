@@ -319,7 +319,7 @@ export default function ScheduleGraphModal({
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-2.5 border-b border-gray-200 bg-gray-50 flex-shrink-0">
+            <div className="flex items-center justify-between px-5 py-2.5 border-b border-gray-200 bg-gray-50 shrink-0">
               <div className="min-w-0 flex-1 pr-3">
                 <h2 className="text-xs font-bold text-gray-900 uppercase tracking-wide">JADWAL KULIAH</h2>
                 <p className="text-[11px] text-gray-500 mt-0.5 truncate whitespace-nowrap max-w-full">
@@ -327,7 +327,7 @@ export default function ScheduleGraphModal({
                 </p>
               </div>
 
-              <div className="relative hidden md:block flex-shrink-0" data-export-exclude>
+              <div className="relative hidden md:block shrink-0" data-export-exclude>
                 <button
                   ref={exportBtnRef}
                   onClick={() => setExportOpen(p => !p)}
@@ -382,7 +382,7 @@ export default function ScheduleGraphModal({
                           disabled={busy}
                           className="w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors flex items-center gap-2.5 focus:outline-none focus-visible:bg-gray-50 disabled:opacity-40"
                         >
-                          <span className="flex-shrink-0 w-4 flex items-center justify-center text-gray-400">
+                          <span className="shrink-0 w-4 flex items-center justify-center text-gray-400">
                             {icon}
                           </span>
                           {exporting === key ? (
@@ -410,8 +410,8 @@ export default function ScheduleGraphModal({
               ) : (
                 <div className="flex min-h-0 w-max md:w-full md:flex-1 gap-2">
                   {/* Sumbu waktu */}
-                  <div className="flex-shrink-0 w-14 flex flex-col">
-                    <div className="flex-shrink-0 h-9" />
+                  <div className="shrink-0 w-14 flex flex-col">
+                    <div className="shrink-0 h-9" />
                     <div className="relative flex-1" style={{ paddingTop: 8, paddingBottom: 8 }}>
                       {HOUR_TICKS.map(({ hour, label, pct, isFirst, isLast }) => (
                         <div
@@ -431,7 +431,7 @@ export default function ScheduleGraphModal({
                       const dayClasses = scheduleByDay[key] || [];
                       return (
                         <div key={key} className="flex-none w-[110px] sm:w-[128px] md:flex-1 md:min-w-0 flex flex-col overflow-hidden">
-                          <div className="flex-shrink-0 h-9 flex items-center justify-center border-b border-gray-200 bg-gray-50">
+                          <div className="shrink-0 h-9 flex items-center justify-center border-b border-gray-200 bg-gray-50">
                             <span className={`text-[11px] font-bold uppercase tracking-wider ${dayClasses.length ? 'text-gray-800' : 'text-gray-400'}`}>
                               {label}
                             </span>
@@ -546,13 +546,13 @@ export default function ScheduleGraphModal({
             {/* footer, ga ikut di-export */}
             <div
               data-export-exclude
-              className="px-5 py-2.5 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-3 flex-shrink-0"
+              className="px-5 py-2.5 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-3 shrink-0"
             >
               <p className="text-[10px] text-gray-400 min-w-0 flex-1">
                 Jadwal diperbarui otomatis setelah pertukaran berhasil.
               </p>
 
-              <div className="relative md:hidden flex-shrink-0" data-export-exclude>
+              <div className="relative md:hidden shrink-0" data-export-exclude>
                 <button
                   ref={exportBtnRef}
                   onClick={() => setExportOpen(p => !p)}
@@ -607,7 +607,7 @@ export default function ScheduleGraphModal({
                           disabled={busy}
                           className="w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors flex items-center gap-2.5 focus:outline-none focus-visible:bg-gray-50 disabled:opacity-40"
                         >
-                          <span className="flex-shrink-0 w-4 flex items-center justify-center text-gray-400">
+                          <span className="shrink-0 w-4 flex items-center justify-center text-gray-400">
                             {icon}
                           </span>
                           {exporting === key ? (

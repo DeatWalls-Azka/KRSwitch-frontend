@@ -43,7 +43,7 @@ function NotificationRow({ notification, parallelClasses }) {
   const pingColor = 'bg-green-500';
 
   return (
-    <div className={`border rounded-sm mb-2 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.08)] ${borderColor} bg-white`}>
+    <div className={`border rounded-sm mb-1 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.08)] ${borderColor} bg-white`}>
 
       {/* Collapsed row */}
       <button
@@ -179,38 +179,40 @@ export default function NotificationModal({ isOpen, onClose, notifications = [],
 
   return (
     <div
-      className={`fixed inset-0 bg-gray-900/60 z-50 p-4 ${isClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`}
+      className={`fixed inset-0 bg-gray-900/60 z-50 flex items-center justify-center p-5 md:p-4 ${isClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`}
       onClick={handleBackdropClick}
       onKeyDown={handleKeyDown}
     >
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
+      <div className="relative w-[calc(100vw-2.5rem)] md:w-full md:max-w-md">
+        {/* Close Button — inside card on mobile, floating outside on desktop */}
+        <button
+          onClick={handleClose}
+          aria-label="Tutup notifikasi"
+          style={{ fontFamily: '"JetBrains Mono", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
+          className="absolute top-2 right-2 md:-top-6 md:-right-6 z-20 w-8 h-8 flex items-center justify-center text-gray-900 md:text-white active:scale-50 hover:scale-120 transition-transform duration-60"
+        >
+          <span className="text-2xl leading-none font-light">✕</span>
+        </button>
+
         <div
-          className={`bg-white rounded-lg shadow-2xl relative flex flex-col ${isClosing ? 'animate-popDown' : 'animate-popUp'}`}
+          className={`bg-white rounded-lg shadow-2xl overflow-hidden relative flex flex-col ${isClosing ? 'animate-popDown' : 'animate-popUp'}`}
           style={{ height: '75vh', maxHeight: '680px' }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Floating Close Button */}
-          <button
-            onClick={handleClose}
-            aria-label="Tutup notifikasi"
-            style={{ fontFamily: '"JetBrains Mono", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
-            className="absolute -top-6.5 -right-6 z-10 w-8 h-8 flex items-center justify-center text-white active:scale-50 hover:scale-120 transition-transform duration-60"
-          >
-            <span className="text-2xl leading-none font-light">✕</span>
-          </button>
 
           {/* Panel Header */}
-          <div className="px-5 py-3.5 border-b border-gray-200 flex-shrink-0">
-            <div className="flex items-center justify-between gap-4">
+          <div className="px-5 py-3.5 border-b border-gray-200 flex-shrink-0 pr-12 md:pr-5">
+            <div className="flex items-center gap-4">
               <h3 className="text-sm font-bold text-gray-900 shrink-0">History Inbox</h3>
               <p className="text-[11px] text-gray-500">
-                {notifications.length} total · {unreadCount} belum dibaca
+                <span className="hidden md:inline">{notifications.length} total · </span>
+                {unreadCount} belum dibaca
               </p>
             </div>
           </div>
 
           {/* Scrollable Notification List */}
-          <div className="flex-1 overflow-y-auto p-4">
+          <div className="flex-1 overflow-y-auto p-4 notif-scroll">
             {notifications.length > 0 ? (
               notifications.map(notification => (
                 <NotificationRow
@@ -227,8 +229,8 @@ export default function NotificationModal({ isOpen, onClose, notifications = [],
           </div>
 
           {/* Panel Footer */}
-          <div className="px-5 py-3.5 border-t border-gray-200 flex-shrink-0">
-            <p className="text-[11px] text-gray-400 text-center">
+          <div className="px-5 py-2.5 border-t border-gray-200 bg-gray-50 flex-shrink-0">
+            <p className="text-[10px] text-gray-400 text-center">
               Notifikasi ditandai sudah dibaca saat menutup panel ini
             </p>
           </div>
@@ -236,6 +238,10 @@ export default function NotificationModal({ isOpen, onClose, notifications = [],
       </div>
 
       <style jsx>{`
+        .notif-scroll::-webkit-scrollbar { width: 4px; }
+        .notif-scroll::-webkit-scrollbar-track { background: transparent; }
+        .notif-scroll::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 999px; }
+        .notif-scroll::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
         @keyframes popUp {
           0% { transform: scale(0.95); opacity: 0; }
           100% { transform: scale(1); opacity: 1; }

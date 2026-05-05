@@ -37,6 +37,10 @@ export default function Dashboard() {
 
   // Mobile drawer state
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerRef = useRef(null);
+  const peekBarRef = useRef(null);
+  // Ref mirror so touch handlers (attached once) always see current value
+  const drawerOpenRef = useRef(false);
   const touchStartYRef = useRef(null);
 
   // Refs for mobile card centering
@@ -171,18 +175,57 @@ export default function Dashboard() {
     }
   };
 
-  // --- Mobile drawer touch handlers ---------------------------
-  const handleDrawerTouchStart = (e) => {
-    touchStartYRef.current = e.touches[0].clientY;
-  };
+  // Keep ref in sync so the touch handlers (registered once) see the latest value
+  useEffect(() => { drawerOpenRef.current = drawerOpen; }, [drawerOpen]);
 
-  const handleDrawerTouchEnd = (e) => {
-    if (touchStartYRef.current === null) return;
-    const dy = touchStartYRef.current - e.changedTouches[0].clientY;
-    if (dy > 40) setDrawerOpen(true);
-    else if (dy < -40) setDrawerOpen(false);
-    touchStartYRef.current = null;
-  };
+  // --- Mobile drawer touch handlers ---------------------------
+  // Attached via useEffect with passive:false so we can preventDefault on touchmove,
+  // preventing the page from scrolling while the user drags the drawer.
+  useEffect(() => {
+    const bar = peekBarRef.current;
+    if (!bar) return;
+
+    const TRAVEL = () => window.innerHeight * 0.88 - PEEK_H;
+
+    const onStart = (e) => {
+      touchStartYRef.current = e.touches[0].clientY;
+    };
+
+    const onMove = (e) => {
+      if (touchStartYRef.current === null || !drawerRef.current) return;
+      e.preventDefault(); // block page scroll while dragging drawer
+      const travel = TRAVEL();
+      const base = drawerOpenRef.current ? 0 : travel;
+      const delta = e.touches[0].clientY - touchStartYRef.current;
+      const clamped = Math.max(0, Math.min(travel, base + delta));
+      // Direct DOM write — no React re-render per pixel
+      drawerRef.current.style.transition = 'none';
+      drawerRef.current.style.transform = `translateY(${clamped}px)`;
+    };
+
+    const onEnd = (e) => {
+      if (touchStartYRef.current === null) return;
+      const dy = touchStartYRef.current - e.changedTouches[0].clientY; // +ve = swipe up
+      const newOpen = dy > 40 ? true : dy < -40 ? false : drawerOpenRef.current;
+      // Clear inline styles so the CSS transition takes over for the snap
+      if (drawerRef.current) {
+        drawerRef.current.style.transition = '';
+        drawerRef.current.style.transform = '';
+      }
+      touchStartYRef.current = null;
+      drawerOpenRef.current = newOpen;
+      setDrawerOpen(newOpen);
+    };
+
+    bar.addEventListener('touchstart', onStart, { passive: true });
+    bar.addEventListener('touchmove',  onMove,  { passive: false }); // must be non-passive
+    bar.addEventListener('touchend',   onEnd,   { passive: true });
+    return () => {
+      bar.removeEventListener('touchstart', onStart);
+      bar.removeEventListener('touchmove',  onMove);
+      bar.removeEventListener('touchend',   onEnd);
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // --- Render -------------------------------------------------
   if (loading) {
@@ -345,18 +388,18 @@ export default function Dashboard() {
 
       {/* Drawer */}
       <div
+        ref={drawerRef}
         className="md:hidden fixed bottom-0 left-0 right-0 z-40 h-[88vh] bg-white rounded-t-2xl shadow-2xl flex flex-col border-t border-gray-200"
         style={{
           transform: drawerOpen ? 'translateY(0)' : `translateY(calc(88vh - ${PEEK_H}px))`,
           transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
-        onTouchStart={handleDrawerTouchStart}
-        onTouchEnd={handleDrawerTouchEnd}
       >
         {/* Peek bar — always visible, tappable to toggle */}
         <div
+          ref={peekBarRef}
           className="shrink-0 px-4 pt-2.5 pb-15 cursor-pointer select-none"
-          style={{ height: PEEK_H }}
+          style={{ height: PEEK_H, touchAction: 'manipulation' }}
           onClick={() => setDrawerOpen(prev => !prev)}
         >
           {/* Drag handle pill */}
