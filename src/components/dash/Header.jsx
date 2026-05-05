@@ -58,11 +58,47 @@ export default function Header({
     navigate('/login');
   };
 
+  // Shared dropdown panel
+  const dropdownPanel = (
+    <div
+      className="absolute right-0 top-full mt-1.5 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50 overflow-hidden"
+      style={{
+        display: 'grid',
+        gridTemplateRows: dropdownOpen ? '1fr' : '0fr',
+        transition: 'grid-template-rows 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+        opacity: dropdownOpen ? 1 : 0,
+        pointerEvents: dropdownOpen ? 'auto' : 'none',
+        transitionProperty: 'grid-template-rows, opacity',
+      }}
+    >
+      <div style={{ overflow: 'hidden', minHeight: 0 }}>
+        <div className="px-3 py-2.5 border-b border-gray-100">
+          <p className="text-[11px] font-bold text-gray-900 truncate">{displayName}</p>
+          <p className="text-[10px] text-gray-400 font-mono truncate mt-0.5">{displayEmail || displayNim}</p>
+        </div>
+        <div className="py-1">
+          <button
+            role="menuitem"
+            onClick={handleLogout}
+            className="w-full text-left px-3 py-2 text-[11px] font-bold text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2 focus:outline-none focus-visible:bg-red-50"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            LOGOUT
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <header className="bg-white border-b border-gray-200 px-4 py-2 flex-shrink-0 flex items-center justify-between">
 
       {/* LEFT — logo + connection status */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 shrink-0">
         <div className="relative inline-flex items-center justify-center">
           <span className={`relative inline-flex rounded-full w-2.5 h-2.5 ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-300 animate-pulse'}`} />
           {isConnected && (
@@ -75,11 +111,11 @@ export default function Header({
         </div>
       </div>
 
-      {/* RIGHT — mobile: compact icon buttons only; desktop: full bar */}
-      <div className="flex items-center gap-2 pl-4 ml-auto">
+      {/* RIGHT */}
+      <div className="flex items-center gap-2 pl-4 ml-auto shrink-0">
 
-        {/* Mobile-only: schedule + bell without the profile dropdown */}
-        <div className="flex sm:hidden items-center gap-2">
+        {/* Compact — shown below 400px */}
+        <div className="flex min-[400px]:hidden items-center gap-2">
           <button
             onClick={onOpenSchedule}
             aria-label="Lihat jadwal"
@@ -109,59 +145,25 @@ export default function Header({
             )}
           </button>
 
-          {/* Mobile initials button — opens logout directly */}
           <div className="relative" ref={dropdownRef}>
             <button
               ref={triggerRef}
               onClick={() => setDropdownOpen(prev => !prev)}
               aria-haspopup="true"
               aria-expanded={dropdownOpen}
-              className="flex items-center justify-center w-9 h-9 border border-gray-300 rounded-md hover:bg-gray-100 active:bg-gray-200 transition-colors"
+              className="flex items-center justify-center w-9 h-9 text-gray-500 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-100 active:bg-gray-200 transition-colors"
             >
-              <span className="w-5 h-5 rounded-full bg-gray-200 text-gray-600 text-[10px] font-bold flex items-center justify-center leading-none">
-                {displayName.charAt(0).toUpperCase()}
-              </span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+              </svg>
             </button>
-
-            {/* Mobile dropdown */}
-            <div
-              className="absolute right-0 top-full mt-1.5 w-52 bg-white border border-gray-200 rounded-md shadow-lg z-50 overflow-hidden"
-              style={{
-                display: 'grid',
-                gridTemplateRows: dropdownOpen ? '1fr' : '0fr',
-                transition: 'grid-template-rows 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                opacity: dropdownOpen ? 1 : 0,
-                pointerEvents: dropdownOpen ? 'auto' : 'none',
-                transitionProperty: 'grid-template-rows, opacity',
-              }}
-            >
-              <div style={{ overflow: 'hidden', minHeight: 0 }}>
-                <div className="px-3 py-2.5 border-b border-gray-100">
-                  <p className="text-[11px] font-bold text-gray-900 truncate">{displayName}</p>
-                  <p className="text-[10px] text-gray-400 font-mono truncate mt-0.5">{displayEmail || displayNim}</p>
-                </div>
-                <div className="py-1">
-                  <button
-                    role="menuitem"
-                    onClick={handleLogout}
-                    className="w-full text-left px-3 py-2.5 text-[11px] font-bold text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
-                  >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                      <polyline points="16 17 21 12 16 7" />
-                      <line x1="21" y1="12" x2="9" y2="12" />
-                    </svg>
-                    LOGOUT
-                  </button>
-                </div>
-              </div>
-            </div>
+            {dropdownPanel}
           </div>
         </div>
 
-        {/* Desktop: full profile dropdown + action buttons */}
-        <div className="hidden sm:flex items-center gap-2">
-
+        {/* Full — shown at 400px and above */}
+        <div className="hidden min-[400px]:flex items-center gap-2">
           <div className="relative" ref={dropdownRef}>
             <button
               ref={triggerRef}
@@ -170,9 +172,6 @@ export default function Header({
               aria-expanded={dropdownOpen}
               className="flex items-center gap-2 px-2.5 h-8 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
             >
-              <span className="w-4 h-4 rounded-full bg-gray-200 text-gray-600 text-[9px] font-bold flex items-center justify-center shrink-0 leading-none">
-                {displayName.charAt(0).toUpperCase()}
-              </span>
               <div className="flex flex-col items-start justify-center leading-none">
                 <span className="text-[11px] font-bold text-gray-900 whitespace-nowrap">{displayName}</span>
                 <span className="text-[9px] text-gray-500 font-mono tracking-wide mt-[1px]">{displayNim}</span>
@@ -185,39 +184,7 @@ export default function Header({
                 <polyline points="6 9 12 15 18 9" />
               </svg>
             </button>
-
-            <div
-              className="absolute right-0 top-full mt-1.5 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50 overflow-hidden"
-              style={{
-                display: 'grid',
-                gridTemplateRows: dropdownOpen ? '1fr' : '0fr',
-                transition: 'grid-template-rows 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                opacity: dropdownOpen ? 1 : 0,
-                pointerEvents: dropdownOpen ? 'auto' : 'none',
-                transitionProperty: 'grid-template-rows, opacity',
-              }}
-            >
-              <div style={{ overflow: 'hidden', minHeight: 0 }}>
-                <div className="px-3 py-2.5 border-b border-gray-100">
-                  <p className="text-[11px] font-bold text-gray-900 truncate">{displayName}</p>
-                  <p className="text-[10px] text-gray-400 font-mono truncate mt-0.5">{displayEmail || displayNim}</p>
-                </div>
-                <div className="py-1">
-                  <button
-                    role="menuitem"
-                    onClick={handleLogout}
-                    className="w-full text-left px-3 py-2 text-[11px] font-bold text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2 focus:outline-none focus-visible:bg-red-50"
-                  >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                      <polyline points="16 17 21 12 16 7" />
-                      <line x1="21" y1="12" x2="9" y2="12" />
-                    </svg>
-                    LOGOUT
-                  </button>
-                </div>
-              </div>
-            </div>
+            {dropdownPanel}
           </div>
 
           {/* Schedule */}
@@ -252,6 +219,7 @@ export default function Header({
             )}
           </button>
         </div>
+
       </div>
 
     </header>
