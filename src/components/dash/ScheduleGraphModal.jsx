@@ -303,24 +303,14 @@ export default function ScheduleGraphModal({
         onMouseMove={e => { mousePos.current = { x: e.clientX, y: e.clientY }; }}
       >
         <div className="relative w-[calc(100vw-2.5rem)] md:w-[60vw]" style={{ height: '80vh' }}>
-          <button
-            onClick={handleClose}
-            disabled={isClosing}
-            aria-label="Tutup modal"
-            style={{ fontFamily: '"JetBrains Mono", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
-            className="absolute top-2 right-2 md:-top-6 md:-right-6 z-20 w-8 h-8 flex items-center justify-center text-gray-900 md:text-white active:scale-50 hover:scale-120 transition-transform duration-60 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <span className="text-2xl leading-none font-light">✕</span>
-          </button>
-
           <div
             ref={cardRef}
             className={`bg-white rounded-lg shadow-2xl flex flex-col w-full overflow-hidden h-full ${isClosing ? 'animate-popDown' : 'animate-popUp'}`}
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-2.5 border-b border-gray-200 bg-gray-50 shrink-0">
-              <div className="min-w-0 flex-1 pr-3">
+            <div className="flex items-center gap-2 px-5 py-2.5 border-b border-gray-200 bg-gray-50 shrink-0">
+              <div className="min-w-0 flex-1">
                 <h2 className="text-xs font-bold text-gray-900 uppercase tracking-wide">JADWAL KULIAH</h2>
                 <p className="text-[11px] text-gray-500 mt-0.5 truncate whitespace-nowrap max-w-full">
                   {currentUser?.name || '-'} · {mySchedule.length} kelas
@@ -399,6 +389,20 @@ export default function ScheduleGraphModal({
                   </div>
                 </div>
               </div>
+
+              {/* Close button — always in header, aligned with Export */}
+              <button
+                onClick={handleClose}
+                disabled={isClosing}
+                aria-label="Tutup modal"
+                data-export-exclude
+                className="shrink-0 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
             </div>
 
             {/* Grid jadwal */}
@@ -419,7 +423,7 @@ export default function ScheduleGraphModal({
                           className="absolute w-full flex justify-end pr-2"
                           style={isFirst ? { top: 0 } : isLast ? { bottom: 0 } : { top: `${pct}%`, transform: 'translateY(-50%)' }}
                         >
-                          <span className="text-[10px] text-gray-400 font-mono leading-none whitespace-nowrap">{label}</span>
+                          <span className="text-[10px] text-gray-400 leading-none whitespace-nowrap">{label}</span>
                         </div>
                       ))}
                     </div>

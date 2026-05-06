@@ -184,24 +184,25 @@ export default function NotificationModal({ isOpen, onClose, notifications = [],
       onKeyDown={handleKeyDown}
     >
       <div className="relative w-[calc(100vw-2.5rem)] md:w-full md:max-w-md">
-        {/* Close Button — inside card on mobile, floating outside on desktop */}
-        <button
-          onClick={handleClose}
-          aria-label="Tutup notifikasi"
-          style={{ fontFamily: '"JetBrains Mono", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
-          className="absolute top-2 right-2 md:-top-6 md:-right-6 z-20 w-8 h-8 flex items-center justify-center text-gray-900 md:text-white active:scale-50 hover:scale-120 transition-transform duration-60"
-        >
-          <span className="text-2xl leading-none font-light">✕</span>
-        </button>
-
         <div
           className={`bg-white rounded-lg shadow-2xl overflow-hidden relative flex flex-col ${isClosing ? 'animate-popDown' : 'animate-popUp'}`}
           style={{ height: '75vh', maxHeight: '680px' }}
           onClick={(e) => e.stopPropagation()}
         >
+          {/* Close Button */}
+          <button
+            onClick={handleClose}
+            aria-label="Tutup notifikasi"
+            className="absolute top-3 right-3 z-20 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
 
           {/* Panel Header */}
-          <div className="px-5 py-3.5 border-b border-gray-200 flex-shrink-0 pr-12 md:pr-5">
+          <div className="px-5 py-3.5 border-b border-gray-200 flex-shrink-0 pr-12">
             <div className="flex items-center gap-4">
               <h3 className="text-sm font-bold text-gray-900 shrink-0">History Inbox</h3>
               <p className="text-[11px] text-gray-500">
