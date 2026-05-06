@@ -188,7 +188,7 @@ export default function NotificationModal({ isOpen, onClose, notifications = [],
         <button
           onClick={handleClose}
           aria-label="Tutup notifikasi"
-          style={{ fontFamily: '"JetBrains Mono", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
+          style={{ fontFamily: '"Plus Jakarta Sans", sans-serif' }}
           className="absolute top-2 right-2 md:-top-6 md:-right-6 z-20 w-8 h-8 flex items-center justify-center text-gray-900 md:text-white active:scale-50 hover:scale-120 transition-transform duration-60"
         >
           <span className="text-2xl leading-none font-light">✕</span>

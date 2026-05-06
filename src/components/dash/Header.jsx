@@ -63,7 +63,7 @@ export default function Header({
     <div style={{ overflow: 'hidden', minHeight: 0 }}>
       <div className="px-3 py-2.5 border-b border-gray-100">
         <p className="text-[11px] font-bold text-gray-900 truncate">{displayName}</p>
-        <p className="text-[10px] text-gray-400 font-mono truncate mt-0.5">{displayEmail || displayNim}</p>
+        <p className="text-[10px] text-gray-400 truncate mt-0.5">{displayEmail || displayNim}</p>
       </div>
       <div className="py-1">
         <button
@@ -180,7 +180,7 @@ export default function Header({
             >
               <div className="flex flex-col items-start justify-center leading-none">
                 <span className="text-[11px] font-bold text-gray-900 whitespace-nowrap">{displayName}</span>
-                <span className="text-[9px] text-gray-500 font-mono tracking-wide mt-[1px]">{displayNim}</span>
+                <span className="text-[9px] text-gray-500 tracking-wide mt-[1px]">{displayNim}</span>
               </div>
               <svg
                 width="10" height="10" viewBox="0 0 24 24" fill="none"

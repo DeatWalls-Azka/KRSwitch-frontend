@@ -307,7 +307,7 @@ export default function ScheduleGraphModal({
             onClick={handleClose}
             disabled={isClosing}
             aria-label="Tutup modal"
-            style={{ fontFamily: '"JetBrains Mono", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
+            style={{ fontFamily: '"Plus Jakarta Sans", sans-serif' }}
             className="absolute top-2 right-2 md:-top-6 md:-right-6 z-20 w-8 h-8 flex items-center justify-center text-gray-900 md:text-white active:scale-50 hover:scale-120 transition-transform duration-60 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span className="text-2xl leading-none font-light">✕</span>
@@ -419,7 +419,7 @@ export default function ScheduleGraphModal({
                           className="absolute w-full flex justify-end pr-2"
                           style={isFirst ? { top: 0 } : isLast ? { bottom: 0 } : { top: `${pct}%`, transform: 'translateY(-50%)' }}
                         >
-                          <span className="text-[10px] text-gray-400 font-mono leading-none whitespace-nowrap">{label}</span>
+                          <span className="text-[10px] text-gray-400 leading-none whitespace-nowrap">{label}</span>
                         </div>
                       ))}
                     </div>
