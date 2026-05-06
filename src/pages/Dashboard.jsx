@@ -19,7 +19,7 @@ import { useTooltip } from '../hooks/useTooltip';
 import { enrichOffer, getStudentsInClass, hasScheduleConflict } from '../utils/offerUtils';
 
 // Height of the peek bar that's always visible when drawer is closed
-const PEEK_H = 64;
+const PEEK_H = 80;
 
 export default function Dashboard() {
   // --- UI state -----------------------------------------------
@@ -389,7 +389,7 @@ export default function Dashboard() {
       {/* Drawer */}
       <div
         ref={drawerRef}
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 h-[88vh] bg-white rounded-t-2xl shadow-2xl flex flex-col border-t border-gray-200"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 h-[88vh] bg-white rounded-t-2xl shadow-[0_-4px_24px_rgba(0,0,0,0.10)] ring-1 ring-gray-200 flex flex-col border-t border-gray-300"
         style={{
           transform: drawerOpen ? 'translateY(0)' : `translateY(calc(88vh - ${PEEK_H}px))`,
           transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -398,7 +398,7 @@ export default function Dashboard() {
         {/* Peek bar — always visible, tappable to toggle */}
         <div
           ref={peekBarRef}
-          className="shrink-0 px-4 pt-2.5 pb-15 cursor-pointer select-none"
+          className="shrink-0 px-4 pt-2.5 pb-4 cursor-pointer select-none"
           style={{ height: PEEK_H, touchAction: 'manipulation' }}
           onClick={() => setDrawerOpen(prev => !prev)}
         >
@@ -419,7 +419,7 @@ export default function Dashboard() {
             </div>
             <button
               onClick={(e) => { e.stopPropagation(); setIsFormOpen(true); }}
-              className="shrink-0 bg-green-600 text-white text-[11px] font-bold pb-1 pt-2 px-3 rounded-sm hover:bg-green-700 active:bg-green-800 transition-colors whitespace-nowrap"
+              className="shrink-0 bg-green-600 text-white text-[11px] font-bold pb-2 pt-2 px-3 rounded-sm hover:bg-green-700 active:bg-green-800 transition-colors whitespace-nowrap"
             >
               CREATE OFFER
             </button>

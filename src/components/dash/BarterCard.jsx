@@ -122,7 +122,7 @@ export default function BarterCard({
                 onClick={handleButtonClick}
                 disabled={buttonDisabled}
                 title={conflictsWithSchedule ? 'Jadwal bertabrakan dengan kelas lain' : ''}
-                className={`${buttonColor} text-white text-[11px] font-bold pb-1 pt-2 my-1 border-0 cursor-pointer transition-colors rounded-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400 w-[90px]`}
+                className={`${buttonColor} text-white text-[11px] font-bold pb-1 pt-1.5 my-1 border-0 cursor-pointer transition-colors rounded-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400 w-[90px]`}
               >
                 {buttonText}
               </button>
