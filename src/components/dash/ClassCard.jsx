@@ -27,7 +27,7 @@ export default function ClassCard({ classItem, index = 0, activeOffers = [], cur
         <div className="flex justify-between items-center">
           <h3 className="text-sm font-bold text-green-600 m-0">{classItem.code}</h3>
           {isCurrentUserInClass && (
-            <span className="text-[9px] font-bold text-white bg-green-600 px-2 pt-1.5 pb-1 rounded-sm">
+            <span className="text-[9px] font-bold text-white bg-green-600 px-2 pt-1 pb-0.5 rounded-sm">
               YOU
             </span>
           )}

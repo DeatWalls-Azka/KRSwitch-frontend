@@ -15,17 +15,18 @@ export default function Header({
   const displayEmail = user?.email || '';
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
-  const triggerRef  = useRef(null);
-  const navigate    = useNavigate();
+  const fullDropdownRef    = useRef(null);  // full-mode relative wrapper
+  const compactDropdownRef = useRef(null);  // compact-mode relative wrapper
+  const triggerRef         = useRef(null);
+  const navigate           = useNavigate();
 
   const PROXIMITY_PX = 32;
   const closeDropdown = useCallback(() => setDropdownOpen(false), []);
 
-  // Proximity-based closing
+  // Proximity-based closing — only meaningful on desktop (full mode)
   const handleMouseMove = useCallback((e) => {
-    if (!dropdownOpen || !dropdownRef.current) return;
-    const elements = [dropdownRef.current, ...Array.from(dropdownRef.current.children)];
+    if (!dropdownOpen || !fullDropdownRef.current) return;
+    const elements = [fullDropdownRef.current, ...Array.from(fullDropdownRef.current.children)];
     const inside = elements.some(el => {
       const rect = el.getBoundingClientRect();
       const dx = Math.max(rect.left - e.clientX, e.clientX - rect.right, 0);
@@ -58,41 +59,37 @@ export default function Header({
     navigate('/login');
   };
 
-  // Shared dropdown panel
-  const dropdownPanel = (
-    <div
-      className="absolute right-0 top-full mt-1.5 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50 overflow-hidden"
-      style={{
-        display: 'grid',
-        gridTemplateRows: dropdownOpen ? '1fr' : '0fr',
-        transition: 'grid-template-rows 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-        opacity: dropdownOpen ? 1 : 0,
-        pointerEvents: dropdownOpen ? 'auto' : 'none',
-        transitionProperty: 'grid-template-rows, opacity',
-      }}
-    >
-      <div style={{ overflow: 'hidden', minHeight: 0 }}>
-        <div className="px-3 py-2.5 border-b border-gray-100">
-          <p className="text-[11px] font-bold text-gray-900 truncate">{displayName}</p>
-          <p className="text-[10px] text-gray-400 font-mono truncate mt-0.5">{displayEmail || displayNim}</p>
-        </div>
-        <div className="py-1">
-          <button
-            role="menuitem"
-            onClick={handleLogout}
-            className="w-full text-left px-3 py-2 text-[11px] font-bold text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2 focus:outline-none focus-visible:bg-red-50"
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-              <polyline points="16 17 21 12 16 7" />
-              <line x1="21" y1="12" x2="9" y2="12" />
-            </svg>
-            LOGOUT
-          </button>
-        </div>
+  const dropdownMenuContents = (
+    <div style={{ overflow: 'hidden', minHeight: 0 }}>
+      <div className="px-3 py-2.5 border-b border-gray-100">
+        <p className="text-[11px] font-bold text-gray-900 truncate">{displayName}</p>
+        <p className="text-[10px] text-gray-400 font-mono truncate mt-0.5">{displayEmail || displayNim}</p>
+      </div>
+      <div className="py-1">
+        <button
+          role="menuitem"
+          onClick={handleLogout}
+          className="w-full text-left px-3 py-2 text-[11px] font-bold text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2 focus:outline-none focus-visible:bg-red-50"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          LOGOUT
+        </button>
       </div>
     </div>
   );
+
+  const panelStyle = {
+    display: 'grid',
+    gridTemplateRows: dropdownOpen ? '1fr' : '0fr',
+    transition: 'grid-template-rows 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+    opacity: dropdownOpen ? 1 : 0,
+    pointerEvents: dropdownOpen ? 'auto' : 'none',
+    transitionProperty: 'grid-template-rows, opacity',
+  };
 
   return (
     <header className="bg-white border-b border-gray-200 px-4 py-2 flex-shrink-0 flex items-center justify-between">
@@ -114,7 +111,7 @@ export default function Header({
       {/* RIGHT */}
       <div className="flex items-center gap-2 pl-4 ml-auto shrink-0">
 
-        {/* Compact — shown below 400px */}
+        {/* ── Compact — below 400px ───────────────────────────── */}
         <div className="flex min-[400px]:hidden items-center gap-2">
           <button
             onClick={onOpenSchedule}
@@ -145,9 +142,9 @@ export default function Header({
             )}
           </button>
 
-          <div className="relative" ref={dropdownRef}>
+          {/* Compact account button — dropdown anchored to its own relative wrapper */}
+          <div className="relative" ref={compactDropdownRef}>
             <button
-              ref={triggerRef}
               onClick={() => setDropdownOpen(prev => !prev)}
               aria-haspopup="true"
               aria-expanded={dropdownOpen}
@@ -158,13 +155,22 @@ export default function Header({
                 <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
               </svg>
             </button>
-            {dropdownPanel}
+
+            {/* Compact dropdown — right-0 anchored to this 36px button */}
+            <div
+              className="absolute right-0 top-full mt-1.5 w-52 bg-white border border-gray-200 rounded-md shadow-lg z-50 overflow-hidden"
+              style={panelStyle}
+            >
+              {dropdownMenuContents}
+            </div>
           </div>
         </div>
 
-        {/* Full — shown at 400px and above */}
+        {/* ── Full — 400px and above ───────────────────────────── */}
         <div className="hidden min-[400px]:flex items-center gap-2">
-          <div className="relative" ref={dropdownRef}>
+
+          {/* Full account button — its own separate relative wrapper and ref */}
+          <div className="relative" ref={fullDropdownRef}>
             <button
               ref={triggerRef}
               onClick={() => setDropdownOpen(prev => !prev)}
@@ -184,7 +190,14 @@ export default function Header({
                 <polyline points="6 9 12 15 18 9" />
               </svg>
             </button>
-            {dropdownPanel}
+
+            {/* Full dropdown — right-0 anchored to the full-width button */}
+            <div
+              className="absolute right-0 top-full mt-1.5 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50 overflow-hidden"
+              style={panelStyle}
+            >
+              {dropdownMenuContents}
+            </div>
           </div>
 
           {/* Schedule */}
