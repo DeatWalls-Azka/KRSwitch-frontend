@@ -17,25 +17,36 @@ export default function ExportRecapCard() {
       link.remove();
       window.URL.revokeObjectURL(url); 
     } catch (err) {
-      alert('Gagal mendownload rekap jadwal. Pastikan server merespons dengan format yang benar.');
+      alert('Gagal mendownload rekap jadwal. Pastikan server backend sudah menyala.');
     } finally {
       setIsExporting(false);
     }
   };
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col">
-      <h2 className="text-sm font-bold mb-2 text-slate-800 uppercase tracking-wide">Export Rekap Akhir</h2>
-      <p className="text-[10px] text-gray-500 mb-4 leading-relaxed flex-1">
-        Unduh data final jadwal seluruh mahasiswa setelah proses barter selesai untuk disinkronisasi.
-      </p>
-      <button 
-        onClick={handleExportRecap}
-        disabled={isExporting}
-        className="w-full flex items-center justify-center gap-2 bg-slate-800 text-white py-2.5 rounded-md text-xs font-bold hover:bg-slate-900 transition-colors disabled:bg-slate-400 disabled:cursor-not-allowed mt-auto"
+    <button 
+      onClick={handleExportRecap}
+      disabled={isExporting}
+      className="flex items-center justify-center gap-2 px-6 py-2.5 border-2 border-emerald-600 text-emerald-600 bg-white hover:bg-emerald-50 rounded-lg text-xs font-black transition-all w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      {/* Ikon Download SVG */}
+      <svg 
+        xmlns="http://www.w3.org/2000/svg" 
+        width="16" 
+        height="16" 
+        viewBox="0 0 24 24" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round" 
+        strokeLinejoin="round"
       >
-        {isExporting ? 'MENGUNDUH...' : 'DOWNLOAD REKAP'}
-      </button>
-    </div>
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+      
+      {isExporting ? 'MENGUNDUH...' : 'EXPORT'}
+    </button>
   );
 }
