@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 
-// IMPORT MODALS
 import AddStudentModal from './modals/AddStudentModal';
 import AddCourseModal from './modals/AddCourseModal';
 import EditProfileModal from './modals/EditProfileModal';
