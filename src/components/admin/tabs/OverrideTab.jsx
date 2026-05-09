@@ -1,68 +1,70 @@
 import React, { useState } from 'react';
 
 const OverrideTab = ({ student }) => {
-  // State untuk nyimpen inputan form
   const [targetNim, setTargetNim] = useState('');
   const [selectedCourse, setSelectedCourse] = useState('');
 
   const handleOverride = () => {
-    // Validasi kecil biar Admin nggak asal klik
     if (!targetNim || !selectedCourse) {
       alert('Harap isi NIM target dan pilih mata kuliah!');
       return;
     }
     
-    // Nanti di sini tinggal ganti pakai fungsi API.post() dari Gilang
-    alert(`⚡ ADMIN OVERRIDE:\nMenukar paksa jadwal ${student.nim} dengan ${targetNim}\nMatkul: ${selectedCourse}`);
+    alert(`⚡ EKSEKUSI SISTEM:\nMenukar paksa jadwal ${student.nim} dengan ${targetNim}\nMatkul: ${selectedCourse}`);
     
-    // Reset form setelah sukses
     setTargetNim('');
     setSelectedCourse('');
   };
 
   return (
-    <div className="p-4 flex flex-col gap-4">
-      <div className="p-5 bg-orange-50 border border-orange-200 rounded-lg">
-        <h4 className="text-sm font-black text-orange-700 mb-2">MANUAL OVERRIDE (JALUR CEPAT)</h4>
-        <p className="text-xs text-orange-600 mb-4 leading-relaxed">
-          Tukar paksa jadwal <strong>{student.nama} ({student.nim})</strong> dengan mahasiswa lain tanpa persetujuan barter.
-        </p>
+    <div className="p-2 animate-in fade-in duration-500">
+      {/* Container utama pake latar abu-abu sangat muda agar 'nyambung' dengan putih */}
+      <div className="p-6 bg-emerald-50 border border-slate-200 rounded-xl">
         
-        <div className="space-y-4">
-          {/* Input NIM Lawan */}
+        {/* Header dengan aksen Emerald */}
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+          <h4 className="text-xs font-black text-emerald-900 uppercase tracking-widest">
+            Manual Override 
+          </h4>
+        </div>
+        
+        <div className="space-y-5">
+          {/* Input NIM Target */}
           <div>
-            <label className="text-xs font-bold text-slate-500 block mb-1">NIM Target (Lawan Tukar)</label>
+            <label className="text-[10px] font-black text-slate-400 uppercase mb-1.5 block">NIM Lawan Tukar</label>
             <input 
               type="text" 
               value={targetNim}
               onChange={(e) => setTargetNim(e.target.value.toUpperCase())}
-              placeholder="Masukkan NIM Mahasiswa ke-2..." 
-              className="w-full p-2 text-sm border border-orange-300 rounded outline-none focus:border-orange-500 font-mono" 
+              placeholder="Contoh: M0403241001" 
+              className="w-full p-2.5 text-sm border border-slate-200 rounded-lg outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-mono bg-white transition-all shadow-sm" 
             />
           </div>
 
-          {/* Dropdown Matkul  */}
+          {/* Dropdown Matkul */}
           <div>
-            <label className="text-xs font-bold text-slate-500 block mb-1">Mata Kuliah yang Ditukar</label>
+            <label className="text-[10px] font-black text-slate-400 uppercase mb-1.5 block">Mata Kuliah Yang Dipindahkan</label>
             <select 
               value={selectedCourse}
               onChange={(e) => setSelectedCourse(e.target.value)}
-              className="w-full p-2 text-sm border border-orange-300 rounded outline-none focus:border-orange-500 bg-white"
+              className="w-full p-2.5 text-sm border text-slate-400 border-slate-200 rounded-lg outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 bg-white transition-all shadow-sm cursor-pointer"
             >
               <option value="">-- Pilih Mata Kuliah --</option>
               {student?.courses?.map(course => (
                 <option key={course.id} value={course.name}>
-                  {course.name} - Kelas Saat Ini: {course.currentClass}
+                  {course.name} (Kelas {course.currentClass})
                 </option>
               ))}
             </select>
           </div>
           
+          {/* Tombol Eksekusi - Pake warna Slate/Hitam biar kontras tapi elegan */}
           <button 
             onClick={handleOverride}
-            className="w-full py-3 bg-orange-600 text-white text-xs font-black rounded hover:bg-orange-700 shadow-sm transition-all"
+            className="w-full py-3 bg-emerald-500 text-white text-[10px] font-black rounded-lg hover:bg-emerald-600 transition-all shadow-md active:scale-[0.98] tracking-widest"
           >
-            ⚡ EKSEKUSI PERTUKARAN PAKSA
+            EKSEKUSI PAKSA
           </button>
         </div>
       </div>

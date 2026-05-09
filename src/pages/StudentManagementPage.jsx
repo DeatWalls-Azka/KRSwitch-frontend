@@ -98,7 +98,7 @@ export default function StudentManagementPage() {
             {mhs.nama}
           </td>
             {/* Data NIM */}
-          <td className="p-4 font-mono font-bold text-slate-700 italic">
+          <td className="p-4 text-slate-600 font-medium border-r border-emerald-100">
             {mhs.nim}
                  </td>
              </tr>
@@ -112,14 +112,14 @@ export default function StudentManagementPage() {
           <div className="bg-white rounded-xl shadow-xl border-2 border-emerald-500 overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
             <div className="p-6 bg-emerald-50 border-b border-emerald-200 flex justify-between items-center">
               <div>
-                <h2 className="text-xl font-black text-slate-800 uppercase tracking-tight">{selectedStudent.nama}</h2>
-                <p className="font-mono text-sm font-bold text-emerald-600 mt-1">{selectedStudent.nim}</p>
+                <h2 className="text-xl font-black text-emerald-900 uppercase tracking-tight">{selectedStudent.nama}</h2>
+                <p className="font-mono text-sm font-bold text-emerald-900 mt-1">{selectedStudent.nim}</p>
               </div>
-              <button onClick={() => setSelectedStudent(null)} className="text-slate-400 hover:text-rose-500 font-black px-4 py-2 transition-all">TUTUP [X]</button>
+              <button onClick={() => setSelectedStudent(null)} className="px-6 py-2.5 border-2 border-emerald-600 text-emerald-600 bg-white text-lg font-black rounded-lg hover:bg-emerald-50 transition-colors w-full md:w-auto"> X</button>
             </div>
             
             <div className="flex border-b border-gray-100 bg-white text-xs font-black uppercase tracking-widest">
-              {['krs', 'barter', 'override', 'akun'].map(t => (
+              {['KRS', 'Barter', 'Override', 'Akun'].map(t => (
                 <button 
                   key={t} 
                   onClick={() => setActiveTab(t)} 
@@ -131,10 +131,10 @@ export default function StudentManagementPage() {
             </div>
 
             <div className="p-8">
-              {activeTab === 'krs' && <KrsTab student={selectedStudent} onOpenAddCourse={() => setIsAddCourseModalOpen(true)} />}
-              {activeTab === 'barter' && <BarterTab student={selectedStudent} />}
-              {activeTab === 'override' && <OverrideTab student={selectedStudent} />}
-              {activeTab === 'akun' && <AkunTab student={selectedStudent} onOpenEditProfile={() => setIsEditProfileModalOpen(true)} />}
+              {activeTab === 'KRS' && <KrsTab student={selectedStudent} onOpenAddCourse={() => setIsAddCourseModalOpen(true)} />}
+              {activeTab === 'Barter' && <BarterTab student={selectedStudent} />}
+              {activeTab === 'Override' && <OverrideTab student={selectedStudent} />}
+              {activeTab === 'Akun' && <AkunTab student={selectedStudent} onOpenEditProfile={() => setIsEditProfileModalOpen(true)} />}
             </div>
           </div>
         )}

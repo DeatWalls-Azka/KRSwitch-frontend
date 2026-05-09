@@ -11,11 +11,11 @@ const KrsTab = ({ student, onOpenAddCourse }) => {
       </div>
 
       {student.courses.map(course => (
-        <div key={course.id} className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded">
+        <div key={course.id} className="flex items-center gap-3 p-3 bg-emerald-50 border border-gray-100 rounded">
           <div className="flex-1">
-            <p className="text-xs font-bold text-slate-700">{course.name}</p>
+            <p className="text-xs font-bold text-emerald-900">{course.name}</p>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-[10px] text-slate-500">Kelas:</span>
+              <span className="text-[10px] text-emerald-900">Kelas:</span>
               <select className="p-1 text-xs border border-gray-300 rounded outline-none font-bold text-emerald-700 bg-white">
                 <option value={course.currentClass}>{course.currentClass}</option>
                 <option value="P1">P1</option>
