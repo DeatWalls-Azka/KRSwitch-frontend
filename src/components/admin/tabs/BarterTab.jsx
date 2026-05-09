@@ -9,12 +9,12 @@ const BarterTab = ({ student }) => {
 
       {student.activeOffers.length > 0 ? (
         student.activeOffers.map(offer => (
-          <div key={offer.id} className="p-3 bg-blue-50 border border-blue-100 rounded flex justify-between items-center">
+          <div key={offer.id} className="p-3 bg-emerald-50 border border-emerald-100 rounded flex justify-between items-center">
             <div>
-              <p className="text-xs font-bold text-slate-700">{offer.course}</p>
-              <p className="text-[10px] font-bold text-blue-600 mt-1">Tukar: {offer.from} ➔ {offer.target}</p>
+              <p className="text-xs font-bold text-emerald-900">{offer.course}</p>
+              <p className="text-[10px] font-bold text-emerald-900">Tukar: {offer.from} ➔ {offer.target}</p>
             </div>
-            <button onClick={() => alert(`Paksa hapus tawaran barter ID: ${offer.id}`)} className="px-2 py-1 bg-rose-500 text-white text-[10px] font-bold rounded hover:bg-rose-600">
+            <button onClick={() => alert(`Paksa hapus tawaran barter ID: ${offer.id}`)} className="px-2 py-1 bg-white border border-rose-200 text-rose-500 text-[10px] font-bold rounded hover:bg-rose-50">
               HAPUS
             </button>
           </div>
