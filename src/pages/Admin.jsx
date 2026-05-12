@@ -10,7 +10,10 @@ import AdminLogTable from '../components/admin/AdminLogTable';
 export default function Admin() {
   const navigate = useNavigate();
   const [stats, setStats] = useState({
-    totalClasses: 0, activeOffers: 0, successfulTrades: 0, totalStudents: 0
+    totalClasses: 0, 
+    activeOffers: 0, 
+    successfulTrades: 0, 
+    totalStudents: 0
   });
 
   const fetchStats = async () => {
@@ -26,6 +29,7 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-8 font-mono text-slate-800">
+      {/* Header Section */}
       <div className="max-w-7xl mx-auto flex justify-between items-center mb-10">
         <div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase italic">Admin Panel</h1>
@@ -48,6 +52,7 @@ export default function Admin() {
       </div>
 
       <div className="max-w-7xl mx-auto space-y-6">
+        {/* Balik ke Layout 3 Kolom Murni */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
           <div className="h-full">
             <SystemStatsCard stats={stats} />
@@ -59,6 +64,8 @@ export default function Admin() {
             <DangerZoneCard onSuccess={fetchStats} />
           </div>
         </div>
+
+        {/* Log Table Section */}
         <div className="w-full">
           <AdminLogTable />
         </div>

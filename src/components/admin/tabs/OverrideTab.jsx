@@ -1,24 +1,46 @@
 import React, { useState } from 'react';
+import api from '../../../api'; // Pastikan path import benar
 
 const OverrideTab = ({ student }) => {
   const [targetNim, setTargetNim] = useState('');
   const [selectedCourse, setSelectedCourse] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleOverride = () => {
+  const handleOverride = async () => {
     if (!targetNim || !selectedCourse) {
       alert('Harap isi NIM target dan pilih mata kuliah!');
       return;
     }
     
-    alert(`⚡ EKSEKUSI SISTEM:\nMenukar paksa jadwal ${student.nim} dengan ${targetNim}\nMatkul: ${selectedCourse}`);
+    // Peringatan konfirmasi ke Admin
+    const confirmOverride = window.confirm(`⚡ PERINGATAN SISTEM ⚡\nAnda akan menukar PAKSA jadwal matkul ${selectedCourse} antara ${student.nim} dan ${targetNim}.\n\nLanjutkan eksekusi?`);
     
-    setTargetNim('');
-    setSelectedCourse('');
+    if (confirmOverride) {
+      setIsProcessing(true);
+      try {
+        // Menembak API backend khusus untuk Override Swap
+        await api.post('/api/admin/override-swap', {
+          nim1: student.nim,
+          nim2: targetNim,
+          courseCode: selectedCourse
+        });
+        
+        alert(`Sukses! Jadwal ${student.nim} dan ${targetNim} berhasil ditukar paksa.`);
+        setTargetNim('');
+        setSelectedCourse('');
+        window.location.reload(); // Refresh untuk melihat hasil
+      } catch (error) {
+        console.error("Gagal eksekusi override:", error);
+        alert(error.response?.data?.error || "Gagal mengeksekusi Override. Pastikan NIM Target valid dan mengambil mata kuliah yang sama.");
+      } finally {
+        setIsProcessing(false);
+      }
+    }
   };
 
   return (
     <div className="p-2 animate-in fade-in duration-500">
-      {/* Container utama pake latar abu-abu sangat muda agar 'nyambung' dengan putih */}
+      {/* Container utama */}
       <div className="p-6 bg-emerald-50 border border-slate-200 rounded-xl">
         
         {/* Header dengan aksen Emerald */}
@@ -37,8 +59,9 @@ const OverrideTab = ({ student }) => {
               type="text" 
               value={targetNim}
               onChange={(e) => setTargetNim(e.target.value.toUpperCase())}
+              disabled={isProcessing}
               placeholder="Contoh: M0403241001" 
-              className="w-full p-2.5 text-sm border border-slate-200 rounded-lg outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-mono bg-white transition-all shadow-sm" 
+              className="w-full p-2.5 text-sm border border-slate-200 rounded-lg outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-mono bg-white transition-all shadow-sm disabled:opacity-50" 
             />
           </div>
 
@@ -48,23 +71,31 @@ const OverrideTab = ({ student }) => {
             <select 
               value={selectedCourse}
               onChange={(e) => setSelectedCourse(e.target.value)}
-              className="w-full p-2.5 text-sm border text-slate-400 border-slate-200 rounded-lg outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 bg-white transition-all shadow-sm cursor-pointer"
+              disabled={isProcessing}
+              className="w-full p-2.5 text-sm border text-slate-600 border-slate-200 rounded-lg outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 bg-white transition-all shadow-sm cursor-pointer disabled:opacity-50"
             >
               <option value="">-- Pilih Mata Kuliah --</option>
-              {student?.courses?.map(course => (
-                <option key={course.id} value={course.name}>
-                  {course.name} (Kelas {course.currentClass})
-                </option>
-              ))}
+              {student?.courses?.map(course => {
+                // Adaptasi nama variabel dari backend Gilang
+                const courseCode = course.parallelClass?.courseCode || course.name;
+                const classCode = course.parallelClass?.classCode || course.currentClass;
+                
+                return (
+                  <option key={course.id} value={courseCode}>
+                    {courseCode} (Kelas {classCode})
+                  </option>
+                );
+              })}
             </select>
           </div>
           
-          {/* Tombol Eksekusi - Pake warna Slate/Hitam biar kontras tapi elegan */}
+          {/* Tombol Eksekusi */}
           <button 
             onClick={handleOverride}
-            className="w-full py-3 bg-emerald-500 text-white text-[10px] font-black rounded-lg hover:bg-emerald-600 transition-all shadow-md active:scale-[0.98] tracking-widest"
+            disabled={isProcessing || !targetNim || !selectedCourse}
+            className="w-full py-3 bg-emerald-500 text-white text-[10px] font-black rounded-lg hover:bg-emerald-600 transition-all shadow-md active:scale-[0.98] tracking-widest disabled:bg-slate-400 disabled:cursor-not-allowed"
           >
-            EKSEKUSI PAKSA
+            {isProcessing ? 'MENGEKSEKUSI...' : 'EKSEKUSI PAKSA'}
           </button>
         </div>
       </div>
