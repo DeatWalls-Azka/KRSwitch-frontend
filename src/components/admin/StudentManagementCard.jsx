@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import api from '../../api'; // Pastikan path import api benar
 
 import AddStudentModal from './modals/AddStudentModal';
 import AddCourseModal from './modals/AddCourseModal';
@@ -13,30 +14,39 @@ const StudentManagementCard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [editingStudent, setEditingStudent] = useState(null);
   const [activeTab, setActiveTab] = useState('krs'); 
+  const [isLoading, setIsLoading] = useState(false); // Tambahan state loading
   
   const [isAddModalOpen, setIsAddModalOpen] = useState(false); 
   const [isAddCourseModalOpen, setIsAddCourseModalOpen] = useState(false); 
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false); 
 
-  const dummyResult = { 
-    nim: 'M0403241029', 
-    nama: 'Azka Julian', 
-    courses: [
-      { id: 1, name: 'Struktur Data (KOM211)', currentClass: 'P1' },
-      { id: 2, name: 'Basis Data (KOM202)', currentClass: 'P3' },
-    ],
-    activeOffers: [
-      { id: 101, course: 'Struktur Data (KOM211)', from: 'P1', target: 'P2' }
-    ]
-  };
+  // FUNGSI PENCARIAN KE BACKEND
+  const handleSearch = async () => {
+    if (!searchTerm.trim()) return; // Jangan cari kalau input kosong
+    
+    setIsLoading(true);
+    try {
+      // Menembak API backend untuk mencari user berdasarkan NIM
+      // Asumsi Gilang akan membuat endpoint GET /api/admin/users/:nim
+      const response = await api.get(`/api/admin/users/${searchTerm.toUpperCase()}`);
+      
+      // Menyesuaikan data dari database ke format yang dibaca UI-mu
+      const studentData = {
+        nim: response.data.nim,
+        nama: response.data.name, 
+        // Fallback array kosong agar map() di tab tidak crash jika data belum ada
+        courses: response.data.enrollments || [], 
+        activeOffers: response.data.barterOffers || []
+      };
 
-  const handleSearch = () => {
-    if (searchTerm === 'M0403241029') {
-      setEditingStudent(dummyResult);
+      setEditingStudent(studentData);
       setActiveTab('krs'); 
-    } else {
-      alert("Mahasiswa tidak ditemukan (Coba ketik NIM Azka)");
+    } catch (error) {
+      console.error("Gagal mencari mahasiswa:", error);
+      alert(`Mahasiswa dengan NIM ${searchTerm.toUpperCase()} tidak ditemukan di sistem.`);
       setEditingStudent(null);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -51,8 +61,21 @@ const StudentManagementCard = () => {
         </div>
         
         <div className="flex gap-2 mb-6">
-          <input type="text" placeholder="Cari NIM Mahasiswa..." className="flex-1 p-2 text-sm border border-gray-200 rounded outline-none focus:ring-1 focus:ring-emerald-400 font-mono" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-          <button onClick={handleSearch} className="px-4 py-2 bg-slate-800 text-white text-xs font-bold rounded hover:bg-slate-700 transition-all">CARI</button>
+          <input 
+            type="text" 
+            placeholder="Cari NIM Mahasiswa..." 
+            className="flex-1 p-2 text-sm border border-gray-200 rounded outline-none focus:ring-1 focus:ring-emerald-400 font-mono uppercase" 
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()} // Bisa tekan Enter buat cari
+          />
+          <button 
+            onClick={handleSearch} 
+            disabled={isLoading}
+            className="px-4 py-2 bg-slate-800 text-white text-xs font-bold rounded hover:bg-slate-700 transition-all disabled:opacity-50"
+          >
+            {isLoading ? 'MENCARI...' : 'CARI'}
+          </button>
         </div>
 
         {editingStudent && (
@@ -80,7 +103,7 @@ const StudentManagementCard = () => {
       </div>
 
       <AddStudentModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
-      <AddCourseModal isOpen={isAddCourseModalOpen} onClose={() => setIsAddCourseModalOpen(false)} studentName={editingStudent?.nama} />
+      <AddCourseModal isOpen={isAddCourseModalOpen} onClose={() => setIsAddCourseModalOpen(false)} studentName={editingStudent?.nama} studentNim={editingStudent?.nim}  />
       <EditProfileModal isOpen={isEditProfileModalOpen} onClose={() => setIsEditProfileModalOpen(false)} studentData={editingStudent} />
     </>
   );

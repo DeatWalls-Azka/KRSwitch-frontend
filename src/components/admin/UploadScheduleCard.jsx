@@ -31,7 +31,7 @@ export default function UploadScheduleCard({ onSuccess }) {
     setUploadStatus('loading');
     
     const formData = new FormData();
-    formData.append('scheduleFile', file);
+    formData.append('file', file);
 
     try {
       await api.post('/api/admin/upload-schedule', formData, {
