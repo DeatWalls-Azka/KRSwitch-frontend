@@ -133,15 +133,6 @@ export default function AdminLayout({ children }) {
           </div>
 
           <div className="flex items-center gap-3">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => window.open('/', '_blank')}
-              className="gap-2 text-[11px] font-black uppercase tracking-tight h-9"
-            >
-              <ExternalLink size={12} strokeWidth={3} />
-              Buka Beranda
-            </Button>
           </div>
         </header>
 
