@@ -1,130 +1,205 @@
-import React, { useState } from 'react';
-import api from '../../../api'; // Pastikan path-nya benar
+import React, { useState, useEffect } from 'react';
+import api from '../../../api';
+import { Trash2, Check, Loader2, BookOpen, AlertCircle } from 'lucide-react';
+import { Button } from '../../ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../ui/select";
 
-const KrsTab = ({ student, onOpenAddCourse }) => {
-  // State untuk menampung perubahan kelas sementara sebelum disimpan
+const KrsTab = ({ student, onRefresh }) => {
   const [modifiedClasses, setModifiedClasses] = useState({});
   const [isProcessing, setIsProcessing] = useState(false);
+  const [siblingClasses, setSiblingClasses] = useState({});
 
-  // Menangani saat Admin mengganti pilihan di dropdown
-  const handleClassChange = (enrollmentId, newClass) => {
+  useEffect(() => {
+    if (!student.courses || student.courses.length === 0) return;
+
+    const uniqueCourseCodes = [...new Set(
+      student.courses.map(c => c.parallelClass?.courseCode).filter(Boolean)
+    )];
+
+    const fetchSiblings = async () => {
+      try {
+        const res = await api.get('/api/classes');
+        const allClasses = res.data;
+        const map = {};
+        uniqueCourseCodes.forEach(code => {
+          map[code] = allClasses.filter(cls => cls.courseCode === code);
+        });
+        setSiblingClasses(map);
+      } catch (err) {
+        console.error('Gagal mengambil daftar kelas:', err);
+      }
+    };
+
+    fetchSiblings();
+  }, [student.courses]);
+
+  const handleClassChange = (enrollmentId, newParallelClassId) => {
     setModifiedClasses(prev => ({
       ...prev,
-      [enrollmentId]: newClass
+      [enrollmentId]: Number(newParallelClassId),
     }));
   };
 
-  // Fungsi untuk paksa Drop Matkul
   const handleDropCourse = async (enrollmentId, courseName) => {
-    const confirmDrop = window.confirm(`BAHAYA: Yakin ingin me-nge-DROP matkul ${courseName} secara paksa dari KRS ${student.nama}?`);
-    
+    const confirmDrop = window.confirm(
+      `Peringatan: Yakin ingin menghapus mata kuliah ${courseName} dari KRS mahasiswa ini?`
+    );
+
     if (confirmDrop) {
       setIsProcessing(true);
       try {
         await api.delete(`/api/admin/enrollments/${enrollmentId}`);
-        alert(`Matkul ${courseName} berhasil di-drop!`);
-        window.location.reload(); // Refresh data untuk melihat hasil
+        if (onRefresh) onRefresh();
       } catch (error) {
-        console.error("Gagal drop matkul:", error);
-        alert(error.response?.data?.error || "Terjadi kesalahan saat menghapus mata kuliah.");
+        console.error('Gagal drop matkul:', error);
+        alert(error.response?.data?.error || 'Terjadi kesalahan saat menghapus mata kuliah.');
       } finally {
         setIsProcessing(false);
       }
     }
   };
 
-  // Fungsi untuk menyimpan perubahan pindah kelas
   const handleSaveChanges = async () => {
-    // Cek apakah ada kelas yang diubah
     const updates = Object.keys(modifiedClasses);
-    if (updates.length === 0) {
-      return alert("Tidak ada perubahan kelas yang perlu disimpan.");
-    }
+    if (updates.length === 0) return;
 
     setIsProcessing(true);
     try {
-      // Kita gunakan Promise.all agar bisa menyimpan beberapa perubahan kelas sekaligus
       await Promise.all(
-        updates.map(enrollmentId => 
-          api.put(`/api/admin/enrollments/${enrollmentId}`, { 
-            newClassCode: modifiedClasses[enrollmentId] 
+        updates.map(enrollmentId =>
+          api.put(`/api/admin/enrollments/${enrollmentId}`, {
+            newParallelClassId: modifiedClasses[enrollmentId],
           })
         )
       );
-      
-      alert('Perubahan KRS berhasil disimpan ke database!');
-      window.location.reload();
+      setModifiedClasses({});
+      if (onRefresh) onRefresh();
     } catch (error) {
-      console.error("Gagal menyimpan perubahan KRS:", error);
-      alert("Terjadi kesalahan saat menyimpan. Pastikan kelas tujuan tersedia.");
+      console.error('Gagal menyimpan perubahan KRS:', error);
+      alert(error.response?.data?.error || 'Terjadi kesalahan saat menyimpan.');
     } finally {
       setIsProcessing(false);
     }
   };
 
   return (
-    <div className="p-4 flex flex-col gap-4">
-      <div className="flex justify-between items-center mb-2">
-        <label className="text-[10px] font-bold text-slate-400 uppercase">Daftar Mata Kuliah</label>
-        <button 
-          onClick={onOpenAddCourse} 
-          disabled={isProcessing}
-          className="text-[10px] font-bold text-emerald-600 hover:underline disabled:opacity-50"
-        >
-          + Tambah Matkul
-        </button>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between border-b border-border pb-4">
+        <div className="flex items-center gap-2">
+          <BookOpen size={16} className="text-muted-foreground" />
+          <h4 className="text-sm font-black uppercase tracking-tight">Kartu Rencana Studi</h4>
+        </div>
+        <span className="text-[10px] font-black bg-muted px-2 py-1 rounded border border-border uppercase tracking-widest text-muted-foreground">
+          {student.courses?.length || 0} Terdaftar
+        </span>
       </div>
 
-      {student.courses && student.courses.length > 0 ? (
-        student.courses.map(course => {
-          // Penyesuaian variabel untuk menangkap format data dari backend (Prisma) atau dummy
-          const enrollmentId = course.id;
-          const courseName = course.parallelClass?.courseCode || course.name;
-          const currentClass = course.parallelClass?.classCode || course.currentClass;
-          
-          return (
-            <div key={enrollmentId} className="flex items-center gap-3 p-3 bg-emerald-50 border border-gray-100 rounded">
-              <div className="flex-1">
-                <p className="text-xs font-bold text-emerald-900">{courseName}</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-[10px] text-emerald-900">Kelas:</span>
-                  <select 
-                    // Tampilkan value dari state jika ada perubahan, kalau tidak gunakan currentClass asli
-                    value={modifiedClasses[enrollmentId] || currentClass}
-                    onChange={(e) => handleClassChange(enrollmentId, e.target.value)}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {student.courses && student.courses.length > 0 ? (
+          student.courses.map(course => {
+            const enrollmentId = course.id;
+            const courseCode = course.parallelClass?.courseCode;
+            const courseName = course.parallelClass?.courseName;
+            const classCode = course.parallelClass?.classCode;
+            const currentClassId = course.parallelClassId;
+            
+            const currentType = (classCode || '').charAt(0).toUpperCase();
+            const allSiblings = siblingClasses[courseCode] || [];
+            const options = allSiblings.filter(cls => (cls.classCode || '').charAt(0).toUpperCase() === currentType);
+            
+            const isChanged = modifiedClasses[enrollmentId] !== undefined && modifiedClasses[enrollmentId] !== currentClassId;
+
+            return (
+              <div key={enrollmentId} className={`group relative p-4 rounded-xl border transition-all duration-200 ${isChanged ? 'bg-primary/[0.03] border-primary/20 shadow-sm' : 'bg-background border-border hover:border-muted-foreground/20 shadow-sm'}`}>
+                <div className="flex items-start justify-between mb-3">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest font-mono">{courseCode}</span>
+                      {isChanged && (
+                        <span className="flex items-center gap-1 px-1.5 py-0.5 bg-primary text-white text-[8px] font-black rounded uppercase tracking-tighter shadow-sm animate-in zoom-in-95">
+                          <AlertCircle size={8} /> Modified
+                        </span>
+                      )}
+                    </div>
+                    <h5 className="text-xs font-black text-foreground leading-tight line-clamp-1">{courseName || 'Mata Kuliah'}</h5>
+                  </div>
+                  <button
+                    onClick={() => handleDropCourse(enrollmentId, courseCode)}
                     disabled={isProcessing}
-                    className="p-1 text-xs border border-gray-300 rounded outline-none font-bold text-emerald-700 bg-white"
+                    className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+                    title="Hapus Mata Kuliah"
                   >
-                    {/* Daftar Opsi Kelas (Bisa disesuaikan nanti jika ditarik dari database) */}
-                    <option value={currentClass}>{currentClass}</option>
-                    <option value="P1">P1</option>
-                    <option value="P2">P2</option>
-                    <option value="P3">P3</option>
-                    <option value="P4">P4</option>
-                  </select>
+                    <Trash2 size={14} strokeWidth={2.5} />
+                  </button>
+                </div>
+                
+                <div className="mt-2 space-y-2">
+                  <div className="space-y-1.5">
+                    <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Pilih Kelas</span>
+                    <Select 
+                      value={(modifiedClasses[enrollmentId] ?? currentClassId).toString()} 
+                      onValueChange={(val) => handleClassChange(enrollmentId, val)}
+                      disabled={isProcessing || options.length === 0}
+                    >
+                      <SelectTrigger className="w-full h-9 bg-background border-input text-xs font-bold">
+                        <SelectValue placeholder="Pilih Kelas" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {options.length > 0 ? (
+                            options.map(cls => (
+                              <SelectItem key={cls.id} value={cls.id.toString()}>
+                                {cls.classCode} — {cls.day}, {cls.timeStart}-{cls.timeEnd}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value={currentClassId.toString()}>{classCode} (Single Class)</SelectItem>
+                          )}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
-              <button 
-                onClick={() => handleDropCourse(enrollmentId, courseName)} 
-                disabled={isProcessing}
-                className="px-2 py-1 bg-white border border-rose-200 text-rose-500 text-[10px] font-bold rounded hover:bg-rose-50 disabled:opacity-50"
-              >
-                DROP
-              </button>
+            );
+          })
+        ) : (
+          <div className="col-span-full py-16 text-center bg-muted/20 rounded-xl border-2 border-dashed border-border">
+            <div className="w-12 h-12 bg-background rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm text-muted-foreground/30 border border-border">
+              <BookOpen size={24} strokeWidth={1.5} />
             </div>
-          );
-        })
-      ) : (
-        <p className="text-xs text-slate-500 text-center py-4">Mahasiswa ini belum mengambil mata kuliah (KRS Kosong).</p>
-      )}
+            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">KRS Belum Terisi</p>
+          </div>
+        )}
+      </div>
 
-      <button 
-        onClick={handleSaveChanges}
-        disabled={isProcessing || Object.keys(modifiedClasses).length === 0}
-        className="w-full mt-2 py-2 bg-emerald-500 text-white text-xs font-black rounded hover:bg-emerald-600 transition-all shadow-sm disabled:bg-gray-400 disabled:cursor-not-allowed"
-      >
-        {isProcessing ? 'MENYIMPAN...' : 'SIMPAN PERUBAHAN KRS'}
-      </button>
+      {Object.keys(modifiedClasses).length > 0 && (
+        <div className="sticky bottom-0 bg-background/80 backdrop-blur-md pt-6 pb-2 mt-8 border-t border-border animate-in slide-in-from-bottom-4">
+          <Button
+            onClick={handleSaveChanges}
+            disabled={isProcessing}
+            variant="admin"
+            className="w-full h-12 shadow-xl"
+          >
+            {isProcessing ? (
+              <Loader2 className="animate-spin h-5 w-5" />
+            ) : (
+              <Check size={18} strokeWidth={3} />
+            )}
+            SIMPAN {Object.keys(modifiedClasses).length} PERUBAHAN KRS
+          </Button>
+          <p className="text-[10px] text-center text-muted-foreground mt-3 font-bold uppercase tracking-tight opacity-50 italic">
+            Perubahan ini akan langsung diperbarui di database mahasiswa.
+          </p>
+        </div>
+      )}
     </div>
   );
 };

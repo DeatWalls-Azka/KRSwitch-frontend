@@ -1,22 +1,132 @@
-@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+@import "tailwindcss";
 
-/* Thin overlay scrollbars globally */
-* {
-  scrollbar-width: none;
-  scrollbar-color: #d1d5db transparent;
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  
+  /* Shadcn-like Palette with Emerald Green */
+  --color-background: #ffffff;
+  --color-foreground: #09090b;
+  --color-card: #ffffff;
+  --color-card-foreground: #09090b;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #09090b;
+  
+  /* Emerald Green Theme */
+  --color-primary: #059669; /* emerald-600 */
+  --color-primary-foreground: #ffffff;
+  
+  --color-secondary: #ecfdf5; /* emerald-50 */
+  --color-secondary-foreground: #065f46; /* emerald-800 */
+  
+  --color-muted: #f4f4f5;
+  --color-muted-foreground: #71717a;
+  
+  --color-accent: #ecfdf5; /* emerald-50 */
+  --color-accent-foreground: #059669; /* emerald-600 */
+  
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #fafafa;
+  
+  --color-border: #e4e4e7;
+  --color-input: #e4e4e7;
+  --color-ring: #10b981; /* emerald-500 */
+  
+  --radius-lg: 0.5rem;
+  --radius-md: calc(0.5rem - 2px);
+  --radius-sm: calc(0.5rem - 4px);
 }
-*::-webkit-scrollbar {
-  width: 2px;
-  height: 4px;
+
+@layer base {
+  * {
+    @apply border-border font-sans;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Ensure Radix Popovers are always on top */
+  [data-radix-popper-content-wrapper] {
+    z-index: 99999 !important;
+  }
 }
-*::-webkit-scrollbar-track {
+
+/* Custom Scrollbar - Shadcn Style */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
-*::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 999px;
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/20 rounded-full;
 }
-*::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  @apply bg-muted-foreground/40;
+}
+
+.animate-in {
+  animation-duration: 150ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-fill-mode: forwards;
+}
+
+.animate-out {
+  animation-duration: 150ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-fill-mode: forwards;
+}
+
+.fade-in-0 { @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } } animation-name: fade-in; }
+.fade-out-0 { @keyframes fade-out { from { opacity: 1; } to { opacity: 0; } } animation-name: fade-out; }
+.zoom-in-95 { @keyframes zoom-in { from { transform: scale(0.95); } to { transform: scale(1); } } animation-name: zoom-in; }
+.zoom-out-95 { @keyframes zoom-out { from { transform: scale(1); } to { transform: scale(0.95); } } animation-name: zoom-out; }
+
+/* Slide animations for Radix */
+[data-side='bottom'] { animation-name: slide-up; }
+[data-side='top'] { animation-name: slide-down; }
+[data-side='left'] { animation-name: slide-right; }
+[data-side='right'] { animation-name: slide-left; }
+
+@keyframes slide-up { from { transform: translateY(4px); } to { transform: translateY(0); } }
+@keyframes slide-down { from { transform: translateY(-4px); } to { transform: translateY(0); } }
+@keyframes slide-left { from { transform: translateX(4px); } to { transform: translateX(0); } }
+@keyframes slide-right { from { transform: translateX(-4px); } to { transform: translateX(0); } }
+
+/* Hide scrollbars but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Data Table Specifics */
+.admin-table {
+  @apply w-full text-left border-collapse;
+}
+.admin-table th {
+  @apply px-4 py-3 text-xs font-medium text-muted-foreground bg-muted/50 border-b border-border first:rounded-tl-lg last:rounded-tr-lg;
+}
+.admin-table td {
+  @apply px-4 py-3 text-sm border-b border-border/50;
+}
+.admin-table tr:last-child td {
+  @apply border-b-0;
+}
+.admin-table tr:hover {
+  @apply bg-muted/30;
+}
+
+/* Shadcn-like Tab Styles */
+.admin-tabs-list {
+  @apply inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground;
+}
+.admin-tabs-trigger {
+  @apply inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-black ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+}
+.admin-tabs-trigger[data-state='active'] {
+  @apply bg-background text-primary shadow-sm;
 }

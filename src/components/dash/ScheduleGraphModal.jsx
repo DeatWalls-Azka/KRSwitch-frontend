@@ -311,7 +311,7 @@ export default function ScheduleGraphModal({
             {/* Header */}
             <div className="flex items-center gap-2 px-5 py-2.5 border-b border-gray-200 bg-gray-50 shrink-0">
               <div className="min-w-0 flex-1">
-                <h2 className="text-xs font-bold text-gray-900 uppercase tracking-wide">JADWAL KULIAH</h2>
+                <h2 className="text-xs font-bold text-gray-900  tracking-wide">JADWAL KULIAH</h2>
                 <p className="text-[11px] text-gray-500 mt-0.5 truncate whitespace-nowrap max-w-full">
                   {currentUser?.name || '-'} · {mySchedule.length} kelas
                 </p>
@@ -361,7 +361,7 @@ export default function ScheduleGraphModal({
                 >
                   <div style={{ overflow: 'hidden', minHeight: 0 }}>
                     <div className="px-3 py-2 border-b border-gray-100">
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Format</p>
+                      <p className="text-[10px] font-bold text-gray-400  tracking-wide">Format</p>
                     </div>
                     <div className="py-1">
                       {exportItems.map(({ key, label, sub, icon, fn }) => (
@@ -436,7 +436,7 @@ export default function ScheduleGraphModal({
                       return (
                         <div key={key} className="flex-none w-[110px] sm:w-[128px] md:flex-1 md:min-w-0 flex flex-col overflow-hidden">
                           <div className="shrink-0 h-9 flex items-center justify-center border-b border-gray-200 bg-gray-50">
-                            <span className={`text-[11px] font-bold uppercase tracking-wider ${dayClasses.length ? 'text-gray-800' : 'text-gray-400'}`}>
+                            <span className={`text-[11px] font-bold   ${dayClasses.length ? 'text-gray-800' : 'text-gray-400'}`}>
                               {label}
                             </span>
                           </div>
@@ -600,7 +600,7 @@ export default function ScheduleGraphModal({
                 >
                   <div style={{ overflow: 'hidden', minHeight: 0 }}>
                     <div className="px-3 py-2 border-b border-gray-100">
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Format</p>
+                      <p className="text-[10px] font-bold text-gray-400  tracking-wide">Format</p>
                     </div>
                     <div className="py-1">
                       {exportItems.map(({ key, label, sub, icon, fn }) => (

@@ -148,7 +148,7 @@ export default function CreateOfferForm({ onSuccess, onClose }) {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-xs uppercase text-gray-500 font-bold mb-1">
+                <label className="block text-xs  text-gray-500 font-bold mb-1">
                   Kelas Saya
                 </label>
                 <select
@@ -174,7 +174,7 @@ export default function CreateOfferForm({ onSuccess, onClose }) {
               </div>
 
               <div>
-                <label className="block text-xs uppercase text-gray-500 font-bold mb-1">
+                <label className="block text-xs  text-gray-500 font-bold mb-1">
                   Tukar Ke
                 </label>
                 <select

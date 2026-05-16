@@ -104,7 +104,7 @@ export default function Header({
         </div>
         <div className="flex flex-col">
           <h1 className="text-lg font-bold text-gray-900 leading-tight mb-[-3px]">KRSWITCH</h1>
-          <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">{onlineCount} Online</span>
+          <span className="text-[10px] font-semibold text-gray-500  tracking-wide">{onlineCount} Online</span>
         </div>
       </div>
 

@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Admin from './pages/Admin';
 import AuthCallback from './pages/AuthCallback';
 import StudentManagementPage from './pages/StudentManagementPage'; 
+import AdminLayout from './components/admin/AdminLayout';
 import { getCurrentUser } from './api';
 
 // Cek auth sebelum render route — redirect ke /login kalo belum login
@@ -29,8 +30,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
-        <Route path="/admin/students" element={<ProtectedRoute><StudentManagementPage /></ProtectedRoute>} />
+        <Route path="/admin" element={<ProtectedRoute><AdminLayout><Admin /></AdminLayout></ProtectedRoute>} />
+        <Route path="/admin/students" element={<ProtectedRoute><AdminLayout><StudentManagementPage /></AdminLayout></ProtectedRoute>} />
       </Routes>
     </Router>
   );

@@ -62,10 +62,25 @@ export function useSocket({
       }));
     });
 
+    socket.on('enrollment-updated', (updated) => {
+      setEnrollments(prev => prev.map(e => e.id === updated.id ? updated : e));
+    });
+
+    socket.on('enrollment-deleted', ({ id }) => {
+      setEnrollments(prev => prev.filter(e => e.id !== id));
+    });
+
     socket.on('offer-auto-cancelled', ({ offerId, reason, conflictingClass }) => {
-      const message = reason === 'no_longer_enrolled'
-        ? `Penawaran #${offerId} dibatalkan otomatis, kelas yang ditawarkan sudah tidak kamu miliki.`
-        : `Penawaran #${offerId} dibatalkan otomatis, bentrok jadwal dengan ${conflictingClass}.`;
+      let message = '';
+      if (reason === 'no_longer_enrolled') {
+        message = `Penawaran #${offerId} dibatalkan otomatis, kelas yang ditawarkan sudah tidak kamu miliki.`;
+      } else if (reason === 'schedule_override') {
+        message = `Penawaran #${offerId} dibatalkan otomatis karena jadwal di-override oleh Admin.`;
+      } else if (reason === 'admin_cancelled') {
+        message = `Penawaran #${offerId} dibatalkan secara paksa oleh Admin.`;
+      } else {
+        message = `Penawaran #${offerId} dibatalkan otomatis, bentrok jadwal dengan ${conflictingClass}.`;
+      }
 
       const id = Date.now();
       setToasts(prev => [...prev, { id, message }]);
