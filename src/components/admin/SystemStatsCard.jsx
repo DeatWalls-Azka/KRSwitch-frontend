@@ -1,48 +1,42 @@
-import { BarChart3 } from 'lucide-react';
+import React from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from '../ui/card';
 
 const StatRow = ({ label, value }) => (
-  <div className="flex justify-between items-center p-3 rounded-lg border border-border bg-muted/20 transition-all duration-200 hover:bg-muted/40">
-    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{label}</span>
-    <span className="text-sm font-black tracking-tight text-foreground">{value}</span>
+  <div className="flex justify-between items-center py-1.5 border-b border-border/50 last:border-0">
+    <span className="text-[11px] text-muted-foreground font-medium">{label}</span>
+    <span className="text-[12px] font-bold text-foreground">{value}</span>
   </div>
 );
 
 export default function SystemStatsCard({ stats }) {
   return (
-    <Card className="h-full border-border shadow-sm overflow-hidden">
-      <CardHeader className="flex flex-row items-center gap-3 pb-6 border-b border-border/50 bg-muted/10">
-        <div className="p-2 bg-primary/5 rounded-lg text-primary shrink-0">
-          <BarChart3 size={18} strokeWidth={2.5} />
-        </div>
-        <div className="flex flex-col">
-          <CardTitle className="text-sm font-black uppercase tracking-tight">Statistik Global</CardTitle>
-          <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Data Real-time</span>
-        </div>
+    <Card className="h-full border-border shadow-sm rounded-md">
+      <CardHeader className="py-3 px-4 border-b bg-muted/5">
+        <CardTitle className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+          System Statistics
+        </CardTitle>
       </CardHeader>
-      
-      <CardContent className="space-y-3 pt-6">
+      <CardContent className="p-4 space-y-0">
         <StatRow 
-          label="Mahasiswa Terdaftar" 
+          label="Total Students" 
           value={(stats?.totalStudents || 0).toLocaleString()} 
         />
         <StatRow 
-          label="Total Kelas Aktif" 
+          label="Active Classes" 
           value={(stats?.totalClasses || 0).toLocaleString()} 
         />
         <StatRow 
-          label="Penawaran Antre" 
+          label="Total Enrollments" 
+          value={(stats?.totalEnrollments || 0).toLocaleString()} 
+        />
+        <StatRow 
+          label="Open Offers" 
           value={stats?.activeOffers || 0}
         />
         <StatRow 
-          label="Berhasil Ditukar" 
+          label="Completed Trades" 
           value={stats?.successfulTrades || 0}
         />
-
-        <div className="mt-4 pt-4 border-t border-border flex items-center justify-between opacity-60">
-          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Update Terakhir</span>
-          <span className="text-[10px] font-black text-foreground tracking-tight uppercase">Sekarang</span>
-        </div>
       </CardContent>
     </Card>
   );

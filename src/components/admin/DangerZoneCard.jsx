@@ -17,6 +17,19 @@ export default function DangerZoneCard({ onSuccess }) {
     }
   };
 
+  const handleRandomize = async () => {
+    const confirm = window.confirm('BAHAYA: Anda akan menghapus SEMUA KRS mahasiswa dan mengacaknya kembali berdasarkan data Master. Lanjutkan?');
+    if (confirm) {
+      try {
+        await api.post('/api/admin/seed-random');
+        alert('Data berhasil diacak ulang.');
+        if (onSuccess) onSuccess(); 
+      } catch (err) {
+        alert(err.response?.data?.error || 'Gagal mengacak data.');
+      }
+    }
+  };
+
   return (
     <Card className="flex flex-col h-full border-destructive/20 shadow-sm bg-destructive/[0.02]">
       <CardHeader className="flex flex-row items-center gap-3 pb-6 border-b border-destructive/10 bg-destructive/[0.03]">
@@ -32,24 +45,33 @@ export default function DangerZoneCard({ onSuccess }) {
       <CardContent className="flex-1 flex flex-col pt-6">
         <div className="flex-1 space-y-4">
           <p className="text-xs text-foreground font-bold leading-relaxed">
-            Tindakan destruktif yang secara permanen menghapus data transaksi dari sistem.
+            Tindakan destruktif yang secara permanen mengubah data KRS dan transaksi.
           </p>
           <div className="p-3 bg-destructive/5 rounded-lg border border-destructive/10">
             <p className="text-[10px] text-destructive font-medium leading-relaxed italic opacity-80 border-l-2 border-destructive/30 pl-3">
-              Gunakan fungsi ini hanya saat masa modifikasi KRS resmi ditutup. Fitur ini akan membersihkan seluruh antrean barter yang ada.
+              Gunakan fungsi acak hanya saat inisialisasi awal. Fitur ini akan menghapus semua data KRS saat ini.
             </p>
           </div>
         </div>
 
-        <Button 
-          variant="danger"
-          size="admin"
-          onClick={handlePurgeOffers}
-          className="mt-8 h-11"
-        >
-          <Trash2 size={16} strokeWidth={3} />
-          PURGE SEMUA DATA BARTER
-        </Button>
+        <div className="mt-8 space-y-3">
+          <Button 
+            variant="outline"
+            className="w-full h-11 border-destructive/30 text-destructive hover:bg-destructive hover:text-white text-[11px] font-black uppercase tracking-tight"
+            onClick={handleRandomize}
+          >
+            RANDOMIZE ENROLLMENTS
+          </Button>
+          <Button 
+            variant="danger"
+            size="admin"
+            onClick={handlePurgeOffers}
+            className="w-full h-11"
+          >
+            <Trash2 size={16} strokeWidth={3} />
+            PURGE SEMUA DATA BARTER
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

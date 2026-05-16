@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
-import { Users as UsersIcon, LayoutDashboard } from 'lucide-react';
-import UploadScheduleCard from "../components/admin/UploadScheduleCard";
+import AdminWizardCard from "../components/admin/AdminWizardCard";
 import SystemStatsCard from "../components/admin/SystemStatsCard";
-import DangerZoneCard from "../components/admin/DangerZoneCard";
 import AdminLogTable from '../components/admin/AdminLogTable';
 import io from 'socket.io-client';
 
@@ -55,27 +53,27 @@ export default function Admin() {
   }, []);
 
   return (
-    <div className="space-y-8 pb-10">
+    <div className="space-y-4 pb-10">
       {/* Header Info */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b pb-6">
         <div className="space-y-1">
-          <div className="flex items-center gap-2 text-primary">
-            <LayoutDashboard size={20} strokeWidth={2.5} />
-            <h1 className="text-2xl font-black tracking-tight">Ringkasan Sistem</h1>
-          </div>
-          <p className="text-muted-foreground text-sm font-medium">Monitoring aktivitas real-time dan manajemen data master.</p>
+          <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+          <p className="text-sm text-muted-foreground">Manage master data, students, and class enrollments.</p>
         </div>
-        <div className="flex items-center gap-3 px-4 py-2 bg-background border border-border rounded-lg shadow-sm">
-          <div className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-[11px] font-black text-foreground tracking-tight">{stats.onlineCount || 0} Mahasiswa Aktif</span>
+        <div className="flex items-center gap-2 px-3 py-1 bg-muted/50 border rounded-full">
+          <div className="h-2 w-2 rounded-full bg-emerald-500" />
+          <span className="text-xs font-medium">{stats?.onlineCount || 0} Online Users</span>
         </div>
       </div>
 
-      {/* Grid of Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <SystemStatsCard stats={stats} />
-        <UploadScheduleCard onSuccess={fetchStats} />
-        <DangerZoneCard onSuccess={fetchStats} />
+      {/* Wizard & Stats Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
+        <div className="lg:col-span-1">
+          <SystemStatsCard stats={stats} />
+        </div>
+        <div className="lg:col-span-2">
+          <AdminWizardCard stats={stats} onRefresh={fetchStats} />
+        </div>
       </div>
 
       {/* Log Table Section */}
