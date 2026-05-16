@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../../api';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import marbotLogo from '../../assets/MarbotBanner.jpg';
+import { getCurrentUser } from '../../api';
 
 const SidebarLink = ({ to, icon: Icon, label, active }) => (
   <Link
@@ -32,6 +33,11 @@ export default function AdminLayout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    getCurrentUser().then(res => setUser(res.data)).catch(console.error);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -67,14 +73,25 @@ export default function AdminLayout({ children }) {
         <div className="flex flex-col h-full">
           {/* Logo Section */}
           <div className="p-6 h-20 flex items-center border-b border-border bg-muted/5">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 w-full">
               <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md border border-border shrink-0 bg-white">
                 <img src={marbotLogo} alt="KRSwitch Logo" className="w-full h-full object-cover" />
               </div>
-              <div className="flex flex-col min-w-0">
-                <h2 className="text-sm font-black tracking-tight leading-none uppercase truncate text-primary">KRSwitch</h2>
-                <span className="text-[10px] font-bold text-muted-foreground mt-1 uppercase tracking-widest opacity-80">Admin Panel</span>
+              <div className="flex flex-col min-w-0 flex-1">
+                <h2 className="text-sm font-black tracking-tight leading-none truncate text-primary uppercase">
+                  {user?.name || 'Loading...'}
+                </h2>
+                <span className="text-[10px] font-bold text-muted-foreground mt-1 truncate opacity-80 lowercase">
+                  {user?.email || '...'}
+                </span>
               </div>
+              <button 
+                onClick={handleLogout}
+                className="p-2 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-destructive/10 shrink-0"
+                title="Keluar"
+              >
+                <LogOut size={16} strokeWidth={2.5} />
+              </button>
             </div>
           </div>
 
@@ -92,17 +109,6 @@ export default function AdminLayout({ children }) {
             ))}
           </nav>
 
-          {/* Bottom Section */}
-          <div className="p-4 border-t border-border bg-muted/10">
-            <Button 
-              variant="ghost" 
-              onClick={handleLogout}
-              className="w-full justify-start gap-3 px-3 py-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive rounded-md font-bold transition-all"
-            >
-              <LogOut size={18} strokeWidth={2.5} />
-              <span className="text-sm tracking-tight">Keluar Sesi</span>
-            </Button>
-          </div>
         </div>
       </aside>
 

@@ -8,18 +8,44 @@ import StudentManagementPage from './pages/StudentManagementPage';
 import AdminLayout from './components/admin/AdminLayout';
 import { getCurrentUser } from './api';
 
-// Cek auth sebelum render route — redirect ke /login kalo belum login
+// Cek auth — redirect ke /login kalo belum login
 function ProtectedRoute({ children }) {
-  const [authed, setAuthed] = useState(null); // null = masih checking
+  const [authed, setAuthed] = useState(null);
+  useEffect(() => {
+    getCurrentUser().then(() => setAuthed(true)).catch(() => setAuthed(false));
+  }, []);
+  if (authed === null) return null;
+  if (authed === false) return <Navigate to="/login" replace />;
+  return children;
+}
+
+// Cek role student — redirect ke /admin kalo ternyata admin
+function StudentRoute({ children }) {
+  const [status, setStatus] = useState(null);
+  useEffect(() => {
+    getCurrentUser()
+      .then(res => setStatus(res.data?.role === 'student' ? 'student' : 'admin'))
+      .catch(() => setStatus('unauthenticated'));
+  }, []);
+  if (status === null) return null;
+  if (status === 'unauthenticated') return <Navigate to="/login" replace />;
+  if (status === 'admin') return <Navigate to="/admin" replace />;
+  return children;
+}
+
+// Cek role admin — redirect ke / kalo bukan admin
+function AdminRoute({ children }) {
+  const [status, setStatus] = useState(null); // null = checking
 
   useEffect(() => {
     getCurrentUser()
-      .then(() => setAuthed(true))
-      .catch(() => setAuthed(false));
+      .then(res => setStatus(res.data?.role === 'admin' ? 'admin' : 'forbidden'))
+      .catch(() => setStatus('unauthenticated'));
   }, []);
 
-  if (authed === null) return null; // Loading, jangan render dulu
-  if (authed === false) return <Navigate to="/login" replace />;
+  if (status === null) return null;
+  if (status === 'unauthenticated') return <Navigate to="/login" replace />;
+  if (status === 'forbidden') return <Navigate to="/" replace />;
   return children;
 }
 
@@ -29,9 +55,9 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
-        <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/admin" element={<ProtectedRoute><AdminLayout><Admin /></AdminLayout></ProtectedRoute>} />
-        <Route path="/admin/students" element={<ProtectedRoute><AdminLayout><StudentManagementPage /></AdminLayout></ProtectedRoute>} />
+        <Route path="/" element={<StudentRoute><Dashboard /></StudentRoute>} />
+        <Route path="/admin" element={<AdminRoute><AdminLayout><Admin /></AdminLayout></AdminRoute>} />
+        <Route path="/admin/students" element={<AdminRoute><AdminLayout><StudentManagementPage /></AdminLayout></AdminRoute>} />
       </Routes>
     </Router>
   );

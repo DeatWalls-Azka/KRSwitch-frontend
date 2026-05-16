@@ -4,8 +4,7 @@ import { getCurrentUser } from '../api';
 import MarbotBanner from '../assets/MarbotBanner.jpg';
 
 const ERROR_MESSAGES = {
-  wrong_domain:   'Harus menggunakan akun @apps.ipb.ac.id untuk login.',
-  not_registered: 'Akunmu belum terdaftar di sistem ini. Hubungi administrator.',
+  not_registered: 'Akunmu tidak memiliki akses ke platform ini.',
   oauth_failed:   'Login gagal. Coba lagi.',
   oauth_denied:   'Login dibatalkan.',
 };
@@ -128,7 +127,7 @@ export default function Login() {
           </button>
 
           <p className="text-[10px] text-gray-400 mt-[-12px]">
-            *harus menggunakan akun ipb untuk login!
+            *hanya akun yang terdaftar yang dapat mengakses platform ini.
           </p>
         </div>
 
