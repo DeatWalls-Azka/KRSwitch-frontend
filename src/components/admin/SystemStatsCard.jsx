@@ -1,31 +1,49 @@
-import React from 'react';
+import { BarChart3 } from 'lucide-react';
+import { Card, CardHeader, CardContent, CardTitle } from '../ui/card';
 
-// Kita ambil data 'stats' yang dikirim dari Admin.jsx lewat props
+const StatRow = ({ label, value }) => (
+  <div className="flex justify-between items-center p-3 rounded-lg border border-border bg-muted/20 transition-all duration-200 hover:bg-muted/40">
+    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{label}</span>
+    <span className="text-sm font-black tracking-tight text-foreground">{value}</span>
+  </div>
+);
+
 export default function SystemStatsCard({ stats }) {
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 sticky top-6">
-      <h2 className="text-sm font-bold mb-4 text-slate-800 uppercase tracking-wide border-b border-gray-100 pb-2">
-        Status Sistem
-      </h2>
-      <div className="space-y-3">
-        <div className="flex justify-between items-center p-2.5 bg-slate-50 rounded border border-gray-100">
-          <span className="text-[11px] font-bold text-slate-500 uppercase">Total Mahasiswa</span>
-          {/* Mengambil data dari props stats */}
-          <span className="font-mono text-sm font-bold text-slate-900">{stats?.totalStudents || 0}</span>
+    <Card className="h-full border-border shadow-sm overflow-hidden">
+      <CardHeader className="flex flex-row items-center gap-3 pb-6 border-b border-border/50 bg-muted/10">
+        <div className="p-2 bg-primary/5 rounded-lg text-primary shrink-0">
+          <BarChart3 size={18} strokeWidth={2.5} />
         </div>
-        <div className="flex justify-between items-center p-2.5 bg-slate-50 rounded border border-gray-100">
-          <span className="text-[11px] font-bold text-slate-500 uppercase">Total Kelas</span>
-          <span className="font-mono text-sm font-bold text-slate-900">{stats?.totalClasses || 0}</span>
+        <div className="flex flex-col">
+          <CardTitle className="text-sm font-black uppercase tracking-tight">Statistik Global</CardTitle>
+          <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Data Real-time</span>
         </div>
-        <div className="flex justify-between items-center p-2.5 bg-blue-50 rounded border border-blue-100">
-          <span className="text-[11px] font-bold text-blue-600 uppercase">Barter Aktif</span>
-          <span className="font-mono text-sm font-bold text-blue-700">{stats?.activeOffers || 0}</span>
+      </CardHeader>
+      
+      <CardContent className="space-y-3 pt-6">
+        <StatRow 
+          label="Mahasiswa Terdaftar" 
+          value={(stats?.totalStudents || 0).toLocaleString()} 
+        />
+        <StatRow 
+          label="Total Kelas Aktif" 
+          value={(stats?.totalClasses || 0).toLocaleString()} 
+        />
+        <StatRow 
+          label="Penawaran Antre" 
+          value={stats?.activeOffers || 0}
+        />
+        <StatRow 
+          label="Berhasil Ditukar" 
+          value={stats?.successfulTrades || 0}
+        />
+
+        <div className="mt-4 pt-4 border-t border-border flex items-center justify-between opacity-60">
+          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Update Terakhir</span>
+          <span className="text-[10px] font-black text-foreground tracking-tight uppercase">Sekarang</span>
         </div>
-        <div className="flex justify-between items-center p-2.5 bg-green-50 rounded border border-green-100">
-          <span className="text-[11px] font-bold text-green-600 uppercase">Tukar Berhasil</span>
-          <span className="font-mono text-sm font-bold text-green-700">{stats?.successfulTrades || 0}</span>
-        </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

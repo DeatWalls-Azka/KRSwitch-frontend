@@ -125,7 +125,7 @@ function NotificationRow({ notification, parallelClasses }) {
             {/* Stale cancelled offers */}
             {data.staleCancelledOffers && data.staleCancelledOffers.length > 0 && (
               <div className="space-y-2">
-                <div className="text-[11px] text-gray-400 font-bold uppercase">
+                <div className="text-[11px] text-gray-400 font-bold ">
                   Penawaran Dibatalkan Otomatis
                 </div>
                 {data.staleCancelledOffers.map((stale) => {

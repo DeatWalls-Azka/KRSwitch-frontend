@@ -90,14 +90,14 @@ export default function Login() {
 
           {/* Title — centered */}
           <div className="text-center">
-            <h1 className="text-sm font-bold text-gray-900 tracking-widest uppercase">KRSwitch</h1>
+            <h1 className="text-sm font-bold text-gray-900  ">KRSwitch</h1>
             <p className="text-[12px] text-gray-500 mt-0.5">Platform Barter Kelas IPB</p>
           </div>
 
           {/* Error message */}
           {error && (
             <div className="w-full bg-red-50 border border-red-200 px-3 py-2 rounded-sm">
-              <p className="text-[12px] text-red-700 font-bold">⚠ {error}</p>
+              <p className="text-[12px] text-red-700 font-bold">{error}</p>
             </div>
           )}
 

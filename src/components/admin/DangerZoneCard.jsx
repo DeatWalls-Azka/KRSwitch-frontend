@@ -1,3 +1,6 @@
+import { AlertTriangle, Trash2 } from 'lucide-react';
+import { Card, CardHeader, CardContent, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
 import api from '../../api';
 
 export default function DangerZoneCard({ onSuccess }) {
@@ -15,21 +18,39 @@ export default function DangerZoneCard({ onSuccess }) {
   };
 
   return (
-    // Tambahkan flex flex-col dan h-full agar sejajar dengan kartu lain
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-red-200 flex flex-col h-full">
-      <h2 className="text-sm font-bold mb-4 text-red-600 uppercase tracking-wide border-b border-red-50 pb-2">
-        Danger Zone
-      </h2>
+    <Card className="flex flex-col h-full border-destructive/20 shadow-sm bg-destructive/[0.02]">
+      <CardHeader className="flex flex-row items-center gap-3 pb-6 border-b border-destructive/10 bg-destructive/[0.03]">
+        <div className="p-2 bg-destructive/10 rounded-lg text-destructive shrink-0">
+          <AlertTriangle size={18} strokeWidth={2.5} />
+        </div>
+        <div className="flex flex-col">
+          <CardTitle className="text-sm font-black uppercase tracking-tight text-destructive">Danger Zone</CardTitle>
+          <span className="text-[9px] font-bold text-destructive/60 uppercase tracking-widest">Restricted Access</span>
+        </div>
+      </CardHeader>
       
-      <p className="text-sm text-slate-600 font-medium leading-relaxed flex-1">
-        Gunakan fungsi ini hanya saat masa modifikasi KRS resmi ditutup oleh kampus. Fitur ini akan menghapus seluruh antrean barter yang ada di sistem.
-      </p>
-      <button 
-        onClick={handlePurgeOffers}
-        className="w-full bg-white border-2 border-red-200 text-red-600 py-2.5 rounded-lg text-xs font-black hover:bg-red-50 hover:border-red-300 active:bg-red-100 transition-all mt-auto shadow-sm"
-      >
-        RESET SEMUA BARTER
-      </button>
-    </div>
+      <CardContent className="flex-1 flex flex-col pt-6">
+        <div className="flex-1 space-y-4">
+          <p className="text-xs text-foreground font-bold leading-relaxed">
+            Tindakan destruktif yang secara permanen menghapus data transaksi dari sistem.
+          </p>
+          <div className="p-3 bg-destructive/5 rounded-lg border border-destructive/10">
+            <p className="text-[10px] text-destructive font-medium leading-relaxed italic opacity-80 border-l-2 border-destructive/30 pl-3">
+              Gunakan fungsi ini hanya saat masa modifikasi KRS resmi ditutup. Fitur ini akan membersihkan seluruh antrean barter yang ada.
+            </p>
+          </div>
+        </div>
+
+        <Button 
+          variant="danger"
+          size="admin"
+          onClick={handlePurgeOffers}
+          className="mt-8 h-11"
+        >
+          <Trash2 size={16} strokeWidth={3} />
+          PURGE SEMUA DATA BARTER
+        </Button>
+      </CardContent>
+    </Card>
   );
 }

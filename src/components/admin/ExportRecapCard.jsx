@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import api from '../../api';
+import { Download, Loader2 } from 'lucide-react';
+import { Button } from '../ui/button';
 
 export default function ExportRecapCard() {
   const [isExporting, setIsExporting] = useState(false);
@@ -24,29 +26,20 @@ export default function ExportRecapCard() {
   };
 
   return (
-    <button 
+    <Button 
+      variant="adminOutline" 
+      size="sm"
       onClick={handleExportRecap}
       disabled={isExporting}
-      className="flex items-center justify-center gap-2 px-6 py-2.5 border-2 border-emerald-600 text-emerald-600 bg-white hover:bg-emerald-50 rounded-lg text-xs font-black transition-all w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+      className="h-10 text-[10px] font-black uppercase tracking-tight"
     >
-      {/* Ikon Download SVG */}
-      <svg 
-        xmlns="http://www.w3.org/2000/svg" 
-        width="16" 
-        height="16" 
-        viewBox="0 0 24 24" 
-        fill="none" 
-        stroke="currentColor" 
-        strokeWidth="2" 
-        strokeLinecap="round" 
-        strokeLinejoin="round"
-      >
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-        <polyline points="7 10 12 15 17 10"></polyline>
-        <line x1="12" y1="15" x2="12" y2="3"></line>
-      </svg>
+      {isExporting ? (
+        <Loader2 className="animate-spin h-4 w-4" />
+      ) : (
+        <Download size={16} strokeWidth={3} />
+      )}
       
-      {isExporting ? 'MENGUNDUH...' : 'EXPORT'}
-    </button>
+      {isExporting ? 'Exporting...' : 'Ekspor Rekap CSV'}
+    </Button>
   );
 }

@@ -491,13 +491,13 @@ export default function Dashboard() {
         <div className="fixed bottom-20 md:bottom-4 right-4 z-50 flex flex-col gap-2">
           {toasts.map(toast => (
             <div key={toast.id} className="bg-red-600 text-white text-xs font-bold px-4 py-3 rounded shadow-lg max-w-xs flex items-start gap-2">
-              <span className="shrink-0">⚠</span>
+              <span className="shrink-0"></span>
               <span>{toast.message}</span>
               <button
                 onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))}
                 className="ml-auto shrink-0 opacity-75 hover:opacity-100"
               >
-                ✕
+                
               </button>
             </div>
           ))}

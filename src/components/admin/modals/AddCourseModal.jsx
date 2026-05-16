@@ -1,13 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../../api';
+import { BookPlus, X, Loader2, Save } from 'lucide-react';
+import { Button } from '../../ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "../../ui/select";
 
 const AddCourseModal = ({ isOpen, onClose, studentName, studentNim }) => {
-  const [allClasses, setAllClasses] = useState([]); // Daftar semua kelas dari DB
+  const [allClasses, setAllClasses] = useState([]); 
   const [selectedClassId, setSelectedClassId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // 1. Tarik daftar mata kuliah & kelas yang tersedia saat modal dibuka
   useEffect(() => {
     if (isOpen) {
       const fetchClasses = async () => {
@@ -32,7 +42,6 @@ const AddCourseModal = ({ isOpen, onClose, studentName, studentNim }) => {
 
     setIsProcessing(true);
     try {
-      // Kirim perintah tambah enrollment ke backend
       await api.post('/api/admin/enrollments', {
         nim: studentNim,
         parallelClassId: parseInt(selectedClassId)
@@ -43,60 +52,87 @@ const AddCourseModal = ({ isOpen, onClose, studentName, studentNim }) => {
       window.location.reload();
     } catch (error) {
       console.error("Gagal menambah matkul:", error);
-      alert(error.response?.data?.error || "Gagal menambahkan mata kuliah. Mungkin mahasiswa sudah mengambil matkul ini?");
+      alert(error.response?.data?.error || "Gagal menambahkan mata kuliah.");
     } finally {
       setIsProcessing(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
+    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-in fade-in duration-300">
+      <div className="bg-background rounded-xl shadow-2xl w-full max-w-md overflow-hidden border border-border animate-in zoom-in-95 duration-300">
         
-        <div className="bg-emerald-500 p-4">
-          <h3 className="text-white font-bold">Tambah Mata Kuliah</h3>
-          <p className="text-emerald-100 text-xs mt-1">
-            Tambahkan enrollment kelas baru untuk {studentName || 'mahasiswa'}.
-          </p>
+        <div className="bg-muted/10 p-6 border-b border-border flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/5 rounded-lg text-primary">
+              <BookPlus size={18} strokeWidth={2.5} />
+            </div>
+            <div>
+              <h3 className="text-sm font-black uppercase tracking-tight">Tambah Mata Kuliah</h3>
+              <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-1 opacity-60">
+                Pendaftaran untuk {studentName}
+              </p>
+            </div>
+          </div>
+          <button 
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-muted text-muted-foreground transition-colors"
+          >
+            <X size={18} strokeWidth={2.5} />
+          </button>
         </div>
         
-        <div className="p-6 flex flex-col gap-4">
-          <div>
-            <label className="text-xs font-bold text-slate-500 mb-1 block">Pilih Mata Kuliah & Kelas</label>
-            <select 
-              value={selectedClassId}
-              onChange={(e) => setSelectedClassId(e.target.value)}
+        <div className="p-8 space-y-6">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest block">Pilih Mata Kuliah & Kelas Paralel</label>
+            
+            <Select 
+              value={selectedClassId} 
+              onValueChange={setSelectedClassId}
               disabled={isLoading || isProcessing}
-              className="w-full p-2 border border-gray-200 rounded outline-none focus:border-emerald-500 text-sm bg-white disabled:bg-slate-50"
             >
-              <option value="">-- {isLoading ? 'Memuat...' : 'Pilih Matkul & Kelas'} --</option>
-              {allClasses.map((cls) => (
-                <option key={cls.id} value={cls.id}>
-                  {cls.courseCode} - Kelas {cls.classCode}
-                </option>
-              ))}
-            </select>
-            <p className="text-[10px] text-slate-400 mt-2 italic">
-              *Hanya menampilkan kelas yang terdaftar di database master.
+              <SelectTrigger className="w-full h-12 bg-background border-input font-bold">
+                <SelectValue placeholder={isLoading ? "Memuat data..." : "Pilih Matkul & Kelas"} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Master Data Kelas</SelectLabel>
+                  {allClasses.map((cls) => (
+                    <SelectItem key={cls.id} value={cls.id.toString()}>
+                      {cls.courseCode} — {cls.courseName} (Kelas {cls.classCode})
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+
+            <p className="text-[9px] text-muted-foreground mt-2 italic font-medium uppercase tracking-tight opacity-60">
+              *Hanya menampilkan kelas yang terdaftar di database master IPB.
             </p>
           </div>
         </div>
         
-        <div className="p-4 border-t border-gray-100 flex justify-end gap-3 bg-gray-50">
-          <button 
+        <div className="p-6 bg-muted/20 border-t border-border flex items-center justify-end gap-4">
+          <Button 
+            variant="ghost"
             onClick={onClose} 
             disabled={isProcessing}
-            className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors disabled:opacity-50"
+            className="text-[10px] font-black uppercase tracking-widest"
           >
-            BATAL
-          </button>
-          <button 
+            Batal
+          </Button>
+          <Button 
             onClick={handleAddCourse} 
             disabled={isProcessing || !selectedClassId}
-            className="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded shadow-sm hover:bg-emerald-700 transition-colors disabled:bg-emerald-400"
+            className="px-8 h-11 uppercase tracking-widest text-[10px] font-black"
           >
-            {isProcessing ? 'MEMPROSES...' : 'TAMBAHKAN MATKUL'}
-          </button>
+            {isProcessing ? (
+              <Loader2 className="animate-spin h-4 w-4" />
+            ) : (
+              <Save size={14} strokeWidth={3} className="mr-2" />
+            )}
+            {isProcessing ? 'Processing...' : 'Simpan Enrollment'}
+          </Button>
         </div>
 
       </div>

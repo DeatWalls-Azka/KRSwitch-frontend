@@ -64,7 +64,7 @@ const StudentManagementCard = () => {
           <input 
             type="text" 
             placeholder="Cari NIM Mahasiswa..." 
-            className="flex-1 p-2 text-sm border border-gray-200 rounded outline-none focus:ring-1 focus:ring-emerald-400 font-mono uppercase" 
+            className="flex-1 p-2 text-sm border border-gray-200 rounded outline-none focus:ring-1 focus:ring-emerald-400 font-mono " 
             value={searchTerm} 
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()} // Bisa tekan Enter buat cari
@@ -83,7 +83,7 @@ const StudentManagementCard = () => {
             <div className="bg-slate-50 p-4 border-b border-gray-100 flex justify-between items-center">
               <div>
                 <p className="font-mono font-bold text-slate-700 text-sm">{editingStudent.nim}</p>
-                <p className="text-xs font-bold text-slate-500 uppercase">{editingStudent.nama}</p>
+                <p className="text-xs font-bold text-slate-500 ">{editingStudent.nama}</p>
               </div>
               <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded">TERVERIFIKASI</span>
             </div>

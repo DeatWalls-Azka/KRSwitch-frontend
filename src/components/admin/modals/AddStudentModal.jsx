@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import api from '../../../api';
+import { UserPlus, X, Loader2, Save } from 'lucide-react';
+import { Button } from '../../ui/button';
 
 const AddStudentModal = ({ isOpen, onClose }) => {
   const [nim, setNim] = useState('');
@@ -15,19 +17,17 @@ const AddStudentModal = ({ isOpen, onClose }) => {
 
     setIsProcessing(true);
     try {
-      // Asumsi email otomatis di-generate atau ditangani backend
       await api.post('/api/admin/users', {
         nim: nim.toUpperCase(),
         name: name,
-        email: `${nim.toLowerCase()}@apps.ipb.ac.id` // Standar email IPB
+        email: `${nim.toLowerCase()}@apps.ipb.ac.id` 
       });
 
       alert(`Mahasiswa ${name} berhasil ditambahkan!`);
-      // Reset form
       setNim('');
       setName('');
       onClose();
-      window.location.reload(); // Biar daftar mahasiswa/stats terupdate
+      window.location.reload(); 
     } catch (error) {
       console.error("Gagal menambah mahasiswa:", error);
       alert(error.response?.data?.error || "Gagal menyimpan data mahasiswa.");
@@ -37,53 +37,72 @@ const AddStudentModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
-        <div className="bg-emerald-500 p-4">
-          <h3 className="text-white font-bold">Tambah Mahasiswa Baru</h3>
-          <p className="text-emerald-100 text-xs mt-1">Masukkan data mahasiswa ke dalam sistem KRSwitch.</p>
+    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-in fade-in duration-300">
+      <div className="bg-background rounded-xl shadow-2xl w-full max-w-md overflow-hidden border border-border animate-in zoom-in-95 duration-300">
+        <div className="bg-muted/10 p-6 border-b border-border flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/5 rounded-lg text-primary">
+              <UserPlus size={18} strokeWidth={2.5} />
+            </div>
+            <div>
+              <h3 className="text-sm font-black uppercase tracking-tight">Registrasi Mahasiswa</h3>
+              <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-1 opacity-60">Input Data Master</p>
+            </div>
+          </div>
+          <button 
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-muted text-muted-foreground transition-colors"
+          >
+            <X size={18} strokeWidth={2.5} />
+          </button>
         </div>
         
-        <div className="p-6 flex flex-col gap-4">
-          <div>
-            <label className="text-xs font-bold text-slate-500 mb-1 block">NIM Mahasiswa</label>
+        <div className="p-8 space-y-6">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest block">Nomor Induk Mahasiswa (NIM)</label>
             <input 
               type="text" 
-              placeholder="Contoh: G6401231001" 
+              placeholder="G6401211XXX" 
               value={nim}
               onChange={(e) => setNim(e.target.value)}
               disabled={isProcessing}
-              className="w-full p-2 border border-gray-200 rounded outline-none focus:border-emerald-500 font-mono text-sm uppercase disabled:bg-slate-50" 
+              className="w-full px-4 py-2.5 bg-background border border-input rounded-md outline-none focus:ring-2 focus:ring-ring focus:border-primary font-mono text-sm font-bold text-foreground transition-all" 
             />
           </div>
-          <div>
-            <label className="text-xs font-bold text-slate-500 mb-1 block">Nama Lengkap</label>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest block">Nama Lengkap Sesuai SIAK</label>
             <input 
               type="text" 
               placeholder="Masukkan nama lengkap..." 
               value={name}
               onChange={(e) => setName(e.target.value)}
               disabled={isProcessing}
-              className="w-full p-2 border border-gray-200 rounded outline-none focus:border-emerald-500 text-sm disabled:bg-slate-50" 
+              className="w-full px-4 py-2.5 bg-background border border-input rounded-md outline-none focus:ring-2 focus:ring-ring focus:border-primary text-sm font-bold text-foreground transition-all" 
             />
           </div>
         </div>
 
-        <div className="p-4 border-t border-gray-100 flex justify-end gap-3 bg-gray-50">
-          <button 
+        <div className="p-6 bg-muted/20 border-t border-border flex items-center justify-end gap-4">
+          <Button 
+            variant="ghost"
             onClick={onClose} 
             disabled={isProcessing}
-            className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors disabled:opacity-50"
+            className="text-[10px] font-black uppercase tracking-widest"
           >
-            BATAL
-          </button>
-          <button 
+            Batal
+          </Button>
+          <Button 
             onClick={handleSave} 
             disabled={isProcessing}
-            className="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded shadow-sm hover:bg-emerald-700 transition-colors disabled:bg-emerald-400"
+            className="px-8 h-11 uppercase tracking-widest text-[10px] font-black"
           >
-            {isProcessing ? 'MENYIMPAN...' : 'SIMPAN DATA'}
-          </button>
+            {isProcessing ? (
+              <Loader2 className="animate-spin h-4 w-4" />
+            ) : (
+              <Save size={14} strokeWidth={3} className="mr-2" />
+            )}
+            {isProcessing ? 'Processing...' : 'Daftarkan Mahasiswa'}
+          </Button>
         </div>
       </div>
     </div>

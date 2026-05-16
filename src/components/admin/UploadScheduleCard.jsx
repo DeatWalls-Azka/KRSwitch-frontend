@@ -1,5 +1,15 @@
-import { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import api from '../../api';
+import { 
+  UploadCloud, 
+  FileText, 
+  CloudUpload, 
+  AlertCircle, 
+  CheckCircle2, 
+  Loader2 
+} from 'lucide-react';
+import { Card, CardHeader, CardContent, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
 
 export default function UploadScheduleCard({ onSuccess }) {
   const fileInputRef = useRef(null);
@@ -9,7 +19,7 @@ export default function UploadScheduleCard({ onSuccess }) {
   const [errorMessage, setErrorMessage] = useState('');
 
   const validateAndSetFile = (selectedFile) => {
-    if (selectedFile && selectedFile.type === 'text/csv') {
+    if (selectedFile && (selectedFile.type === 'text/csv' || selectedFile.name.endsWith('.csv'))) {
       setFile(selectedFile);
       setUploadStatus('idle');
       setErrorMessage('');
@@ -48,53 +58,85 @@ export default function UploadScheduleCard({ onSuccess }) {
   };
 
   return (
-    // Tambahkan flex flex-col dan h-full di sini
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col h-full">
-      <h2 className="text-sm font-bold mb-4 text-slate-800 uppercase tracking-wide border-b border-gray-100 pb-2">
-        Upload Jadwal Baru (CSV)
-      </h2>
-      <div 
-        onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-        onDragLeave={(e) => { e.preventDefault(); setIsDragging(false); }}
-        onDrop={handleDrop}
-        onClick={() => fileInputRef.current?.click()}
-        className={`flex-1 border-2 border-dashed rounded-xl p-6 text-center transition-all cursor-pointer flex flex-col items-center justify-center ${
-          isDragging ? 'border-blue-500 bg-blue-50' : 
-          file ? 'border-green-500 bg-green-50' : 'border-slate-300 hover:border-blue-400 hover:bg-gray-50'
-        }`}
-      >
-        <input type="file" ref={fileInputRef} onChange={(e) => validateAndSetFile(e.target.files[0])} accept=".csv" className="hidden" />
-        <div className="flex flex-col items-center justify-center gap-2">
-          {file ? (
-            <div className="animate-in fade-in zoom-in duration-300">
-              <p className="text-sm font-bold text-green-700">{file.name}</p>
-              <p className="text-xs text-green-600 mt-1">{(file.size / 1024).toFixed(2)} KB</p>
-            </div>
-          ) : (
-            <>
-              {/* Ikon tambahan untuk mempercantik area yang diperbesar */}
-              <svg className="w-10 h-10 text-slate-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
-              <p className="text-sm text-slate-500 font-semibold">Klik atau seret file CSV jadwal ke sini</p>
-            </>
-          )}
+    <Card className="h-full flex flex-col border-border shadow-sm">
+      <CardHeader className="flex flex-row items-center gap-3 pb-6 border-b border-border/50 bg-muted/10">
+        <div className="p-2 bg-primary/5 rounded-lg text-primary shrink-0">
+          <UploadCloud size={18} strokeWidth={2.5} />
         </div>
-      </div>
+        <div className="flex flex-col">
+          <CardTitle className="text-sm font-black uppercase tracking-tight">Upload Jadwal</CardTitle>
+          <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Update Data Master</span>
+        </div>
+      </CardHeader>
 
-      <div className="mt-4 flex items-center justify-between min-h-[40px]">
-        <div className="flex-1">
-          {uploadStatus === 'error' && <p className="text-xs font-bold text-red-600 italic">⚠ {errorMessage}</p>}
-          {uploadStatus === 'success' && <p className="text-xs font-bold text-green-600">✔ Jadwal diperbarui!</p>}
-        </div>
-        <button 
-          onClick={handleUpload}
-          disabled={!file || uploadStatus === 'loading'}
-          className="ml-4 bg-slate-800 text-white px-6 py-2.5 rounded-md text-xs font-bold hover:bg-slate-900 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed shadow-sm"
+      <CardContent className="flex-1 flex flex-col pt-6">
+        <div 
+          onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+          onDragLeave={(e) => { e.preventDefault(); setIsDragging(false); }}
+          onDrop={handleDrop}
+          onClick={() => fileInputRef.current?.click()}
+          className={`flex-1 border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 cursor-pointer flex flex-col items-center justify-center group ${
+            isDragging ? 'border-primary bg-primary/5' : 
+            file ? 'border-primary/50 bg-primary/5' : 'border-border hover:border-primary/30 hover:bg-muted/50'
+          }`}
         >
-          {uploadStatus === 'loading' ? 'MEMPROSES...' : 'PROSES JADWAL'}
-        </button>
-      </div>
-    </div>
+          <input type="file" ref={fileInputRef} onChange={(e) => validateAndSetFile(e.target.files[0])} accept=".csv" className="hidden" />
+          
+          <div className="flex flex-col items-center justify-center gap-3">
+            {file ? (
+              <div className="animate-in fade-in zoom-in duration-300 flex flex-col items-center">
+                <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-primary-foreground mb-2 shadow-sm">
+                  <FileText size={18} strokeWidth={3} />
+                </div>
+                <p className="text-xs font-black text-foreground truncate max-w-[150px]">{file.name}</p>
+                <p className="text-[9px] font-bold text-muted-foreground mt-1 uppercase">{(file.size / 1024).toFixed(1)} KB</p>
+              </div>
+            ) : (
+              <>
+                <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center text-muted-foreground group-hover:text-primary transition-colors duration-300">
+                  <CloudUpload size={20} strokeWidth={2} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-foreground">Pilih file CSV</p>
+                  <p className="text-[9px] font-medium text-muted-foreground mt-1 uppercase tracking-wider">Drag & drop di sini</p>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-6 space-y-4">
+          {(uploadStatus === 'error' || uploadStatus === 'success') && (
+            <div className={`p-3 rounded-lg flex items-center gap-3 animate-in slide-in-from-top-2 duration-300 border ${
+              uploadStatus === 'error' ? 'bg-destructive/10 text-destructive border-destructive/20' : 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+            }`}>
+              <div className="shrink-0">
+                {uploadStatus === 'error' ? (
+                  <AlertCircle size={14} strokeWidth={3} />
+                ) : (
+                  <CheckCircle2 size={14} strokeWidth={3} />
+                )}
+              </div>
+              <p className="text-[10px] font-black uppercase tracking-tight">{errorMessage || (uploadStatus === 'success' && 'Data master berhasil diperbarui')}</p>
+            </div>
+          )}
+
+          <Button 
+            variant="admin"
+            size="admin"
+            onClick={handleUpload}
+            disabled={!file || uploadStatus === 'loading'}
+            className="w-full h-11"
+          >
+            {uploadStatus === 'loading' ? (
+              <div className="flex items-center justify-center gap-2 uppercase">
+                <Loader2 className="animate-spin h-4 w-4" />
+                Processing...
+              </div>
+            ) : 'PROSES DATA SEKARANG'}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
