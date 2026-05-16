@@ -55,23 +55,29 @@ export default function Admin() {
   return (
     <div className="space-y-4 pb-10">
       {/* Header Info */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b pb-6">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/50 pb-6 mb-2">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Manage master data, students, and class enrollments.</p>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold tracking-tight">Admin Dashboard</h1>
+            <span className="px-1.5 py-0.5 bg-emerald-500/10 text-emerald-600 text-[9px] font-bold rounded-sm border border-emerald-500/20 uppercase tracking-tight">System Operational</span>
+          </div>
+          <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Manage master data, students, and class enrollments</p>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1 bg-muted/50 border rounded-full">
-          <div className="h-2 w-2 rounded-full bg-emerald-500" />
-          <span className="text-xs font-medium">{stats?.onlineCount || 0} Online Users</span>
+        <div className="flex items-center gap-2 px-2.5 py-1.5 bg-muted/30 border border-border/50 rounded-md">
+          <div className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </div>
+          <span className="text-[10px] font-bold text-foreground uppercase tracking-wider">{stats?.onlineCount || 0} Online Users</span>
         </div>
       </div>
 
       {/* Wizard & Stats Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 items-stretch">
         <div className="lg:col-span-1">
           <SystemStatsCard stats={stats} />
         </div>
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-3">
           <AdminWizardCard stats={stats} onRefresh={fetchStats} />
         </div>
       </div>

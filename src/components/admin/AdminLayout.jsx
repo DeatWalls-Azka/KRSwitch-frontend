@@ -15,17 +15,14 @@ import { getCurrentUser } from '../../api';
 const SidebarLink = ({ to, icon: Icon, label, active }) => (
   <Link
     to={to}
-    className={`flex items-center gap-3 px-3 py-2.5 rounded-md transition-all duration-200 group relative ${
+    className={`flex items-center gap-3 px-3 py-2 transition-all duration-200 group relative border-l-2 ${
       active
-        ? 'bg-secondary text-primary font-bold'
-        : 'text-muted-foreground hover:bg-secondary/50 hover:text-primary'
+        ? 'border-emerald-500 bg-emerald-500/5 text-emerald-600 font-bold'
+        : 'border-transparent text-muted-foreground hover:bg-muted/50 hover:text-foreground'
     }`}
   >
-    {active && (
-      <div className="absolute left-[-16px] w-1 h-6 bg-primary rounded-r-full" />
-    )}
-    <Icon size={18} strokeWidth={active ? 2.5 : 2} className={active ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'} />
-    <span className="text-sm tracking-tight">{label}</span>
+    <Icon size={16} strokeWidth={active ? 2.5 : 2} className={active ? 'text-emerald-600' : 'text-muted-foreground group-hover:text-foreground'} />
+    <span className="text-[10px] font-bold uppercase tracking-wider">{label}</span>
   </Link>
 );
 
@@ -63,41 +60,40 @@ export default function AdminLayout({ children }) {
   ];
 
   return (
-    <div className="min-h-screen bg-muted/30 flex font-sans text-foreground">
+    <div className="min-h-screen bg-slate-50 flex font-sans text-foreground">
       {/* SIDEBAR */}
       <aside 
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-background border-r border-border transition-transform duration-300 lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen shrink-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-56 bg-background border-r border-border transition-transform duration-300 lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen shrink-0 ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="flex flex-col h-full">
           {/* Logo Section */}
-          <div className="p-6 h-20 flex items-center border-b border-border bg-muted/5">
+          <div className="p-4 h-20 flex items-center border-b border-border bg-muted/10">
             <div className="flex items-center gap-3 w-full">
-              <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md border border-border shrink-0 bg-white">
-                <img src={marbotLogo} alt="KRSwitch Logo" className="w-full h-full object-cover" />
+              <div className="w-9 h-9 rounded-md overflow-hidden border border-border shrink-0 bg-white shadow-sm">
+                <img src={marbotLogo} alt="Logo" className="w-full h-full object-cover" />
               </div>
               <div className="flex flex-col min-w-0 flex-1">
-                <h2 className="text-sm font-black tracking-tight leading-none truncate text-primary uppercase">
-                  {user?.name || 'Loading...'}
+                <h2 className="text-[11px] font-bold tracking-tight leading-tight truncate text-foreground uppercase">
+                  {user?.name || 'ADMIN'}
                 </h2>
-                <span className="text-[10px] font-bold text-muted-foreground mt-1 truncate opacity-80 lowercase">
-                  {user?.email || '...'}
+                <span className="text-[9px] font-bold text-muted-foreground truncate">
+                  {user?.nim || 'ID: 0000'}
                 </span>
               </div>
               <button 
                 onClick={handleLogout}
-                className="p-2 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-destructive/10 shrink-0"
-                title="Keluar"
+                className="p-1.5 text-muted-foreground hover:text-destructive transition-colors rounded-sm hover:bg-destructive/10 shrink-0"
               >
-                <LogOut size={16} strokeWidth={2.5} />
+                <LogOut size={14} strokeWidth={2.5} />
               </button>
             </div>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-1 overflow-y-auto custom-scrollbar">
-            <div className="px-3 mb-2 text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-50">Menu Utama</div>
+          <nav className="flex-1 py-4 space-y-0.5 overflow-y-auto custom-scrollbar">
+            <div className="px-4 mb-3 text-[9px] font-bold text-muted-foreground uppercase tracking-[0.2em]">Main Navigation</div>
             {navItems.map((item) => (
               <SidebarLink
                 key={item.to}
@@ -108,7 +104,6 @@ export default function AdminLayout({ children }) {
               />
             ))}
           </nav>
-
         </div>
       </aside>
 

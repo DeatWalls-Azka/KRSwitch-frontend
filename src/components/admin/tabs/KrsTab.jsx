@@ -47,25 +47,6 @@ const KrsTab = ({ student, onRefresh }) => {
     }));
   };
 
-  const handleDropCourse = async (enrollmentId, courseName) => {
-    const confirmDrop = window.confirm(
-      `Peringatan: Yakin ingin menghapus mata kuliah ${courseName} dari KRS mahasiswa ini?`
-    );
-
-    if (confirmDrop) {
-      setIsProcessing(true);
-      try {
-        await api.delete(`/api/admin/enrollments/${enrollmentId}`);
-        if (onRefresh) onRefresh();
-      } catch (error) {
-        console.error('Gagal drop matkul:', error);
-        alert(error.response?.data?.error || 'Terjadi kesalahan saat menghapus mata kuliah.');
-      } finally {
-        setIsProcessing(false);
-      }
-    }
-  };
-
   const handleSaveChanges = async () => {
     const updates = Object.keys(modifiedClasses);
     if (updates.length === 0) return;
@@ -91,17 +72,17 @@ const KrsTab = ({ student, onRefresh }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between border-b border-border pb-4">
+      <div className="flex items-center justify-between border-b border-border/50 pb-4">
         <div className="flex items-center gap-2">
-          <BookOpen size={16} className="text-muted-foreground" />
-          <h4 className="text-sm font-black uppercase tracking-tight">Kartu Rencana Studi</h4>
+          <BookOpen size={14} className="text-emerald-600" />
+          <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">Student Course Card (KRS)</h4>
         </div>
-        <span className="text-[10px] font-black bg-muted px-2 py-1 rounded border border-border uppercase tracking-widest text-muted-foreground">
-          {student.courses?.length || 0} Terdaftar
+        <span className="text-[9px] font-bold bg-emerald-500/10 text-emerald-600 px-2 py-0.5 rounded-sm border border-emerald-500/20 uppercase tracking-tighter">
+          {student.courses?.length || 0} Subjects Registered
         </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {student.courses && student.courses.length > 0 ? (
           student.courses.map(course => {
             const enrollmentId = course.id;
@@ -117,87 +98,76 @@ const KrsTab = ({ student, onRefresh }) => {
             const isChanged = modifiedClasses[enrollmentId] !== undefined && modifiedClasses[enrollmentId] !== currentClassId;
 
             return (
-              <div key={enrollmentId} className={`group relative p-4 rounded-xl border transition-all duration-200 ${isChanged ? 'bg-primary/[0.03] border-primary/20 shadow-sm' : 'bg-background border-border hover:border-muted-foreground/20 shadow-sm'}`}>
-                <div className="flex items-start justify-between mb-3">
-                  <div className="space-y-1">
+              <div key={enrollmentId} className={`relative p-3.5 rounded-md border transition-all duration-200 ${isChanged ? 'bg-emerald-500/5 border-emerald-500/30 shadow-sm' : 'bg-background border-border/50 hover:border-border shadow-sm'}`}>
+                <div className="flex items-start justify-between mb-2.5">
+                  <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest font-mono">{courseCode}</span>
+                      <span className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-widest font-mono">{courseCode}</span>
                       {isChanged && (
-                        <span className="flex items-center gap-1 px-1.5 py-0.5 bg-primary text-white text-[8px] font-black rounded uppercase tracking-tighter shadow-sm animate-in zoom-in-95">
-                          <AlertCircle size={8} /> Modified
+                        <span className="flex items-center gap-1 px-1 py-0.5 bg-emerald-500 text-white text-[7px] font-bold rounded-sm uppercase tracking-tighter shadow-sm animate-in zoom-in-95">
+                          MODIFIED
                         </span>
                       )}
                     </div>
-                    <h5 className="text-xs font-black text-foreground leading-tight line-clamp-1">{courseName || 'Mata Kuliah'}</h5>
+                    <h5 className="text-[11px] font-bold text-foreground leading-tight line-clamp-1 uppercase tracking-tight">{courseName || 'Mata Kuliah'}</h5>
                   </div>
-                  <button
-                    onClick={() => handleDropCourse(enrollmentId, courseCode)}
-                    disabled={isProcessing}
-                    className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
-                    title="Hapus Mata Kuliah"
-                  >
-                    <Trash2 size={14} strokeWidth={2.5} />
-                  </button>
                 </div>
                 
-                <div className="mt-2 space-y-2">
-                  <div className="space-y-1.5">
-                    <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Pilih Kelas</span>
-                    <Select 
-                      value={(modifiedClasses[enrollmentId] ?? currentClassId).toString()} 
-                      onValueChange={(val) => handleClassChange(enrollmentId, val)}
-                      disabled={isProcessing || options.length === 0}
-                    >
-                      <SelectTrigger className="w-full h-9 bg-background border-input text-xs font-bold">
-                        <SelectValue placeholder="Pilih Kelas" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {options.length > 0 ? (
-                            options.map(cls => (
-                              <SelectItem key={cls.id} value={cls.id.toString()}>
-                                {cls.classCode} — {cls.day}, {cls.timeStart}-{cls.timeEnd}
-                              </SelectItem>
-                            ))
-                          ) : (
-                            <SelectItem value={currentClassId.toString()}>{classCode} (Single Class)</SelectItem>
-                          )}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                <div className="mt-3 space-y-1.5">
+                  <span className="text-[8px] font-bold text-muted-foreground/50 uppercase tracking-[0.2em] block">Assign Class</span>
+                  <Select 
+                    value={(modifiedClasses[enrollmentId] ?? currentClassId).toString()} 
+                    onValueChange={(val) => handleClassChange(enrollmentId, val)}
+                    disabled={isProcessing || options.length === 0}
+                  >
+                    <SelectTrigger className="w-full h-8 bg-background border-border text-[10px] font-bold focus:ring-slate-950/20 focus:border-slate-950">
+                      <SelectValue placeholder="Select Class" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {options.length > 0 ? (
+                          options.map(cls => (
+                            <SelectItem key={cls.id} value={cls.id.toString()}>
+                              <span className="text-[10px] font-bold uppercase tracking-tight">{cls.classCode} — {cls.day}, {cls.timeStart}-{cls.timeEnd}</span>
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value={currentClassId.toString()}>
+                            <span className="text-[10px] font-bold uppercase tracking-tight">{classCode} (Single Class)</span>
+                          </SelectItem>
+                        )}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             );
           })
         ) : (
-          <div className="col-span-full py-16 text-center bg-muted/20 rounded-xl border-2 border-dashed border-border">
-            <div className="w-12 h-12 bg-background rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm text-muted-foreground/30 border border-border">
-              <BookOpen size={24} strokeWidth={1.5} />
-            </div>
-            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">KRS Belum Terisi</p>
+          <div className="col-span-full py-12 text-center bg-muted/5 rounded-md border border-dashed border-border/50">
+            <BookOpen size={20} className="mx-auto mb-3 text-muted-foreground/20" />
+            <p className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest text-center">Empty Course Enrollment</p>
           </div>
         )}
       </div>
 
       {Object.keys(modifiedClasses).length > 0 && (
-        <div className="sticky bottom-0 bg-background/80 backdrop-blur-md pt-6 pb-2 mt-8 border-t border-border animate-in slide-in-from-bottom-4">
+        <div className="sticky bottom-0 bg-background/80 backdrop-blur-md pt-4 pb-2 mt-6 border-t border-border/50 animate-in slide-in-from-bottom-2">
           <Button
             onClick={handleSaveChanges}
             disabled={isProcessing}
             variant="admin"
-            className="w-full h-12 shadow-xl"
+            className="w-full h-10 shadow-lg text-[10px] font-bold tracking-widest"
           >
             {isProcessing ? (
-              <Loader2 className="animate-spin h-5 w-5" />
+              <Loader2 className="animate-spin h-4 w-4" />
             ) : (
-              <Check size={18} strokeWidth={3} />
+              <>
+                <Check size={14} className="mr-2" strokeWidth={3} />
+                COMMIT {Object.keys(modifiedClasses).length} CHANGES
+              </>
             )}
-            SIMPAN {Object.keys(modifiedClasses).length} PERUBAHAN KRS
           </Button>
-          <p className="text-[10px] text-center text-muted-foreground mt-3 font-bold uppercase tracking-tight opacity-50 italic">
-            Perubahan ini akan langsung diperbarui di database mahasiswa.
-          </p>
         </div>
       )}
     </div>

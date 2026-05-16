@@ -36,16 +36,25 @@ const AdminLogTable = () => {
     useEffect(() => {
         fetchLogs();
         const socket = io('http://localhost:5000');
-        socket.on('offer-taken', fetchLogs);
-        socket.on('enrollments-swapped', fetchLogs);
-        socket.on('admin-system-reset', fetchLogs);
+        
+        // Listen to all events that should refresh the log table
+        socket.on('admin-log-created', (newLog) => {
+            setLogs(prev => [newLog, ...prev]);
+        });
+
+        socket.on('admin-system-reset', () => {
+            fetchLogs();
+            setCurrentPage(1);
+        });
+
         return () => socket.disconnect();
     }, []);
 
     const filteredLogs = useMemo(() => {
         const q = searchQuery.toLowerCase().trim();
-        if (!q) return logs;
-        return logs.filter(log => 
+        const safeLogs = Array.isArray(logs) ? logs : [];
+        if (!q) return safeLogs;
+        return safeLogs.filter(log => 
             (log.action_type || '').toLowerCase().includes(q) ||
             (log.user_nim || '').toLowerCase().includes(q) ||
             (log.details || '').toLowerCase().includes(q)
@@ -64,37 +73,38 @@ const AdminLogTable = () => {
 
     const getActionColor = (action) => {
         const a = action.toLowerCase();
-        if (a.includes('delete') || a.includes('purge') || a.includes('remove') || a.includes('reset')) return 'bg-destructive/5 text-destructive border-destructive/20';
-        if (a.includes('create') || a.includes('add') || a.includes('upload') || a.includes('random')) return 'bg-emerald-500/5 text-emerald-600 border-emerald-500/20';
+        if (a.includes('delete') || a.includes('reset') || a.includes('cancel')) return 'bg-destructive/5 text-destructive border-destructive/20';
+        if (a.includes('import') || a.includes('create') || a.includes('random')) return 'bg-emerald-500/5 text-emerald-600 border-emerald-500/20';
         if (a.includes('update') || a.includes('edit')) return 'bg-amber-500/5 text-amber-600 border-amber-500/20';
-        return 'bg-primary/5 text-primary border-primary/20';
+        if (a.includes('barter')) return 'bg-primary/5 text-primary border-primary/20';
+        return 'bg-muted text-muted-foreground border-border';
     };
 
     return (
-        <Card className="border-border shadow-sm rounded-md overflow-hidden flex flex-col">
-            <CardHeader className="py-3 px-4 border-b bg-muted/5 flex flex-row items-center justify-between space-y-0">
-                <CardTitle className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+        <Card className="border-border/50 shadow-sm rounded-md overflow-hidden flex flex-col bg-background">
+            <CardHeader className="py-3 px-4 border-b border-border/50 bg-muted/5 flex flex-row items-center justify-between space-y-0">
+                <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">
                     Activity Log / Audit Trail
                 </CardTitle>
                 <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight">
-                        {filteredLogs.length} Entries
+                    <span className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-widest">
+                        {filteredLogs.length} Records Detected
                     </span>
                 </div>
             </CardHeader>
 
             {/* Toolbar: Search */}
-            <div className="p-3 border-b bg-background">
+            <div className="p-3 border-b border-border/40 bg-background">
                 <div className="relative group">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Search className="w-3.5 h-3.5 text-muted-foreground" />
+                        <Search className="w-3.5 h-3.5 text-muted-foreground/50" />
                     </div>
                     <input
                         type="text"
-                        placeholder="Search logs..."
+                        placeholder="SEARCH AUDIT TRAIL..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-9 pr-8 h-8 bg-muted/20 border rounded-md outline-none focus:ring-1 focus:ring-primary/20 focus:border-primary/50 transition-all text-[11px] font-medium"
+                        className="w-full pl-9 pr-8 h-8 bg-muted/20 border border-border/50 rounded-md outline-none focus:ring-1 focus:ring-emerald-500/20 focus:border-emerald-500/50 transition-all text-[10px] font-bold tracking-tight"
                     />
                     {searchQuery && (
                         <button

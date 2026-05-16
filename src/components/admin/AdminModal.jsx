@@ -15,33 +15,33 @@ export default function AdminModal({ isOpen, onClose, title, subtitle, children 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-hidden">
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300 animate-fade-in"
+        className="fixed inset-0 bg-slate-950/40 backdrop-blur-md transition-opacity duration-300 animate-fade-in"
         onClick={onClose}
       />
 
       {/* Modal Panel */}
       <div 
-        className="relative w-full max-w-4xl h-[85vh] bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 fade-in duration-300 border border-slate-200"
+        className="relative w-full max-w-4xl h-[70vh] bg-background rounded-md shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 fade-in duration-300 border border-border/50"
       >
         {/* Header */}
-        <div className="p-6 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/50">
+        <div className="p-4 px-6 border-b border-border/50 flex items-center justify-between shrink-0 bg-muted/5">
           <div>
-            <h2 className="text-xl font-black text-slate-900  tracking-tight leading-none">{title}</h2>
-            {subtitle && <p className="text-[10px] font-black text-emerald-700   mt-1.5 opacity-90">{subtitle}</p>}
+            <h2 className="text-lg font-bold text-foreground tracking-tight leading-none uppercase">{title}</h2>
+            {subtitle && <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest mt-1.5">{subtitle}</p>}
           </div>
           <button 
             onClick={onClose}
-            className="w-10 h-10 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 transition-all shadow-sm active:scale-95"
+            className="w-8 h-8 flex items-center justify-center rounded-md bg-background border border-border/50 text-muted-foreground hover:text-destructive hover:border-destructive/20 hover:bg-destructive/5 transition-all active:scale-95"
           >
-            <X size={20} strokeWidth={3} />
+            <X size={16} strokeWidth={2.5} />
           </button>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 custom-scrollbar">
           {children}
         </div>
       </div>

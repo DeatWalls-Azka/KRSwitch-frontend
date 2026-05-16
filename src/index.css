@@ -19,8 +19,8 @@
   --color-secondary: #ecfdf5; /* emerald-50 */
   --color-secondary-foreground: #065f46; /* emerald-800 */
   
-  --color-muted: #f4f4f5;
-  --color-muted-foreground: #71717a;
+  --color-muted: #e5e7eb; /* Stronger gray for clear area separation */
+  --color-muted-foreground: #1f2937; /* Slate-800: Near black for maximum text clarity */
   
   --color-accent: #ecfdf5; /* emerald-50 */
   --color-accent-foreground: #059669; /* emerald-600 */
@@ -28,8 +28,8 @@
   --color-destructive: #ef4444;
   --color-destructive-foreground: #fafafa;
   
-  --color-border: #e4e4e7;
-  --color-input: #e4e4e7;
+  --color-border: #cbd5e1; /* Slate-300: Sharp, visible borders */
+  --color-input: #cbd5e1;
   --color-ring: #10b981; /* emerald-500 */
   
   --radius-lg: 0.5rem;
@@ -122,11 +122,11 @@
 
 /* Shadcn-like Tab Styles */
 .admin-tabs-list {
-  @apply inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground;
+  @apply inline-flex h-9 items-center justify-center rounded-md bg-muted/40 p-1 text-muted-foreground/60 border border-border/40;
 }
 .admin-tabs-trigger {
-  @apply inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-black ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+  @apply inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-1 text-[10px] font-bold uppercase tracking-widest ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/20 disabled:pointer-events-none disabled:opacity-50;
 }
 .admin-tabs-trigger[data-state='active'] {
-  @apply bg-background text-primary shadow-sm;
+  @apply bg-background text-emerald-600 shadow-sm border border-border/20;
 }
