@@ -52,18 +52,41 @@
   }
 }
 
-/* Custom Scrollbar - Shadcn Style */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
+/* Global Thin & Overlay Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(31, 41, 55, 0.2) transparent;
 }
-.custom-scrollbar::-webkit-scrollbar-track {
+
+/* For Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
   background: transparent;
 }
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground/20 rounded-full;
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(31, 41, 55, 0.2);
+  border-radius: 20px;
+  border: transparent;
 }
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  @apply bg-muted-foreground/40;
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(31, 41, 55, 0.4);
+}
+
+/* Ensure overlay behavior on modern browsers */
+@supports (scrollbar-gutter: stable) {
+  html {
+    scrollbar-gutter: stable both-edges;
+  }
+}
+
+body {
+  overflow-y: overlay;
 }
 
 .animate-in {
