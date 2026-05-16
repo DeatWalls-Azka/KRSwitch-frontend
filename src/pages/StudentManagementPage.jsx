@@ -174,8 +174,7 @@ export default function StudentManagementPage() {
           )}
         </div>
         <div className="bg-muted/50 border border-border rounded-md px-4 py-2 flex items-center gap-3">
-          <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Total Record</span>
-          <span className="text-sm font-black text-foreground">{filtered.length} Entitas</span>
+          <span className="text-sm font-black text-foreground">{filtered.length} Mahasiswa</span>
         </div>
       </div>
 
