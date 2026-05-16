@@ -24,9 +24,15 @@ function StudentRoute({ children }) {
   const [status, setStatus] = useState(null);
   useEffect(() => {
     getCurrentUser()
-      .then(res => setStatus(res.data?.role === 'student' ? 'student' : 'admin'))
+      .then(res => {
+        if (!res.data) setStatus('unauthenticated');
+        else if (res.data.role === 'student') setStatus('student');
+        else if (res.data.role === 'admin') setStatus('admin');
+        else setStatus('unauthenticated');
+      })
       .catch(() => setStatus('unauthenticated'));
   }, []);
+
   if (status === null) return null;
   if (status === 'unauthenticated') return <Navigate to="/login" replace />;
   if (status === 'admin') return <Navigate to="/admin" replace />;
@@ -35,11 +41,14 @@ function StudentRoute({ children }) {
 
 // Cek role admin — redirect ke / kalo bukan admin
 function AdminRoute({ children }) {
-  const [status, setStatus] = useState(null); // null = checking
-
+  const [status, setStatus] = useState(null);
   useEffect(() => {
     getCurrentUser()
-      .then(res => setStatus(res.data?.role === 'admin' ? 'admin' : 'forbidden'))
+      .then(res => {
+        if (!res.data) setStatus('unauthenticated');
+        else if (res.data.role === 'admin') setStatus('admin');
+        else setStatus('forbidden');
+      })
       .catch(() => setStatus('unauthenticated'));
   }, []);
 

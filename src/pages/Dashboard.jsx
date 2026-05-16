@@ -236,7 +236,7 @@ export default function Dashboard() {
     );
   }
 
-  if (!selectedCourse) return null;
+  if (!selectedCourse || !currentUser) return null;
 
   const filteredClasses = parallelClasses.filter(pc => {
     if (pc.courseCode !== selectedCourse.code) return false;
