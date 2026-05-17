@@ -81,19 +81,46 @@ export default function Dashboard() {
       .filter(e => e.nim === currentUser.nim)
       .forEach(e => {
         const pc = parallelClasses.find(c => c.id === e.parallelClassId);
-        if (pc) map[pc.courseCode] = pc.classCode;
+        if (pc) {
+          const type = pc.classCode[0]; // 'K', 'P', or 'R'
+          const key = `${pc.courseCode}-${type}`;
+          map[key] = pc.classCode;
+        }
       });
     return map;
   }, [currentUser, enrollments, parallelClasses]);
 
   const shouldBeVisibleIds = useMemo(() => {
     return new Set(enrichedOffers.filter(offer => {
+      // 1. Filter by Course
       if (filterByCourse && offer.seekingCourse !== selectedCourse?.code) return false;
-      if (filterForYou && myEnrollmentMap[offer.seekingCourse] !== offer.seekingClass) return false;
+
+      // 2. Filter by You (offers created by you)
       if (filterByYou && offer.nim !== currentUser?.nim) return false;
+
+      // 3. Filter For You (offers you can accept right now)
+      if (filterForYou) {
+        // You cannot accept your own trade offer
+        if (offer.nim === currentUser?.nim) return false;
+
+        // Must hold the class they are seeking/wanted
+        const type = offer.seekingClass[0]; // 'K', 'P', or 'R'
+        const key = `${offer.seekingCourse}-${type}`;
+        if (myEnrollmentMap[key] !== offer.seekingClass) return false;
+
+        // Must not conflict with your schedule
+        const incomingClass = parallelClasses.find(
+          pc => pc.courseCode === offer.seekingCourse && pc.classCode === offer.offeringClass
+        );
+        if (incomingClass) {
+          const hasConflict = hasScheduleConflict(incomingClass.id, currentUser?.nim, enrollments, parallelClasses);
+          if (hasConflict) return false;
+        }
+      }
+
       return true;
     }).map(o => o.id));
-  }, [enrichedOffers, filterByCourse, filterForYou, filterByYou, selectedCourse?.code, myEnrollmentMap, currentUser?.nim]);
+  }, [enrichedOffers, filterByCourse, filterForYou, filterByYou, selectedCourse?.code, myEnrollmentMap, currentUser?.nim, enrollments, parallelClasses]);
 
   const unreadCount = useMemo(() => notifications.filter(n => !n.read).length, [notifications]);
 
@@ -270,7 +297,7 @@ export default function Dashboard() {
               exitIndex={isExiting ? exitingOfferIds.get(offer.id) : 0}
               shouldExit={isExiting}
               shouldEnter={isEntering}
-              canAccept={myEnrollmentMap[offer.seekingCourse] === offer.seekingClass}
+              canAccept={myEnrollmentMap[`${offer.seekingCourse}-${offer.seekingClass[0]}`] === offer.seekingClass}
               conflictsWithSchedule={conflictsWithSchedule}
               isOwnOffer={offer.nim === currentUser?.nim}
               onAnimationComplete={() => {}}
@@ -313,7 +340,7 @@ export default function Dashboard() {
           />
           <div ref={cardScrollContainerRef} className="flex-1 flex gap-1 overflow-x-auto overflow-y-hidden p-4 bg-gray-50">
             {filteredClasses.map((pc, index) => {
-              const isUserClass = myEnrollmentMap[selectedCourse.code] === pc.classCode;
+              const isUserClass = myEnrollmentMap[`${selectedCourse.code}-${pc.classCode[0]}`] === pc.classCode;
               const card = (
                 <ClassCard
                   key={pc.id}

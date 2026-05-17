@@ -95,7 +95,10 @@ export default function AdminManagementPage() {
   const paginated = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const handleToggleStatus = async (admin) => {
-    if (admin.nim === currentUser?.nim) return;
+    if (admin.nim === currentUser?.nim) {
+      alert("Anda tidak dapat menonaktifkan akun Anda sendiri!");
+      return;
+    }
     try {
       await api.put(`/api/admin/admins/${admin.nim}`, {
         role: admin.role,
@@ -242,7 +245,6 @@ export default function AdminManagementPage() {
                           variant="ghost"
                           size="icon"
                           className="h-6 w-6"
-                          disabled={isMe}
                           onClick={() => setEditAdmin(admin)}
                         >
                           <Edit2 size={12} />

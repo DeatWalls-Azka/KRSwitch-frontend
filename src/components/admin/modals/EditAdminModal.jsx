@@ -8,29 +8,42 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 const EditAdminModal = ({ isOpen, onClose, adminData, onSuccess }) => {
   const [name, setName] = useState('');
   const [role, setRole] = useState('operator');
+  const [isSelf, setIsSelf] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     if (adminData) {
       setName(adminData.name);
       setRole(adminData.role);
+      
+      // Check if editing own admin account
+      api.get('/api/me')
+        .then(res => {
+          if (res.data?.nim === adminData.nim) {
+            setIsSelf(true);
+          }
+        })
+        .catch(console.error);
     }
   }, [adminData]);
 
   if (!isOpen) return null;
 
   const handleSave = async () => {
-    if (!name || !role) {
-      return alert('Harap isi Nama dan Akses Admin!');
+    if (!name) {
+      return alert('Harap isi Nama Lengkap!');
+    }
+
+    const payload = { name };
+    if (!isSelf) {
+      if (!role) return alert('Harap pilih Akses Admin!');
+      payload.role = role;
+      payload.isActive = adminData.isActive;
     }
 
     setIsProcessing(true);
     try {
-      await api.put(`/api/admin/admins/${adminData.nim}`, {
-        name,
-        role,
-        isActive: adminData.isActive // preserve existing status
-      });
+      await api.put(`/api/admin/admins/${adminData.nim}`, payload);
 
       alert(`Admin ${name} berhasil diupdate!`);
       if (onSuccess) onSuccess();
@@ -90,7 +103,7 @@ const EditAdminModal = ({ isOpen, onClose, adminData, onSuccess }) => {
           </div>
           <div className="space-y-2">
             <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest block">Akses Level</label>
-            <Select value={role} onValueChange={setRole} disabled={isProcessing}>
+            <Select value={role} onValueChange={setRole} disabled={isProcessing || isSelf}>
               <SelectTrigger className="w-full h-11 bg-background border-input font-bold text-sm focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500">
                 <SelectValue placeholder="Pilih Akses Level" />
               </SelectTrigger>
@@ -99,6 +112,11 @@ const EditAdminModal = ({ isOpen, onClose, adminData, onSuccess }) => {
                 <SelectItem value="super_admin" className="text-sm font-bold">Super Admin (Full Access)</SelectItem>
               </SelectContent>
             </Select>
+            {isSelf && (
+              <p className="text-[9px] font-bold text-amber-600 bg-amber-500/10 px-2 py-1 rounded border border-amber-500/20 uppercase tracking-wider mt-1">
+                Anda tidak dapat mengubah level akses akun Anda sendiri untuk menghindari lockout.
+              </p>
+            )}
           </div>
         </div>
 
@@ -113,7 +131,7 @@ const EditAdminModal = ({ isOpen, onClose, adminData, onSuccess }) => {
           </Button>
           <Button 
             onClick={handleSave} 
-            disabled={isProcessing || (name === adminData?.name && role === adminData?.role)}
+            disabled={isProcessing || (name === adminData?.name && (isSelf || role === adminData?.role))}
             className="px-8 h-11 bg-amber-500 hover:bg-amber-600 text-amber-950 uppercase tracking-widest text-[10px] font-black"
           >
             {isProcessing ? (

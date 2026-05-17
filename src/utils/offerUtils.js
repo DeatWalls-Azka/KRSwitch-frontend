@@ -53,6 +53,13 @@ export function hasScheduleConflict(incomingClassId, currentUserNim, enrollments
     if (id === incomingClassId) return false; // same class they're trading away, fine
     const enrolled = parallelClasses.find(pc => pc.id === id);
     if (!enrolled) return false;
+
+    // If the enrolled class is of the same course and same class type (K/P/R),
+    // it's the section being replaced, so it cannot cause a schedule conflict!
+    if (enrolled.courseCode === incoming.courseCode && enrolled.classCode[0] === incoming.classCode[0]) {
+      return false;
+    }
+
     return timesOverlap(
       incoming.day,  incoming.timeStart,  incoming.timeEnd,
       enrolled.day, enrolled.timeStart, enrolled.timeEnd,
