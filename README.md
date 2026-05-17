@@ -1,160 +1,104 @@
-# 🎨 KRSwitch Frontend — Modern Real-Time Schedule Trading Dashboard
+# KRSwitch Frontend — Real-Time Schedule Exchange Client
 
-<p align="center">
-  <img src="https://img.shields.io/badge/React-v19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React Badge" />
-  <img src="https://img.shields.io/badge/Vite-v7.3-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite Badge" />
-  <img src="https://img.shields.io/badge/Tailwind%20CSS-v4.0-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind Badge" />
-  <img src="https://img.shields.io/badge/React%20Router-v7.1-CA4245?style=for-the-badge&logo=reactrouter&logoColor=white" alt="React Router Badge" />
-  <img src="https://img.shields.io/badge/Cypress-v15.1-17202C?style=for-the-badge&logo=cypress&logoColor=white" alt="Cypress Badge" />
-</p>
-
-Welcome to the **KRSwitch Frontend**, a premium, high-fidelity schedule trading dashboard engineered for students and administrators. Designed with vibrant dark-mode aesthetics, rich glassmorphism layouts, and millisecond-level responsiveness, KRSwitch empowers students to barter class sections in real time and provides administrators with a powerful control center to orchestrate database modifications, bulk imports, and manual scheduling overrides.
+A dark-mode React application powered by Vite 7 and Tailwind CSS v4, providing student barter panels and administrative management views.
 
 ---
 
-## ✨ Premium UI Features & Aesthetics
+## 🎨 User Interface & Views
 
-### 1. High-Fidelity Monochromatic & Emerald Dark Theme
-* **Modern Color Palette**: Crafted from curated deep grays and vibrant, high-contrast Emerald Green accent highlights, avoiding generic browser styling.
-* **Glassmorphism Design**: Layout panels, headers, and modal cards utilize rich semi-translucencies, blurred dropdrops, and borders to generate premium visual depth.
-* **JetBrains Mono Typography**: Native, developer-centric monospace typography styling standardizes alignment across tables, schedule grids, and logs.
+### 1. Student Barter Dashboard
+*   **Parallel Classes Grid**: Lists parallel sections alongside enrollment structures, slot indicators, and schedule overlaps.
+*   **Live Barter Feed**: Real-time trade listings that update dynamically via WebSockets.
+*   **Filters**: Focuses views on compatible sections and active offers.
+*   **Schedule Conflict Guards**: Alerts users of time overlaps prior to confirming swaps.
 
-### 2. Smooth Micro-Animations & Dynamic Feedback
-* **Staggered RAF Animators**: Offers and classes slide in dynamically utilizing `requestAnimationFrame` for a responsive UI.
-* **Live Connection Headers**: Real-time Socket.IO connection status light indicator (🟢 Connected / 🔴 Disconnected) that automatically updates active online count statistics.
-* **Exit Transitions**: When trades are completed, barter cards execute smooth exit animations before disappearing, providing immediate feedback.
-
-### 3. Comprehensive Administrative Control Center
-* **Live Activity Logs Table**: High-contrast, real-time audit feed representing system events instantly synced via WebSockets.
-* **Dynamic Master Import Dropzones**: Drag-and-drop file inputs supporting spreadsheet verification on-the-fly, previewing imported rows inside clean data-grid lists.
-* **The Override Wizard**: A multi-step administrative scheduler force-swap wizard that maps schedule parameters, performs real-time collision alerts, and automatically cancels stale student offers.
-* **Account Status Toggles**: SuperAdmins can dynamically toggle admin operator status to immediately revoke credentials and session states.
+### 2. Admin Management Center
+*   **System Telemetry**: Displays counts of online users, active listings, transaction success ratios, and system audit logs in real time.
+*   **Student Registry & Management**: Searchable databases containing registration logs, active trades, and course drops.
+*   **Transactional CSV Imports**: Drag-and-drop file inputs designed to import schedules and registries, featuring validation previews.
+*   **Override Wizard**: Steps operators through manual enrollment swaps, checking conflicts and cleaning stale listings automatically.
+*   **SuperAdmin Tab**: Manage administrative permissions, edit details, toggle active/disabled flags, and trigger a master system reset.
 
 ---
 
-## 🛠️ Technological Achievements
+## 🛠️ Technological Stack
 
-This workspace leverages a cutting-edge front-end stack that incorporates modern build tool improvements:
-
-* **React 19 (Concurrent Mode)**: Embraces React 19's rendering core, leveraging state transitions and concurrent features.
-* **Vite 7**: Rapid hot-module replacement (HMR) and optimized rollup production bundles.
-* **Tailwind CSS v4 (Zero-Config Compiler)**: Native integration using `@tailwindcss/vite` in `vite.config.js`. Avoids configuration bloat by replacing standard `postcss` configuration files with native CSS directive engines.
-* **Radix UI Primitives**: Modular primitives (`Select`, `Tabs`, `Slot`) are integrated directly under custom Emerald configurations for keyboard navigation and screen-reader accessibility.
-* **Cypress E2E Testing**: Headless browser automation scripts that run through authentication callbacks, route-guard protections, and swap overrides.
+*   **React 19**: Modern concurrent state updates.
+*   **Vite 7**: Fast builds and fast hot-module replacements.
+*   **Tailwind CSS v4**: Built natively with `@tailwindcss/vite` within the compilation cycle, replacing PostCSS configuration files.
+*   **Radix UI**: Fully accessible keyboard-friendly components (button, select, tabs).
+*   **Socket.IO Client**: Persistent WebSocket connections with initial handshake tokens.
+*   **Cypress E2E**: Integration test suites verifying layout guards and visual transitions.
 
 ---
 
-## 📂 Codebase Tour & Directory Structure
+## 📁 Source Tree Layout
 
 ```
 KRSwitch-frontend/
-├── cypress/                   # Cypress E2E visual automation suites
-│   ├── e2e/
-│   │   ├── admin/             # RBAC guard testing
-│   │   └── auth/              # OAuth popup callback testing
-│   └── support/               # E2E command overrides
-├── public/                    # Static site assets
+├── cypress/                   # Cypress E2E visual tests
+├── public/                    # Public static files
 ├── src/
-│   ├── assets/                # Graphic files
-│   ├── components/
-│   │   ├── admin/             # Administrative layouts & components
-│   │   │   ├── tabs/          # Tab content panels (Akun, Barter, KRS, Override)
-│   │   │   ├── modals/        # CRUD forms (Students, Courses, Admins)
-│   │   │   ├── AdminLayout.jsx
-│   │   │   ├── AdminLogTable.jsx
-│   │   │   ├── AdminModal.jsx
-│   │   │   ├── AdminWizardCard.jsx
-│   │   │   ├── ExportRecapCard.jsx
-│   │   │   └── SystemStatsCard.jsx
-│   │   ├── dash/              # Main student barter dashboard components
-│   │   │   ├── BarterCard.jsx
-│   │   │   ├── ClassCard.jsx
-│   │   │   ├── CourseTabs.jsx
-│   │   │   ├── CreateOfferForm.jsx
-│   │   │   ├── Header.jsx
-│   │   │   ├── NotificationModal.jsx
-│   │   │   ├── ScheduleGraphModal.jsx
-│   │   │   └── TradeConfirmationModal.jsx
-│   │   └── ui/                # Core accessible primitives (buttons, selects)
-│   ├── pages/
-│   │   ├── Admin.jsx          # General dashboard stats & logs orchestrator
-│   │   ├── AdminManagementPage.jsx  # SuperAdmin admin management table
-│   │   ├── CourseManagementPage.jsx # Operator/Admin Course grid
-│   │   ├── StudentManagementPage.jsx# Student Database details & sidebar pages
-│   │   ├── AuthCallback.jsx   # Google OAuth callback redirection page
-│   │   ├── Dashboard.jsx      # Primary student barter page
-│   │   └── Login.jsx          # Secure login gate
-│   ├── api.js                 # Unified Axios HTTP interceptor & methods
-│   ├── App.jsx                # Layout definitions and route configurations
-│   ├── index.css              # Base styling & Tailwind v4 imports
-│   └── main.jsx               # Application entry point
-├── cypress.config.js          # Cypress runner settings
-├── eslint.config.js           # Lint configurations
-├── tailwind.config.js         # Custom animations & font extensions
-└── vite.config.js             # Vite 7 plugins (React 19 & Tailwind v4)
+│   ├── components/            # UI components
+│   │   ├── admin/             # Administrative layouts, tabs, and modals
+│   │   ├── dash/              # Main student dashboard layouts and cards
+│   │   └── ui/                # Core accessible Radix elements
+│   ├── pages/                 # Full Page layouts
+│   │   ├── Admin.jsx          # Audit logs & telemetry view
+│   │   ├── AdminManagement.jsx# SuperAdmin operator table
+│   │   ├── CourseManagement.jsx# Master class scheduler
+│   │   ├── StudentManagement.jsx# Student details & sidebar
+│   │   ├── AuthCallback.jsx   # OAuth redirect handler
+│   │   ├── Dashboard.jsx      # Barter main feed
+│   │   └── Login.jsx          # Login screen
+│   ├── api.js                 # Unified Axios interceptor
+│   ├── App.jsx                # Router & layout mappings
+│   ├── index.css              # Baseline CSS & Tailwind imports
+│   └── main.jsx               # Entry point
 ```
 
 ---
 
-## 🚀 Local Development Setup
+## 🚀 Setup & Execution
 
-### 1. Prerequisites
-* **Node.js** 20.x or higher
-* **npm** or **yarn**
-* Compatible running **KRSwitch Backend** on `http://localhost:5000`
-
-### 2. Configure Environment Variables
-Create a `.env` file in the frontend root directory:
-
+### 1. Configure Environment
+Create a `.env` file in the root frontend directory:
 ```env
 VITE_API_BASE="http://localhost:5000"
 ```
 
-### 3. Installation & Bootstrapping
-
+### 2. Launch Client
 ```bash
 # Install dependencies
 npm install
 
-# Start the Vite 7 development server
+# Start Vite dev server
 npm run dev
 ```
-
-Open your browser and navigate to `http://localhost:5173`.
+Open browser to `http://localhost:5173`.
 
 ---
 
-## 🧪 Cypress End-to-End Testing
+## 🧪 Cypress End-to-End Tests
 
-Cypress tests let developers validate login states, role protections, and schedules modifications in actual Chrome/headless browser contexts.
-
+Verify components and access guards using Cypress:
 ```bash
-# Open Cypress visual workspace (interactive mode)
+# Start Cypress in interactive UI mode:
 npm run cypress:open
 
-# Run E2E tests inside headless terminal (CI/CD mode)
+# Run Cypress headless:
 npm run cypress:run
 ```
-
-### Coverage Highlights
-* **Authentication Guards (`auth.cy.js`)**: Confirms OAuth callbacks, tests zombie cookie blocking configurations, and logs user logout clears.
-* **Role-Based Access (`redirect-guard.cy.js`)**: Verifies that standard students attempting to enter administrative subroutes (`/admin/*`) are immediately redirected back, and disabled admin accounts are blocked.
-* **Dashboard Interactions**: Simulates click schedules, toggle filter switches ("For You" recommendations), and accept barter models.
+*   **Auth Checks (`auth.cy.js`)**: Evaluates Google OAuth callback sequences and cookie clearings.
+*   **Role Mappings (`redirect-guard.cy.js`)**: Confirms route redirects for unauthorized roles.
 
 ---
 
-## 💡 Performance Engineering Optimizations
-
-To maintain a fluid 60fps across highly concurrent schedule exchanges, KRSwitch implements several key rendering strategies:
-
-* **Linear Tooltip Interpolation (LERP)**: Tooltips and hover analytics widgets use dynamic linear interpolation for smooth motion rather than sudden position changes.
-* **useMemo Filter Guards**: Expensive course selections and student search indices are guarded inside `useMemo` hooks, preventing structural recalculations during Socket updates.
-* **Callback Protection (`useCallback`)**: Handlers passed into active grid cards are memoized to completely avoid component re-renders.
-* **Batch Enrollment Swaps**: WS updates for barter completions update local state indices in single React state updates, avoiding flashing grid indicators.
-
----
-
-*KRSwitch Frontend is built for user experience. For bugs, features, or design discussions, open a pull request.*
+## 💡 Performance Optimization
+*   **LERP Tooltips**: Custom tooltip overlays coordinate positions smoothly using linear interpolation.
+*   **useMemo Filter Wrappers**: Heavy filter listings are memoized, avoiding render bottlenecks during Socket.IO feed broadcasts.
+*   **useCallback Handlers**: Callback functions are memoized to avoid child card rendering cycles.
+*   **State Batching**: WebSocket updates for matched trades are batched, preventing browser layout thrashing.
 
 ---
 
