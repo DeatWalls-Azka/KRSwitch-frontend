@@ -34,15 +34,47 @@ export function useOfferAnimations({ shouldBeVisibleIds, enrichedOffers }) {
     const visibleArray = Array.from(visibleOfferIds);
     const exitMap = new Map();
 
+    // Helper to dynamically check if an offer card is visible in the viewport
+    const isOfferVisibleInViewport = (offerId) => {
+      if (typeof window === 'undefined') return false;
+      const elements = document.querySelectorAll(`[data-offer-id="${offerId}"]`);
+      if (elements.length === 0) return false;
+      
+      // Since the feed is rendered twice (once for desktop sidebar, once for mobile drawer),
+      // we locate the instance that is active/visible (width/height > 0) in the viewport.
+      for (const el of elements) {
+        const rect = el.getBoundingClientRect();
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+        if (rect.height > 0 && rect.width > 0 && rect.top < viewportHeight && rect.bottom > 0) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    // Filter to get only the elements that are actually visible on screen right now
+    const visibleInDOM = visibleArray.filter(id => isOfferVisibleInViewport(id));
+
     idsToRemove.forEach(id => {
       const idx = visibleArray.indexOf(id);
-      if (idx >= 0) exitMap.set(id, visibleArray.length - 1 - idx);
+      if (idx >= 0) {
+        const domIdx = visibleInDOM.indexOf(id);
+        if (domIdx >= 0) {
+          // Dynamic Stagger: Only stagger cards that are actually visible on the screen.
+          // We preserve the bottom-up exit cascade wave but restrict it strictly to viewport visible items.
+          const exitIndex = visibleInDOM.length - 1 - domIdx;
+          exitMap.set(id, exitIndex);
+        } else {
+          // Off-screen / scrolled-out elements exit immediately with 0 delay
+          exitMap.set(id, 0);
+        }
+      }
     });
 
     setExitingOfferIds(exitMap);
     animationLockRef.current = true;
 
-    const maxExitIndex = Math.max(...Array.from(exitMap.values()));
+    const maxExitIndex = exitMap.size > 0 ? Math.max(...Array.from(exitMap.values())) : 0;
     const totalTime = (maxExitIndex * STAGGER_DELAY) + ANIMATION_DURATION + 50;
 
     setTimeout(() => {

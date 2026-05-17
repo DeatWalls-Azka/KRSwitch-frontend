@@ -24,8 +24,11 @@ export default function BarterCard({
       const timer = setTimeout(() => setIsVisible(true), 50);
       return () => clearTimeout(timer);
     } else {
-      // Snappy Stagger: Only stagger the first 6 visible cards to keep initial load instant
-      const delay = index < 6 ? index * 30 : 180;
+      // Snappy Dynamic Stagger: Calculate how many cards fit in the viewport to stagger all visible ones
+      const visibleCount = typeof window !== 'undefined' 
+        ? Math.max(6, Math.ceil(window.innerHeight / 76)) 
+        : 8;
+      const delay = index < visibleCount ? index * 30 : visibleCount * 30;
       const timer = setTimeout(() => setIsVisible(true), delay);
       return () => clearTimeout(timer);
     }
@@ -86,6 +89,7 @@ export default function BarterCard({
 
   return (
     <div 
+      data-offer-id={offer.id}
       style={{ 
         height: isExiting ? `${height}px` : 'auto'
       }}
