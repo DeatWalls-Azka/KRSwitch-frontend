@@ -24,7 +24,9 @@ export default function BarterCard({
       const timer = setTimeout(() => setIsVisible(true), 50);
       return () => clearTimeout(timer);
     } else {
-      const timer = setTimeout(() => setIsVisible(true), index * 30);
+      // Snappy Stagger: Only stagger the first 6 visible cards to keep initial load instant
+      const delay = index < 6 ? index * 30 : 180;
+      const timer = setTimeout(() => setIsVisible(true), delay);
       return () => clearTimeout(timer);
     }
   }, [index, shouldEnter]);
