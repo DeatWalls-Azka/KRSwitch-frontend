@@ -158,8 +158,6 @@ export default function ScheduleGraphModal({
   const [exportOpen, setExportOpen] = useState(false);
 
   const cardRef = useRef(null);
-  const exportBtnRef = useRef(null);
-  const exportPanelRef = useRef(null);
 
   // tooltip ngikutin mouse pake lerp biar geraknya ga kaku
   const [tooltipData, setTooltipData] = useState(null);
@@ -200,8 +198,9 @@ export default function ScheduleGraphModal({
     if (!exportOpen) return;
     const PROX = 32;
     const handle = e => {
-      const els = [exportBtnRef.current, exportPanelRef.current].filter(Boolean);
+      const els = Array.from(document.querySelectorAll('.export-btn, .export-panel'));
       const inside = els.some(el => {
+        if (el.offsetParent === null) return false; // skip hidden elements
         const r = el.getBoundingClientRect();
         return Math.max(r.left - e.clientX, e.clientX - r.right, 0) <= PROX
           && Math.max(r.top - e.clientY, e.clientY - r.bottom, 0) <= PROX;
@@ -319,12 +318,11 @@ export default function ScheduleGraphModal({
 
               <div className="relative hidden md:block shrink-0" data-export-exclude>
                 <button
-                  ref={exportBtnRef}
                   onClick={() => setExportOpen(p => !p)}
                   disabled={!hasSchedule || busy}
                   aria-haspopup="true"
                   aria-expanded={exportOpen}
-                  className="flex items-center gap-2 px-2.5 h-8 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="export-btn flex items-center gap-2 px-2.5 h-8 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -348,9 +346,8 @@ export default function ScheduleGraphModal({
                 </button>
 
                 <div
-                  ref={exportPanelRef}
                   role="menu"
-                  className="absolute right-0 top-full mt-1.5 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50 overflow-hidden"
+                  className="export-panel absolute right-0 top-full mt-1.5 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50 overflow-hidden"
                   style={{
                     display: 'grid',
                     gridTemplateRows: exportOpen ? '1fr' : '0fr',
@@ -558,12 +555,11 @@ export default function ScheduleGraphModal({
 
               <div className="relative md:hidden shrink-0" data-export-exclude>
                 <button
-                  ref={exportBtnRef}
                   onClick={() => setExportOpen(p => !p)}
                   disabled={!hasSchedule || busy}
                   aria-haspopup="true"
                   aria-expanded={exportOpen}
-                  className="flex items-center gap-2 px-2.5 h-8 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="export-btn flex items-center gap-2 px-2.5 h-8 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -587,9 +583,8 @@ export default function ScheduleGraphModal({
                 </button>
 
                 <div
-                  ref={exportPanelRef}
                   role="menu"
-                  className="absolute left-0 bottom-full mb-1.5 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50 overflow-hidden"
+                  className="export-panel absolute left-0 bottom-full mb-1.5 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50 overflow-hidden"
                   style={{
                     display: 'grid',
                     gridTemplateRows: exportOpen ? '1fr' : '0fr',

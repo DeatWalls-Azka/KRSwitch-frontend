@@ -48,7 +48,7 @@ export default function CourseTabs({ courses, selectedCourse, onCourseSelect }) 
           onClick={() => onCourseSelect(course)}
         >
           <div className="text-xs font-bold text-gray-900">{course.code}</div>
-          <div className="text-[10px] font-medium text-gray-500 mt-0.5 whitespace-nowrap">{course.name}</div>
+          <div className="text-[10px] font-semibold text-gray-500 mt-0.5 whitespace-nowrap">{course.name}</div>
         </button>
       ))}
 
