@@ -45,7 +45,7 @@ describe('Super Admin Management', () => {
   });
 
   it('opens Add Admin modal with correct form fields', () => {
-    cy.contains('button', 'Tambah Admin').click();
+    cy.contains('button', 'Add Admin').click();
 
     cy.contains('Registrasi Admin').should('be.visible');
     cy.get('input[placeholder="Masukkan nama lengkap..."]').should('be.visible');
@@ -57,7 +57,7 @@ describe('Super Admin Management', () => {
   it('submits Add Admin form and calls API with correct role', () => {
     cy.intercept('POST', '/api/admin/admins', { statusCode: 201, body: { nim: 'OP2' } }).as('createAdmin');
 
-    cy.contains('button', 'Tambah Admin').click();
+    cy.contains('button', 'Add Admin').click();
     cy.get('input[placeholder="Masukkan nama lengkap..."]').type('New Operator');
     cy.get('input[placeholder="contoh@apps.ipb.ac.id"]').type('newop@ipb.ac.id');
 
@@ -72,7 +72,7 @@ describe('Super Admin Management', () => {
   });
 
   it('opens Add Admin modal and can change role via Shadcn Select', () => {
-    cy.contains('button', 'Tambah Admin').click();
+    cy.contains('button', 'Add Admin').click();
 
     // Radix Select: click trigger, then click option
     cy.get('[role="combobox"]').click();
@@ -83,7 +83,7 @@ describe('Super Admin Management', () => {
   });
 
   it('cancels Add Admin modal on Batal click', () => {
-    cy.contains('button', 'Tambah Admin').click();
+    cy.contains('button', 'Add Admin').click();
     cy.contains('Registrasi Admin').should('be.visible');
 
     cy.contains('button', 'Batal').click();

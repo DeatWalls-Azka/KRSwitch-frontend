@@ -168,8 +168,8 @@ export default function CourseManagementPage() {
             size="sm"
             className="h-9 px-4 text-[11px] font-bold"
           >
-            <Plus size={14} className="mr-0" />
-            TAMBAH KELAS
+            <Plus size={14} className="-mr-1" />
+            ADD KELAS
           </Button>
           <ExportRecapCard />
         </div>
@@ -336,7 +336,7 @@ export default function CourseManagementPage() {
                                 <span className="text-[11px] font-bold tracking-tight text-foreground group-hover:text-primary transition-colors">
                                   {cls.courseName}
                                 </span>
-                                <span className="text-[10px] font-mono text-muted-foreground uppercase">{cls.courseCode}</span>
+                                <span className="text-[10px] font-mono text-muted-foreground/60 uppercase">{cls.courseCode}</span>
                               </div>
                             </div>
                           </td>

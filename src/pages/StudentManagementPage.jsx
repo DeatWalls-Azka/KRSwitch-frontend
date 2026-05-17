@@ -165,7 +165,7 @@ export default function StudentManagementPage() {
             className="h-9 px-4 text-[11px] font-bold"
           >
             <UserPlus size={14} className="mr-0" />
-            TAMBAH MAHASISWA
+            ADD MAHASISWA
           </Button>
           <ExportRecapCard />
         </div>

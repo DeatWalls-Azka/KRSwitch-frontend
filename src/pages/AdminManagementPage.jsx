@@ -3,9 +3,9 @@ import api, { getSocketToken } from '../api';
 import io from 'socket.io-client';
 import AddAdminModal from '../components/admin/modals/AddAdminModal';
 import EditAdminModal from '../components/admin/modals/EditAdminModal';
-import { 
-  UserPlus, 
-  Search, 
+import {
+  UserPlus,
+  Search,
   X,
   Loader2,
   Users as UsersIcon,
@@ -24,7 +24,7 @@ export default function AdminManagementPage() {
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   const [pageSize, setPageSize] = useState(15);
   const [currentPage, setCurrentPage] = useState(1);
   const tableContainerRef = useRef(null);
@@ -53,7 +53,7 @@ export default function AdminManagementPage() {
     }
   };
 
-  useEffect(() => { 
+  useEffect(() => {
     fetchAdmins();
     fetchCurrentUser();
 
@@ -134,14 +134,14 @@ export default function AdminManagementPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button 
+          <Button
             onClick={() => setIsAddModalOpen(true)}
             variant="admin"
             size="sm"
             className="h-9 px-4 text-[11px] font-bold shadow-sm uppercase tracking-widest"
           >
-            <UserPlus size={14} className="mr-2" />
-            Tambah Admin
+            <UserPlus size={14} className="mr-0" />
+            Add Admin
           </Button>
         </div>
       </div>
@@ -211,19 +211,19 @@ export default function AdminManagementPage() {
                     <tr key={admin.nim} className="hover:bg-muted/5 transition-colors">
                       <td className="px-4 py-3">
                         <span className="text-[11px] font-bold tracking-tight text-foreground">
-                          {admin.name} {isMe && <span className="ml-2 text-[9px] text-emerald-600 bg-emerald-500/10 px-1 py-0.5 rounded uppercase">(You)</span>}
+                          {admin.name} {isMe && <span className="ml-2 text-[9px] text-emerald-600 bg-emerald-500/10 px-1 py-0.5 rounded uppercase">[ Your account ]</span>}
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="text-[11px] font-mono font-bold text-muted-foreground">{admin.email}</span>
+                        <span className="text-[11px] font-mono text-muted-foreground/60">{admin.email}</span>
                       </td>
                       <td className="px-4 py-3 text-center">
                         {admin.role === 'super_admin' ? (
-                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[9px] font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20 uppercase tracking-tighter">
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[9px] font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20 uppercase tracking-wide">
                             Super Admin
                           </span>
                         ) : (
-                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[9px] font-bold bg-blue-500/10 text-blue-600 border border-blue-500/20 uppercase tracking-tighter">
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[9px] font-bold bg-blue-500/10 text-blue-600 border border-blue-500/20 uppercase tracking-wide">
                             Operator
                           </span>
                         )}
@@ -238,19 +238,19 @@ export default function AdminManagementPage() {
                         </button>
                       </td>
                       <td className="px-4 py-3 text-right space-x-2">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-6 w-6" 
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
                           disabled={isMe}
                           onClick={() => setEditAdmin(admin)}
                         >
                           <Edit2 size={12} />
                         </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-6 w-6 text-destructive hover:bg-destructive/10 hover:text-destructive" 
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-destructive hover:bg-destructive/10 hover:text-destructive"
                           disabled={isMe}
                           onClick={() => handleDelete(admin)}
                         >
@@ -303,16 +303,16 @@ export default function AdminManagementPage() {
 
       {/* Modals */}
       {isAddModalOpen && (
-        <AddAdminModal 
-          isOpen={isAddModalOpen} 
-          onClose={() => setIsAddModalOpen(false)} 
+        <AddAdminModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
           onSuccess={() => { setIsAddModalOpen(false); fetchAdmins(); }}
         />
       )}
       {editAdmin && (
-        <EditAdminModal 
-          isOpen={true} 
-          onClose={() => setEditAdmin(null)} 
+        <EditAdminModal
+          isOpen={true}
+          onClose={() => setEditAdmin(null)}
           adminData={editAdmin}
           onSuccess={() => { setEditAdmin(null); fetchAdmins(); }}
         />

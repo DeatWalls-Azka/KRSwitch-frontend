@@ -118,7 +118,7 @@ export default function Header({
             aria-label="Lihat jadwal"
             className="relative flex items-center justify-center w-9 h-9 text-gray-500 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors active:bg-gray-200"
           >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
               <line x1="16" y1="2" x2="16" y2="6" />
               <line x1="8"  y1="2" x2="8"  y2="6" />
@@ -131,7 +131,7 @@ export default function Header({
             aria-label="Notifications"
             className="relative flex items-center justify-center w-9 h-9 text-gray-500 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors active:bg-gray-200"
           >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
               <path d="M13.73 21a2 2 0 0 1-3.46 0" />
             </svg>
@@ -150,7 +150,7 @@ export default function Header({
               aria-expanded={dropdownOpen}
               className="flex items-center justify-center w-9 h-9 text-gray-500 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-100 active:bg-gray-200 transition-colors"
             >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="8" r="4" />
                 <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
               </svg>
@@ -188,7 +188,7 @@ export default function Header({
                 </div>
                 <div className="flex flex-col items-start justify-center leading-none overflow-hidden flex-1 pr-1">
                   <span className="text-[11px] font-bold text-gray-900 truncate w-full text-left">{displayName}</span>
-                  <span className="text-[9px] text-gray-500 tracking-wide mt-[1px] truncate w-full text-left">{displayNim}</span>
+                  <span className="text-[9px] text-gray-500 tracking-wide mt-[3px] truncate w-full text-left">{displayNim}</span>
                 </div>
               </div>
               <svg
@@ -214,9 +214,9 @@ export default function Header({
             onClick={onOpenSchedule}
             aria-label="Lihat jadwal"
             title="Jadwal Kuliah"
-            className="relative flex items-center justify-center w-8 h-8 text-gray-500 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
+            className="relative flex items-center justify-center w-9 h-9 text-gray-500 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
               <line x1="16" y1="2" x2="16" y2="6" />
               <line x1="8"  y1="2" x2="8"  y2="6" />
@@ -228,9 +228,9 @@ export default function Header({
           <button
             onClick={onOpenNotifications}
             aria-label="Notifications"
-            className="relative flex items-center justify-center w-8 h-8 text-gray-500 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
+            className="relative flex items-center justify-center w-9 h-9 text-gray-500 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
               <path d="M13.73 21a2 2 0 0 1-3.46 0" />
             </svg>

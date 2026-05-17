@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import api, { getSocketToken } from '../../api';
-import { 
+import {
     ShieldAlert,
-    Inbox, 
-    Loader2, 
-    Search, 
-    X, 
-    ChevronLeft, 
+    Inbox,
+    Loader2,
+    Search,
+    X,
+    ChevronLeft,
     ChevronRight
 } from 'lucide-react';
 import io from 'socket.io-client';
@@ -28,7 +28,7 @@ const AdminLogTable = () => {
             setLogs(response.data);
         } catch (error) {
             console.error("Gagal mengambil log aktivitas:", error);
-            setLogs([]); 
+            setLogs([]);
         } finally {
             setIsLoading(false);
         }
@@ -38,7 +38,7 @@ const AdminLogTable = () => {
         fetchLogs();
         const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
         getSocketToken().then(res => socket.emit('authenticate', res.data.token)).catch(console.error);
-        
+
         // Listen to all events that should refresh the log table
         socket.on('admin-log-created', (newLog) => {
             setLogs(prev => [newLog, ...prev]);
@@ -71,7 +71,7 @@ const AdminLogTable = () => {
         const q = searchQuery.toLowerCase().trim();
         const safeLogs = Array.isArray(logs) ? logs : [];
         if (!q) return safeLogs;
-        return safeLogs.filter(log => 
+        return safeLogs.filter(log =>
             (log.action_type || '').toLowerCase().includes(q) ||
             (log.user_nim || '').toLowerCase().includes(q) ||
             (log.details || '').toLowerCase().includes(q)
@@ -92,32 +92,32 @@ const AdminLogTable = () => {
         const a = (action || '').toUpperCase();
 
         // 🔴 Destructive — hard deletes and full system wipes
-        if (a === 'SYSTEM_RESET')       return { badge: 'bg-red-500/10 text-red-500 border-red-500/30',   dot: 'bg-red-500'    };
-        if (a === 'DELETE_STUDENT')     return { badge: 'bg-red-400/10 text-red-400 border-red-400/30',   dot: 'bg-red-400'    };
-        if (a === 'DELETE_MASTER')      return { badge: 'bg-red-400/10 text-red-400 border-red-400/30',   dot: 'bg-red-400'    };
-        if (a === 'PURGE_OFFERS')       return { badge: 'bg-orange-500/10 text-orange-500 border-orange-500/30', dot: 'bg-orange-500' };
-        if (a === 'CANCEL_BARTER')      return { badge: 'bg-orange-400/10 text-orange-400 border-orange-400/30', dot: 'bg-orange-400' };
-        if (a === 'BARTER_CANCELLED')   return { badge: 'bg-orange-400/10 text-orange-400 border-orange-400/30', dot: 'bg-orange-400' };
+        if (a === 'SYSTEM_RESET') return { badge: 'bg-red-500/10 text-red-500 border-red-500/30', dot: 'bg-red-500' };
+        if (a === 'DELETE_STUDENT') return { badge: 'bg-red-400/10 text-red-400 border-red-400/30', dot: 'bg-red-400' };
+        if (a === 'DELETE_MASTER') return { badge: 'bg-red-400/10 text-red-400 border-red-400/30', dot: 'bg-red-400' };
+        if (a === 'PURGE_OFFERS') return { badge: 'bg-orange-500/10 text-orange-500 border-orange-500/30', dot: 'bg-orange-500' };
+        if (a === 'CANCEL_BARTER') return { badge: 'bg-orange-400/10 text-orange-400 border-orange-400/30', dot: 'bg-orange-400' };
+        if (a === 'BARTER_CANCELLED') return { badge: 'bg-orange-400/10 text-orange-400 border-orange-400/30', dot: 'bg-orange-400' };
 
         // 🟢 Creation & Imports — new data flowing in
-        if (a === 'IMPORT_STUDENTS')    return { badge: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30', dot: 'bg-emerald-500' };
-        if (a === 'IMPORT_CLASSES')     return { badge: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30', dot: 'bg-emerald-500' };
-        if (a === 'CREATE_STUDENT')     return { badge: 'bg-emerald-400/10 text-emerald-400 border-emerald-400/30', dot: 'bg-emerald-400' };
-        if (a === 'ADMIN_CREATED')      return { badge: 'bg-emerald-600/10 text-emerald-600 border-emerald-600/30', dot: 'bg-emerald-600' };
-        if (a === 'BARTER_CREATED')     return { badge: 'bg-teal-500/10 text-teal-500 border-teal-500/30', dot: 'bg-teal-500' };
+        if (a === 'IMPORT_STUDENTS') return { badge: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30', dot: 'bg-emerald-500' };
+        if (a === 'IMPORT_CLASSES') return { badge: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30', dot: 'bg-emerald-500' };
+        if (a === 'CREATE_STUDENT') return { badge: 'bg-emerald-400/10 text-emerald-400 border-emerald-400/30', dot: 'bg-emerald-400' };
+        if (a === 'ADMIN_CREATED') return { badge: 'bg-emerald-600/10 text-emerald-600 border-emerald-600/30', dot: 'bg-emerald-600' };
+        if (a === 'BARTER_CREATED') return { badge: 'bg-teal-500/10 text-teal-500 border-teal-500/30', dot: 'bg-teal-500' };
 
         // 🟡 Updates & Edits — mutations
-        if (a === 'UPDATE_STUDENT')     return { badge: 'bg-amber-500/10 text-amber-500 border-amber-500/30', dot: 'bg-amber-500' };
-        if (a === 'UPDATE_KRS')         return { badge: 'bg-amber-400/10 text-amber-400 border-amber-400/30', dot: 'bg-amber-400' };
-        if (a === 'ADMIN_MODIFIED')     return { badge: 'bg-amber-600/10 text-amber-600 border-amber-600/30', dot: 'bg-amber-600' };
-        if (a === 'BARTER_MATCHED')     return { badge: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/30', dot: 'bg-indigo-500' };
+        if (a === 'UPDATE_STUDENT') return { badge: 'bg-amber-500/10 text-amber-500 border-amber-500/30', dot: 'bg-amber-500' };
+        if (a === 'UPDATE_KRS') return { badge: 'bg-amber-400/10 text-amber-400 border-amber-400/30', dot: 'bg-amber-400' };
+        if (a === 'ADMIN_MODIFIED') return { badge: 'bg-amber-600/10 text-amber-600 border-amber-600/30', dot: 'bg-amber-600' };
+        if (a === 'BARTER_MATCHED') return { badge: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/30', dot: 'bg-indigo-500' };
 
         // 🟣 Admin-level privileged ops
-        if (a === 'ADMIN_DELETED')      return { badge: 'bg-violet-500/10 text-violet-500 border-violet-500/30', dot: 'bg-violet-500' };
-        if (a === 'ADMIN_OVERRIDE_SWAP')return { badge: 'bg-violet-400/10 text-violet-400 border-violet-400/30', dot: 'bg-violet-400' };
+        if (a === 'ADMIN_DELETED') return { badge: 'bg-violet-500/10 text-violet-500 border-violet-500/30', dot: 'bg-violet-500' };
+        if (a === 'ADMIN_OVERRIDE_SWAP') return { badge: 'bg-violet-400/10 text-violet-400 border-violet-400/30', dot: 'bg-violet-400' };
 
         // 🔵 Randomize / system ops
-        if (a === 'RANDOMIZE_SYSTEM')   return { badge: 'bg-sky-500/10 text-sky-500 border-sky-500/30', dot: 'bg-sky-500' };
+        if (a === 'RANDOMIZE_SYSTEM') return { badge: 'bg-sky-500/10 text-sky-500 border-sky-500/30', dot: 'bg-sky-500' };
 
         // ⬜ Fallback
         return { badge: 'bg-muted text-muted-foreground border-border', dot: 'bg-muted-foreground' };
@@ -128,7 +128,7 @@ const AdminLogTable = () => {
             <CardHeader className="py-3 px-4 border-b border-border/50 bg-muted/5 flex flex-row items-center justify-between space-y-0">
                 <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80 flex items-center gap-2">
                     <ShieldAlert size={14} />
-                    Activity Log / Audit Trail
+                    Activity Log
                 </CardTitle>
                 <div className="flex items-center gap-2">
                     <span className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-widest">

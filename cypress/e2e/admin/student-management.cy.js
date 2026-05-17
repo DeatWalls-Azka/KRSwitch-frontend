@@ -45,7 +45,7 @@ describe('Admin Student Management', () => {
   });
 
   it('opens Add Student modal with correct form fields', () => {
-    cy.contains('button', 'TAMBAH MAHASISWA').click();
+    cy.contains('button', 'ADD MAHASISWA').click();
 
     // Modal uses h3, not h2
     cy.contains('Registrasi Mahasiswa').should('be.visible');
@@ -56,7 +56,7 @@ describe('Admin Student Management', () => {
   it('submits Add Student modal and calls API', () => {
     cy.intercept('POST', '/api/admin/users', { statusCode: 201, body: { nim: 'M0003' } }).as('createUser');
 
-    cy.contains('button', 'TAMBAH MAHASISWA').click();
+    cy.contains('button', 'ADD MAHASISWA').click();
     cy.get('input[placeholder="G6401211XXX"]').type('M0003');
     cy.get('input[placeholder="Masukkan nama lengkap..."]').type('Charlie');
     cy.contains('button', 'Daftarkan Mahasiswa').click();
@@ -68,7 +68,7 @@ describe('Admin Student Management', () => {
   });
 
   it('closes Add Student modal on Batal click', () => {
-    cy.contains('button', 'TAMBAH MAHASISWA').click();
+    cy.contains('button', 'ADD MAHASISWA').click();
     cy.contains('Registrasi Mahasiswa').should('be.visible');
 
     cy.contains('button', 'Batal').click();

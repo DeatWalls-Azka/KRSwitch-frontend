@@ -86,15 +86,19 @@ export default function AdminLayout({ children }) {
           {/* Logo Section */}
           <div className="p-4 h-20 flex items-center border-b border-border bg-muted/10">
             <div className="flex items-center gap-3 w-full">
-              <div className="w-9 h-9 rounded-md overflow-hidden border border-border shrink-0 bg-white shadow-sm">
-                <img src={marbotLogo} alt="Logo" className="w-full h-full object-cover" />
+              <div className="w-9 h-9 rounded-md overflow-hidden border border-border shrink-0 bg-white shadow-sm flex items-center justify-center">
+                {user?.picture ? (
+                  <img src={user.picture} alt="Logo" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                ) : (
+                  <img src={marbotLogo} alt="Logo" className="w-full h-full object-cover" />
+                )}
               </div>
               <div className="flex flex-col min-w-0 flex-1">
                 <h2 className="text-[11px] font-bold tracking-tight leading-tight truncate text-foreground uppercase">
                   {user?.name || 'ADMIN'}
                 </h2>
-                <span className="text-[9px] font-bold text-muted-foreground truncate">
-                  {user?.nim || 'ID: 0000'}
+                <span className="text-[9px] text-muted-foreground/60 truncate">
+                  {user?.email || 'admin@ipb.ac.id'}
                 </span>
               </div>
               <button
