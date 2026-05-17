@@ -276,10 +276,16 @@ export default function NotificationModal({ isOpen, onClose, notifications = [],
       </div>
 
       <style jsx>{`
-        .notif-scroll::-webkit-scrollbar { width: 4px; }
-        .notif-scroll::-webkit-scrollbar-track { background: transparent; }
-        .notif-scroll::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 999px; }
-        .notif-scroll::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+        .notif-scroll {
+          -ms-overflow-style: none !important;
+          scrollbar-width: none !important;
+        }
+        .notif-scroll::-webkit-scrollbar {
+          display: none !important;
+          width: 0 !important;
+          height: 0 !important;
+          background: transparent !important;
+        }
         @keyframes popUp {
           0% { transform: scale(0.95); opacity: 0; }
           100% { transform: scale(1); opacity: 1; }

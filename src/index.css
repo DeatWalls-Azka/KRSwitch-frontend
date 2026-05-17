@@ -54,35 +54,24 @@
   }
 }
 
-/* Global Thin & Overlay Scrollbar */
+/* Global Scrollbar Hiding (Basically Invisible but Scrollable) */
 * {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(31, 41, 55, 0.2) transparent;
+  -ms-overflow-style: none !important;  /* IE and Edge */
+  scrollbar-width: none !important;  /* Firefox */
 }
 
-/* For Webkit browsers (Chrome, Safari, Edge) */
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: rgba(31, 41, 55, 0.2);
-  border-radius: 20px;
-  border: transparent;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(31, 41, 55, 0.4);
-}
-
-/* Ensure overlay behavior on modern browsers */
-body {
-  overflow-y: overlay;
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
 }
 
 
