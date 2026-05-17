@@ -28,18 +28,16 @@ export default function ExportRecapCard() {
   return (
     <Button 
       variant="adminOutline" 
-      size="sm"
+      size="icon"
       onClick={handleExportRecap}
       disabled={isExporting}
-      className="h-10 text-[10px] font-black uppercase tracking-tight"
+      className="h-9 w-9"
     >
       {isExporting ? (
         <Loader2 className="animate-spin h-4 w-4" />
       ) : (
-        <Download size={16} strokeWidth={3} />
+        <Download size={15} strokeWidth={2.5} />
       )}
-      
-      {isExporting ? 'Exporting...' : 'Ekspor Rekap CSV'}
     </Button>
   );
 }

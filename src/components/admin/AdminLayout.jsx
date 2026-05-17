@@ -2,14 +2,15 @@ import React, { useState, useEffect } from 'react';
 import api from '../../api';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import {
-  LayoutDashboard, 
+  LayoutDashboard,
   Command,
   GraduationCap,
   Fingerprint,
-  Users, 
-  LogOut, 
-  Menu, 
-  ExternalLink
+  Users,
+  LogOut,
+  Menu,
+  ExternalLink,
+  BookOpenText
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import marbotLogo from '../../assets/MarbotBanner.jpg';
@@ -18,11 +19,10 @@ import { getCurrentUser } from '../../api';
 const SidebarLink = ({ to, icon: Icon, label, active }) => (
   <Link
     to={to}
-    className={`flex items-center gap-3 px-3 py-2 transition-colors duration-200 group relative border-l-2 ${
-      active
-        ? 'border-emerald-500 bg-emerald-500/5 text-emerald-600 font-bold'
-        : 'border-transparent text-muted-foreground hover:bg-muted/50 hover:text-foreground'
-    }`}
+    className={`flex items-center gap-3 px-3 py-2 transition-colors duration-200 group relative border-l-2 ${active
+      ? 'border-emerald-500 bg-emerald-500/5 text-emerald-600 font-bold'
+      : 'border-transparent text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+      }`}
   >
     <Icon size={16} strokeWidth={active ? 2.5 : 2} className={active ? 'text-emerald-600' : 'text-muted-foreground group-hover:text-foreground'} />
     <span className="text-[10px] font-bold uppercase tracking-wider">{label}</span>
@@ -57,8 +57,13 @@ export default function AdminLayout({ children }) {
     },
     {
       to: '/admin/students',
-      label: 'Database Mahasiswa',
+      label: 'Data Mahasiswa',
       icon: GraduationCap
+    },
+    {
+      to: '/admin/courses',
+      label: 'Data Mata Kuliah',
+      icon: BookOpenText
     }
   ];
 
@@ -73,10 +78,9 @@ export default function AdminLayout({ children }) {
   return (
     <div className="min-h-screen bg-slate-50 flex font-sans text-foreground">
       {/* SIDEBAR */}
-      <aside 
-        className={`fixed inset-y-0 left-0 z-50 w-56 bg-background border-r border-border transition-transform duration-300 lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen shrink-0 ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-56 bg-background border-r border-border transition-transform duration-300 lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen shrink-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
         <div className="flex flex-col h-full">
           {/* Logo Section */}
@@ -93,7 +97,7 @@ export default function AdminLayout({ children }) {
                   {user?.nim || 'ID: 0000'}
                 </span>
               </div>
-              <button 
+              <button
                 onClick={handleLogout}
                 className="p-1.5 text-muted-foreground hover:text-destructive transition-colors rounded-sm hover:bg-destructive/10 shrink-0"
               >
@@ -104,7 +108,7 @@ export default function AdminLayout({ children }) {
 
           {/* Navigation */}
           <nav className="flex-1 py-4 space-y-0.5 overflow-y-auto custom-scrollbar">
-            <div className="px-4 mb-3 text-[9px] font-bold text-muted-foreground uppercase tracking-[0.2em]">Main Navigation</div>
+            <div className="px-3 mb-3 text-[9px] font-[750] text-muted-foreground uppercase tracking-[0.1em]">Navigasi Dashboard</div>
             {navItems.map((item) => (
               <SidebarLink
                 key={item.to}
@@ -123,7 +127,7 @@ export default function AdminLayout({ children }) {
         {/* TOPBAR */}
         <header className="h-16 bg-background border-b border-border flex items-center justify-between px-8 shrink-0 sticky top-0 z-40 backdrop-blur-md bg-background/80">
           <div className="flex items-center gap-4">
-            <button 
+            <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               className="lg:hidden p-2 text-muted-foreground hover:bg-secondary rounded-md transition-colors"
             >

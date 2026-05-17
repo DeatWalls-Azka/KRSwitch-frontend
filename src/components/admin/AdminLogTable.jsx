@@ -58,8 +58,8 @@ const AdminLogTable = () => {
             const rect = tableContainerRef.current.getBoundingClientRect();
             // Available height inside viewport minus pagination (~120px padding/footer)
             const availableHeight = window.innerHeight - rect.top - 120;
-            const calculatedRows = Math.floor(availableHeight / 43);
-            setPageSize(Math.max(5, calculatedRows));
+            const calculatedRows = Math.floor(availableHeight / 48); // Adjusted for actual row height
+            setPageSize(Math.max(2, calculatedRows)); // Removed strict 5 minimum to allow perfect fit
         };
 
         updatePageSize();
@@ -97,17 +97,20 @@ const AdminLogTable = () => {
         if (a === 'DELETE_MASTER')      return { badge: 'bg-red-400/10 text-red-400 border-red-400/30',   dot: 'bg-red-400'    };
         if (a === 'PURGE_OFFERS')       return { badge: 'bg-orange-500/10 text-orange-500 border-orange-500/30', dot: 'bg-orange-500' };
         if (a === 'CANCEL_BARTER')      return { badge: 'bg-orange-400/10 text-orange-400 border-orange-400/30', dot: 'bg-orange-400' };
+        if (a === 'BARTER_CANCELLED')   return { badge: 'bg-orange-400/10 text-orange-400 border-orange-400/30', dot: 'bg-orange-400' };
 
         // 🟢 Creation & Imports — new data flowing in
         if (a === 'IMPORT_STUDENTS')    return { badge: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30', dot: 'bg-emerald-500' };
         if (a === 'IMPORT_CLASSES')     return { badge: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30', dot: 'bg-emerald-500' };
         if (a === 'CREATE_STUDENT')     return { badge: 'bg-emerald-400/10 text-emerald-400 border-emerald-400/30', dot: 'bg-emerald-400' };
         if (a === 'ADMIN_CREATED')      return { badge: 'bg-emerald-600/10 text-emerald-600 border-emerald-600/30', dot: 'bg-emerald-600' };
+        if (a === 'BARTER_CREATED')     return { badge: 'bg-teal-500/10 text-teal-500 border-teal-500/30', dot: 'bg-teal-500' };
 
         // 🟡 Updates & Edits — mutations
         if (a === 'UPDATE_STUDENT')     return { badge: 'bg-amber-500/10 text-amber-500 border-amber-500/30', dot: 'bg-amber-500' };
         if (a === 'UPDATE_KRS')         return { badge: 'bg-amber-400/10 text-amber-400 border-amber-400/30', dot: 'bg-amber-400' };
         if (a === 'ADMIN_MODIFIED')     return { badge: 'bg-amber-600/10 text-amber-600 border-amber-600/30', dot: 'bg-amber-600' };
+        if (a === 'BARTER_MATCHED')     return { badge: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/30', dot: 'bg-indigo-500' };
 
         // 🟣 Admin-level privileged ops
         if (a === 'ADMIN_DELETED')      return { badge: 'bg-violet-500/10 text-violet-500 border-violet-500/30', dot: 'bg-violet-500' };

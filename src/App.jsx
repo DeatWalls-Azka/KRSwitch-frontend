@@ -6,6 +6,7 @@ import Admin from './pages/Admin';
 import AuthCallback from './pages/AuthCallback';
 import StudentManagementPage from './pages/StudentManagementPage'; 
 import AdminManagementPage from './pages/AdminManagementPage';
+import CourseManagementPage from './pages/CourseManagementPage';
 import AdminLayout from './components/admin/AdminLayout';
 import { getCurrentUser } from './api';
 
@@ -88,6 +89,7 @@ function App() {
         <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
           <Route index element={<Admin />} />
           <Route path="students" element={<StudentManagementPage />} />
+          <Route path="courses" element={<CourseManagementPage />} />
           <Route path="management" element={<SuperAdminRoute><AdminManagementPage /></SuperAdminRoute>} />
         </Route>
       </Routes>

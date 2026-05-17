@@ -90,17 +90,8 @@ export default function AdminWizardCard({ stats, onRefresh }) {
       setValidatedCounts(prev => ({ ...prev, [type]: 0 }));
       return;
     }
-    if (!window.confirm(`Hapus data ${type} permanen?`)) return;
-    setIsProcessing(true);
-    try {
-      await api.delete(`/api/admin/master-files/${type}`);
-      await fetchMasterFiles();
-      onRefresh();
-    } catch (err) {
-      setError('Gagal menghapus file.');
-    } finally {
-      setIsProcessing(false);
-    }
+    // Only remove the UI lock so the dropzone appears again
+    setMasterFiles(prev => ({ ...prev, [type]: false }));
   };
 
   const handleCommitAndRandomize = async () => {
@@ -160,20 +151,7 @@ export default function AdminWizardCard({ stats, onRefresh }) {
     }
   };
 
-  const handleFullReset = async () => {
-    if (!window.confirm('Reset sistem ke nol?')) return;
-    setIsProcessing(true);
-    try {
-      await api.post('/api/admin/reset', { confirm: 'RESET_ALL_DATA' });
-      onRefresh();
-      await fetchMasterFiles();
-      setActiveStep(0);
-    } catch (err) {
-      setError('Gagal reset');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
+
 
   const isStep0Ready = () => (masterFiles.students || validatedCounts.students > 0) && (masterFiles.classes || validatedCounts.classes > 0);
 
@@ -270,8 +248,7 @@ export default function AdminWizardCard({ stats, onRefresh }) {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" className="flex-1 h-9 text-[10px] font-bold shadow-none" onClick={handleManualRandomize} disabled={isProcessing}>Re-randomize</Button>
-                <Button variant="ghost" size="sm" className="flex-1 h-9 text-[10px] font-bold text-destructive/70 hover:text-destructive border border-destructive/10 bg-destructive/5" onClick={handleFullReset} disabled={isProcessing}>Reset All</Button>
+                <Button variant="outline" size="sm" className="w-full h-9 text-[10px] font-bold shadow-none" onClick={handleManualRandomize} disabled={isProcessing}>Re-randomize Data</Button>
               </div>
             </div>
           )}
