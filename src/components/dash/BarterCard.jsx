@@ -99,12 +99,12 @@ export default function BarterCard({
               <div className="text-gray-900 truncate font-bold text-[12px] md:hidden mb-[-3px]" title={offer.seekingCourseName}>
                 {offer.seekingCourseName}
               </div>
-              <div className="font-semibold font-mono text-gray-400 text-[10px] truncate md:hidden">{offer.studentName}</div>
+              <div className="font-semibold font-mono text-gray-400 text-[9px] truncate md:hidden">{offer.studentName}</div>
 
               <div className="hidden md:block mb-[-3px] text-gray-900 truncate font-bold text-[12px]" title={offer.seekingCourseName}>
                 {offer.seekingCourseName}
               </div>
-              <div className="hidden md:block font-semibold font-sans text-gray-400 text-[10px] truncate">{offer.studentName}</div>
+              <div className="hidden md:block font-semibold font-sans text-gray-400 text-[9px] truncate">{offer.studentName}</div>
             </div>
 
             {/* Middle codes */}
@@ -114,7 +114,7 @@ export default function BarterCard({
                 <span className="text-gray-400 font-black text-sm">⇌</span>
                 <span className="text-green-600 font-black text-sm">{offer.seekingClass}</span>
               </div>
-              <span className="text-gray-400 font-black text-[10px] whitespace-nowrap mt-1">{offer.seekingCourse}</span>
+              <span className="text-gray-400 font-black text-[9px] whitespace-nowrap mt-1">{offer.seekingCourse}</span>
             </div>
 
             {/* Right button*/}
