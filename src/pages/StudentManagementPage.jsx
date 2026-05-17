@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import api from '../api';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import api, { getSocketToken } from '../api';
 import io from 'socket.io-client';
 
 // IMPORT TABS
@@ -20,14 +20,16 @@ import {
   X,
   Loader2,
   Users as UsersIcon,
-  Database
+  Database,
+  GraduationCap
 } from 'lucide-react';
 import { Card, CardHeader, CardContent, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 
-const PAGE_SIZE = 15;
-
 export default function StudentManagementPage() {
+  const [pageSize, setPageSize] = useState(15);
+  const tableContainerRef = useRef(null);
+
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -55,7 +57,8 @@ export default function StudentManagementPage() {
   useEffect(() => { 
     fetchStudents(); 
 
-    const socket = io('http://localhost:5000');
+    const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
+    getSocketToken().then(res => socket.emit('authenticate', res.data.token)).catch(console.error);
 
     socket.on('admin-user-created', fetchStudents);
     socket.on('admin-user-updated', fetchStudents);
@@ -87,6 +90,22 @@ export default function StudentManagementPage() {
     return () => socket.disconnect();
   }, [selectedStudent?.nim]);
 
+  useEffect(() => {
+    const updatePageSize = () => {
+      if (!tableContainerRef.current) return;
+      // Measure exact distance from top of viewport to the table container
+      const rect = tableContainerRef.current.getBoundingClientRect();
+      // Available height is window height minus the table's start position minus pagination and bottom padding (~120px)
+      const availableHeight = window.innerHeight - rect.top - 120;
+      const calculatedRows = Math.floor(availableHeight / 43);
+      setPageSize(Math.max(5, calculatedRows));
+    };
+
+    updatePageSize();
+    window.addEventListener('resize', updatePageSize);
+    return () => window.removeEventListener('resize', updatePageSize);
+  }, []);
+
   const filtered = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return students;
@@ -97,8 +116,8 @@ export default function StudentManagementPage() {
 
   useEffect(() => { setCurrentPage(1); }, [searchQuery]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const paginated = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const handleSelectStudent = async (student) => {
     setSelectedStudent(student);
@@ -128,7 +147,7 @@ export default function StudentManagementPage() {
   const goToPage = (p) => setCurrentPage(Math.max(1, Math.min(p, totalPages)));
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-6 pb-8">
       {/* Header section */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border/50 pb-6 mb-2">
         <div className="space-y-1">
@@ -155,7 +174,8 @@ export default function StudentManagementPage() {
       {/* Toolbar: Search + Stats Integrated into Card */}
       <Card className="border-border/50 shadow-sm rounded-md overflow-hidden flex flex-col bg-background">
         <CardHeader className="py-3 px-4 border-b border-border/50 bg-muted/5 flex flex-row items-center justify-between space-y-0">
-          <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">
+          <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80 flex items-center gap-2">
+            <GraduationCap size={14} />
             Student Management / Master Directory
           </CardTitle>
           <div className="flex items-center gap-2">
@@ -189,7 +209,7 @@ export default function StudentManagementPage() {
           </div>
         </div>
 
-        <div className="overflow-x-auto flex-1">
+        <div className="overflow-x-auto" ref={tableContainerRef}>
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-muted/5 border-b">
@@ -219,7 +239,7 @@ export default function StudentManagementPage() {
                   >
                     <td className="py-2 text-center">
                       <span className="text-[10px] font-mono font-bold text-muted-foreground/60">
-                        {(currentPage - 1) * PAGE_SIZE + index + 1}
+                        {(currentPage - 1) * pageSize + index + 1}
                       </span>
                     </td>
                     <td className="px-4 py-2">

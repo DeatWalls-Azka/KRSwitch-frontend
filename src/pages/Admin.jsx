@@ -4,6 +4,7 @@ import AdminWizardCard from "../components/admin/AdminWizardCard";
 import SystemStatsCard from "../components/admin/SystemStatsCard";
 import AdminLogTable from '../components/admin/AdminLogTable';
 import io from 'socket.io-client';
+import { getSocketToken } from '../api';
 
 export default function Admin() {
   const [stats, setStats] = useState({
@@ -26,7 +27,8 @@ export default function Admin() {
   useEffect(() => {
     fetchStats();
 
-    const socket = io('http://localhost:5000');
+    const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
+    getSocketToken().then(res => socket.emit('authenticate', res.data.token)).catch(console.error);
     
     socket.on('online-count', (count) => {
       setStats(prev => ({ ...prev, onlineCount: count }));
@@ -53,7 +55,7 @@ export default function Admin() {
   }, []);
 
   return (
-    <div className="space-y-4 pb-10">
+    <div className="space-y-4 pb-8">
       {/* Header Info */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/50 pb-6 mb-2">
         <div className="space-y-1">

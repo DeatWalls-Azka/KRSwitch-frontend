@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Admin from './pages/Admin';
 import AuthCallback from './pages/AuthCallback';
 import StudentManagementPage from './pages/StudentManagementPage'; 
+import AdminManagementPage from './pages/AdminManagementPage';
 import AdminLayout from './components/admin/AdminLayout';
 import { getCurrentUser } from './api';
 
@@ -27,7 +28,7 @@ function StudentRoute({ children }) {
       .then(res => {
         if (!res.data) setStatus('unauthenticated');
         else if (res.data.role === 'student') setStatus('student');
-        else if (res.data.role === 'admin') setStatus('admin');
+        else if (['super_admin', 'operator', 'admin'].includes(res.data.role)) setStatus('admin');
         else setStatus('unauthenticated');
       })
       .catch(() => setStatus('unauthenticated'));
@@ -39,14 +40,14 @@ function StudentRoute({ children }) {
   return children;
 }
 
-// Cek role admin — redirect ke / kalo bukan admin
+// Cek role admin — redirect ke / kalo bukan admin (operator atau super_admin bisa masuk)
 function AdminRoute({ children }) {
   const [status, setStatus] = useState(null);
   useEffect(() => {
     getCurrentUser()
       .then(res => {
         if (!res.data) setStatus('unauthenticated');
-        else if (res.data.role === 'admin') setStatus('admin');
+        else if (['super_admin', 'operator', 'admin'].includes(res.data.role)) setStatus('admin');
         else setStatus('forbidden');
       })
       .catch(() => setStatus('unauthenticated'));
@@ -58,6 +59,25 @@ function AdminRoute({ children }) {
   return children;
 }
 
+// Cek role super admin
+function SuperAdminRoute({ children }) {
+  const [status, setStatus] = useState(null);
+  useEffect(() => {
+    getCurrentUser()
+      .then(res => {
+        if (!res.data) setStatus('unauthenticated');
+        else if (['super_admin', 'admin'].includes(res.data.role)) setStatus('super_admin');
+        else setStatus('forbidden');
+      })
+      .catch(() => setStatus('unauthenticated'));
+  }, []);
+
+  if (status === null) return null;
+  if (status === 'unauthenticated') return <Navigate to="/login" replace />;
+  if (status === 'forbidden') return <Navigate to="/admin" replace />;
+  return children;
+}
+
 function App() {
   return (
     <Router>
@@ -65,8 +85,11 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/" element={<StudentRoute><Dashboard /></StudentRoute>} />
-        <Route path="/admin" element={<AdminRoute><AdminLayout><Admin /></AdminLayout></AdminRoute>} />
-        <Route path="/admin/students" element={<AdminRoute><AdminLayout><StudentManagementPage /></AdminLayout></AdminRoute>} />
+        <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+          <Route index element={<Admin />} />
+          <Route path="students" element={<StudentManagementPage />} />
+          <Route path="management" element={<SuperAdminRoute><AdminManagementPage /></SuperAdminRoute>} />
+        </Route>
       </Routes>
     </Router>
   );

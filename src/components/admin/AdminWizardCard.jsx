@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../api';
+import api, { getSocketToken } from '../../api';
 import io from 'socket.io-client';
 import {
   Check,
@@ -38,7 +38,8 @@ export default function AdminWizardCard({ stats, onRefresh }) {
     fetchMasterFiles();
 
     // SOCKET REAL-TIME SYNC
-    const socket = io('http://localhost:5000');
+    const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
+    getSocketToken().then(res => socket.emit('authenticate', res.data.token)).catch(console.error);
     socket.on('admin-master-files-updated', (data) => {
       fetchMasterFiles();
       onRefresh(); // To update stats
@@ -163,7 +164,7 @@ export default function AdminWizardCard({ stats, onRefresh }) {
     if (!window.confirm('Reset sistem ke nol?')) return;
     setIsProcessing(true);
     try {
-      await api.post('/api/admin/reset');
+      await api.post('/api/admin/reset', { confirm: 'RESET_ALL_DATA' });
       onRefresh();
       await fetchMasterFiles();
       setActiveStep(0);
