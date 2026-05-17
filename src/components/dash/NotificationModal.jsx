@@ -5,20 +5,49 @@ function NotificationRow({ notification, parallelClasses }) {
   const [hasSeen, setHasSeen] = useState(false);
   const { type, data, read, createdAt } = notification;
 
-  const isAutoMatched = type === 'barter_auto_matched';
-  const isOfferer = type === 'barter_matched_as_offerer';
+  // Determine display values based on type
+  let title = '';
+  let subText = '';
+  let showSwapDetails = false;
+  let oldClassCode = '—';
+  let newClassCode = '—';
+  let courseCode = data?.courseCode || data?.yourOldClass?.courseCode || '—';
+  let isAdminAction = type?.startsWith('admin_');
+  let isCancelled = type?.includes('cancelled');
 
-  // Defensive fallback — old notifications might not have all fields
-  const counterpartName = (isAutoMatched
-    ? data.counterpartName
-    : isOfferer ? data.takerName : data.offererName) || '—';
-
-  const timestamp = new Date(createdAt).toLocaleString('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).replace('.', ':');
+  if (type === 'barter_auto_matched' || type === 'barter_matched_as_offerer' || type === 'barter_matched_as_taker') {
+    title = type === 'barter_auto_matched' ? 'Auto-Match Berhasil' : (type === 'barter_matched_as_offerer' ? 'Penawaran Anda Diterima' : 'Anda Menerima Penawaran');
+    oldClassCode = data?.yourOldClass?.classCode || '—';
+    newClassCode = data?.yourNewClass?.classCode || '—';
+    const counterpartLabel = type === 'barter_auto_matched' ? 'dengan' : (type === 'barter_matched_as_offerer' ? 'oleh' : 'dari');
+    const counterpartName = (type === 'barter_auto_matched' ? data?.counterpartName : (type === 'barter_matched_as_offerer' ? data?.takerName : data?.offererName)) || '—';
+    subText = <span><span className="text-red-500 font-semibold">{oldClassCode}</span>{' ⇌ '}<span className="text-green-600 font-semibold">{newClassCode}</span>{' · '}{counterpartLabel} <span className="text-gray-700 font-semibold">{counterpartName}</span></span>;
+    showSwapDetails = true;
+  } else if (type === 'barter_cancelled') {
+    title = 'Penawaran Dibatalkan';
+    oldClassCode = data?.classCode || '—';
+    subText = <span>Dibatalkan oleh Anda · <span className="text-gray-700 font-semibold">{courseCode}</span></span>;
+  } else if (type === 'admin_barter_cancelled') {
+    title = 'Penawaran Dibatalkan';
+    oldClassCode = data?.classCode || '—';
+    subText = <span>Dibatalkan oleh <span className="text-blue-600 font-semibold">Admin</span> · <span className="text-gray-700 font-semibold">{courseCode}</span></span>;
+  } else if (type === 'admin_enrollment_updated') {
+    title = 'Jadwal Diubah';
+    oldClassCode = data?.oldClassCode || '—';
+    newClassCode = data?.newClassCode || '—';
+    subText = <span>Diubah oleh <span className="text-blue-600 font-semibold">Admin</span> · <span className="text-gray-700 font-semibold">{courseCode}</span></span>;
+    showSwapDetails = true;
+  } else if (type === 'admin_enrollment_deleted') {
+    title = 'Jadwal Dihapus';
+    oldClassCode = data?.classCode || '—';
+    subText = <span>Dihapus oleh <span className="text-blue-600 font-semibold">Admin</span> · <span className="text-gray-700 font-semibold">{courseCode}</span></span>;
+  } else if (type === 'admin_override_swap') {
+    title = 'Override Swap Berhasil';
+    oldClassCode = data?.oldClassCode || '—';
+    newClassCode = data?.newClassCode || '—';
+    subText = <span>Di-swap oleh <span className="text-blue-600 font-semibold">Admin</span> dengan <span className="text-gray-700 font-semibold">{data?.counterpartName || '—'}</span></span>;
+    showSwapDetails = true;
+  }
 
   // Ping hidden once expanded — stays hidden even after collapsing
   const showPing = !read && !hasSeen;
@@ -28,19 +57,14 @@ function NotificationRow({ notification, parallelClasses }) {
     setIsExpanded(prev => !prev);
   };
 
-  // Title per type
-  const title = isAutoMatched
-    ? 'Auto-Match Berhasil'
-    : isOfferer
-      ? 'Penawaran Anda Diterima'
-      : 'Anda Menerima Penawaran';
+  // Border + ping color
+  const borderColor = read ? 'border-gray-200' : (isAdminAction ? 'border-blue-300' : (isCancelled ? 'border-red-300' : 'border-green-300'));
+  const pingColor = isAdminAction ? 'bg-blue-500' : (isCancelled ? 'bg-red-500' : 'bg-green-500');
 
-  // Subtitle label per type
-  const counterpartLabel = isAutoMatched ? 'dengan' : isOfferer ? 'oleh' : 'dari';
-
-  // Border + ping color — all green, consistent with platform
-  const borderColor = read ? 'border-gray-200' : 'border-green-300';
-  const pingColor = 'bg-green-500';
+  // Format timestamp safely
+  const timestamp = createdAt 
+    ? new Date(createdAt).toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }).replace('.', ':')
+    : '—';
 
   return (
     <div className={`border rounded-sm mb-1 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.08)] ${borderColor} bg-white`}>
@@ -52,7 +76,13 @@ function NotificationRow({ notification, parallelClasses }) {
       >
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline justify-between gap-2 mb-1">
-            <div className="relative inline-flex shrink min-w-0">
+            <div className="relative inline-flex shrink min-w-0 items-center gap-1.5">
+              {isAdminAction && (
+                <span className="bg-blue-100 text-blue-700 text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0">Admin</span>
+              )}
+              {isCancelled && !isAdminAction && (
+                <span className="bg-red-100 text-red-700 text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0">Batal</span>
+              )}
               <span className="text-xs font-bold text-gray-900 truncate block pr-4">
                 {title}
               </span>
@@ -65,11 +95,7 @@ function NotificationRow({ notification, parallelClasses }) {
             </div>
           </div>
           <p className="text-[11px] text-gray-500 truncate">
-            <span className="text-red-500 font-semibold">{data.yourOldClass?.classCode || '—'}</span>
-            {' ⇌ '}
-            <span className="text-green-600 font-semibold">{data.yourNewClass?.classCode || '—'}</span>
-            {' · '}
-            {counterpartLabel} <span className="text-gray-700 font-semibold">{counterpartName}</span>
+            {subText}
           </p>
         </div>
 
@@ -103,27 +129,38 @@ function NotificationRow({ notification, parallelClasses }) {
         <div style={{ overflow: 'hidden', minHeight: 0 }}>
           <div className="border-t border-gray-100 bg-white px-4 py-4 space-y-4">
 
-            {/* Swap detail */}
+            {/* Swap / Action detail */}
             <div className="border border-gray-100 rounded-sm py-3.5 px-4">
-              <div className="flex items-center justify-center gap-6">
-                <div className="text-center">
-                  <div className="text-[11px] text-gray-400 mb-1">Dilepas</div>
-                  <div className="text-red-600 font-bold text-base">
-                    {data.yourOldClass?.courseCode}-{data.yourOldClass?.classCode}
+              {showSwapDetails ? (
+                <div className="flex items-center justify-center gap-6">
+                  <div className="text-center">
+                    <div className="text-[11px] text-gray-400 mb-1">Dilepas</div>
+                    <div className="text-red-600 font-bold text-base">
+                      {courseCode}-{oldClassCode}
+                    </div>
+                  </div>
+                  <div className="text-gray-300 font-bold text-xl">⇌</div>
+                  <div className="text-center">
+                    <div className="text-[11px] text-gray-400 mb-1">Didapat</div>
+                    <div className="text-green-600 font-bold text-base">
+                      {courseCode}-{newClassCode}
+                    </div>
                   </div>
                 </div>
-                <div className="text-gray-300 font-bold text-xl">⇌</div>
-                <div className="text-center">
-                  <div className="text-[11px] text-gray-400 mb-1">Didapat</div>
-                  <div className="text-green-600 font-bold text-base">
-                    {data.yourNewClass?.courseCode}-{data.yourNewClass?.classCode}
+              ) : (
+                <div className="flex items-center justify-center gap-6">
+                  <div className="text-center">
+                    <div className="text-[11px] text-gray-400 mb-1">Kelas</div>
+                    <div className="text-gray-800 font-bold text-base">
+                      {courseCode}-{oldClassCode}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Stale cancelled offers */}
-            {data.staleCancelledOffers && data.staleCancelledOffers.length > 0 && (
+            {data?.staleCancelledOffers && data.staleCancelledOffers.length > 0 && (
               <div className="space-y-2">
                 <div className="text-[11px] text-gray-400 font-bold ">
                   Penawaran Dibatalkan Otomatis
