@@ -67,6 +67,9 @@ Create a `.env` file in the root frontend directory:
 VITE_API_BASE="http://localhost:5000"
 ```
 
+> [!NOTE]
+> **API Mappings**: Ensure the backend service is running and accessible at the specified `VITE_API_BASE` address before launching the development server.
+
 ### 2. Launch Client
 ```bash
 # Install dependencies
@@ -99,6 +102,9 @@ npm run cypress:run
 *   **useMemo Filter Wrappers**: Heavy filter listings are memoized, avoiding render bottlenecks during Socket.IO feed broadcasts.
 *   **useCallback Handlers**: Callback functions are memoized to avoid child card rendering cycles.
 *   **State Batching**: WebSocket updates for matched trades are batched, preventing browser layout thrashing.
+
+> [!TIP]
+> **Render Profiling**: You can use React Developer Tools in your browser to inspect rendering boundaries and confirm that `useMemo` blocks keep rendering costs contained during live feeds.
 
 ---
 
