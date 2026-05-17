@@ -5,11 +5,11 @@ import io from 'socket.io-client';
 import AddCourseModal from '../components/admin/modals/AddCourseModal';
 import ExportRecapCard from '../components/admin/ExportRecapCard';
 
-import { 
-  Plus, 
-  Search, 
-  ChevronRight, 
-  ChevronLeft, 
+import {
+  Plus,
+  Search,
+  ChevronRight,
+  ChevronLeft,
   X,
   Loader2,
   BookOpenText,
@@ -51,8 +51,8 @@ export default function CourseManagementPage() {
     }
   };
 
-  useEffect(() => { 
-    fetchClasses(); 
+  useEffect(() => {
+    fetchClasses();
 
     const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
     getSocketToken().then(res => socket.emit('authenticate', res.data.token)).catch(console.error);
@@ -80,7 +80,7 @@ export default function CourseManagementPage() {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return classes;
     return classes.filter(c =>
-      c.courseName.toLowerCase().includes(q) || 
+      c.courseName.toLowerCase().includes(q) ||
       c.courseCode.toLowerCase().includes(q) ||
       c.classCode.toLowerCase().includes(q)
     );
@@ -137,7 +137,7 @@ export default function CourseManagementPage() {
 
   const handleDelete = async (id, code, clsCode) => {
     if (!window.confirm(`Yakin ingin menghapus kelas ${code} - ${clsCode}? Data KRS mahasiswa terkait akan hilang.`)) return;
-    
+
     setIsDeleting(id);
     try {
       await api.delete(`/api/admin/classes/${id}`);
@@ -161,14 +161,14 @@ export default function CourseManagementPage() {
           </div>
           <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Management of courses, schedules, and rooms</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1">
           <Button
             onClick={() => setIsAddModalOpen(true)}
             variant="admin"
             size="sm"
             className="h-9 px-4 text-[11px] font-bold"
           >
-            <Plus size={14} className="mr-2" />
+            <Plus size={14} className="mr-0" />
             TAMBAH KELAS
           </Button>
           <ExportRecapCard />
@@ -239,10 +239,10 @@ export default function CourseManagementPage() {
               ) : paginated.length > 0 ? (
                 paginated.map((cls, index) => {
                   const isEditing = editingClassId === cls.id;
-                  
+
                   return (
-                    <tr 
-                      key={cls.id} 
+                    <tr
+                      key={cls.id}
                       className={`group transition-colors ${isEditing ? 'bg-primary/5' : 'hover:bg-muted/5'}`}
                     >
                       <td className="w-[4%] py-2 text-center align-middle">
@@ -250,19 +250,19 @@ export default function CourseManagementPage() {
                           {(currentPage - 1) * pageSize + index + 1}
                         </span>
                       </td>
-                      
+
                       {isEditing ? (
                         <>
                           <td className="px-4 py-2 align-middle">
                             <div className="flex items-center gap-1">
-                              <input 
+                              <input
                                 name="courseCode"
                                 value={editFormData.courseCode}
                                 onChange={handleFormChange}
                                 className="w-16 h-6 px-1 text-[11px] font-mono font-bold border border-input rounded outline-none focus:border-primary uppercase"
                                 placeholder="Code"
                               />
-                              <input 
+                              <input
                                 name="courseName"
                                 value={editFormData.courseName}
                                 onChange={handleFormChange}
@@ -272,7 +272,7 @@ export default function CourseManagementPage() {
                             </div>
                           </td>
                           <td className="px-4 py-2 align-middle">
-                            <input 
+                            <input
                               name="classCode"
                               value={editFormData.classCode}
                               onChange={handleFormChange}
@@ -300,7 +300,7 @@ export default function CourseManagementPage() {
                                 </SelectContent>
                               </Select>
                               <div className="flex items-center gap-0.5">
-                                <input 
+                                <input
                                   name="timeStart"
                                   value={editFormData.timeStart}
                                   onChange={handleFormChange}
@@ -308,7 +308,7 @@ export default function CourseManagementPage() {
                                   placeholder="08:00"
                                 />
                                 <span className="text-[10px] text-muted-foreground">-</span>
-                                <input 
+                                <input
                                   name="timeEnd"
                                   value={editFormData.timeEnd}
                                   onChange={handleFormChange}
@@ -319,7 +319,7 @@ export default function CourseManagementPage() {
                             </div>
                           </td>
                           <td className="px-4 py-2 align-middle">
-                            <input 
+                            <input
                               name="room"
                               value={editFormData.room}
                               onChange={handleFormChange}
@@ -354,49 +354,51 @@ export default function CourseManagementPage() {
                           </td>
                         </>
                       )}
-                      
+
                       <td className="px-4 py-2 text-center align-middle">
                         <span className="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[9px] font-bold bg-muted/30 text-muted-foreground/60 border border-border/50 uppercase tracking-tighter">
                           {cls.enrollmentCount}
                         </span>
                       </td>
-                      
+
                       <td className="px-4 py-2 text-right align-middle whitespace-nowrap">
                         {isEditing ? (
-                          <div className="flex items-center justify-end gap-2">
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
                               onClick={handleCancelEdit}
                               disabled={isSaving}
-                              className="h-7 px-2 text-[10px]"
+                              className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                              title="Batal"
                             >
-                              Batal
+                              <X size={12} />
                             </Button>
-                            <Button 
-                              size="sm" 
+                            <Button
+                              variant="ghost"
+                              size="icon"
                               onClick={() => handleSaveEdit(cls.id)}
                               disabled={isSaving}
-                              className="h-7 px-2 text-[10px]"
+                              className="h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                              title="Simpan"
                             >
-                              {isSaving ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Save className="w-3 h-3 mr-1" />}
-                              Simpan
+                              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save size={12} />}
                             </Button>
                           </div>
                         ) : (
-                          <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
+                          <div className="flex items-center justify-end gap-1 transition-opacity">
+                            <Button
+                              variant="ghost"
+                              size="icon"
                               onClick={() => handleEditClick(cls)}
                               className="h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10"
                               title="Edit Kelas"
                             >
                               <Edit2 size={12} />
                             </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
+                            <Button
+                              variant="ghost"
+                              size="icon"
                               onClick={() => handleDelete(cls.id, cls.courseCode, cls.classCode)}
                               disabled={isDeleting === cls.id}
                               className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"

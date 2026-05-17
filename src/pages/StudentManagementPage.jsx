@@ -12,11 +12,11 @@ import AddStudentModal from '../components/admin/modals/AddStudentModal';
 import ExportRecapCard from '../components/admin/ExportRecapCard';
 import AdminModal from '../components/admin/AdminModal';
 
-import { 
-  UserPlus, 
-  Search, 
-  ChevronRight, 
-  ChevronLeft, 
+import {
+  UserPlus,
+  Search,
+  ChevronRight,
+  ChevronLeft,
   X,
   Loader2,
   Users as UsersIcon,
@@ -54,8 +54,8 @@ export default function StudentManagementPage() {
     }
   };
 
-  useEffect(() => { 
-    fetchStudents(); 
+  useEffect(() => {
+    fetchStudents();
 
     const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
     getSocketToken().then(res => socket.emit('authenticate', res.data.token)).catch(console.error);
@@ -157,14 +157,14 @@ export default function StudentManagementPage() {
           </div>
           <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Management of profiles, KRS enrollments, and barter history</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1">
           <Button
             onClick={() => setIsAddModalOpen(true)}
             variant="admin"
             size="sm"
             className="h-9 px-4 text-[11px] font-bold"
           >
-            <UserPlus size={14} className="mr-2" />
+            <UserPlus size={14} className="mr-0" />
             TAMBAH MAHASISWA
           </Button>
           <ExportRecapCard />
@@ -232,8 +232,8 @@ export default function StudentManagementPage() {
                 </tr>
               ) : paginated.length > 0 ? (
                 paginated.map((student, index) => (
-                  <tr 
-                    key={student.nim} 
+                  <tr
+                    key={student.nim}
                     className={`group cursor-pointer transition-colors hover:bg-muted/5 ${selectedStudent?.nim === student.nim ? 'bg-primary/5' : ''}`}
                     onClick={() => handleSelectStudent(student)}
                   >
