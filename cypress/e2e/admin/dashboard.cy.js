@@ -57,44 +57,19 @@ describe('Admin Dashboard Operations', () => {
     cy.get('table').find('tbody tr').should('have.length', 2);
   });
 
-  it('shows Reset All button in System Operational state when enrollments exist', () => {
-    // Step 1 (System Operational) is shown when totalEnrollments > 0 — mocked as 200
+  it('shows Re-randomize Data button in System Operational state when enrollments exist', () => {
     // Navigate to step 1 via the step button
     cy.contains('button', 'Step 2').click();
 
-    cy.contains('button', 'Reset All').should('be.visible');
-    cy.contains('button', 'Re-randomize').should('be.visible');
+    cy.contains('button', 'Re-randomize Data').should('be.visible');
   });
 
-  it('calls reset API with confirm token when Reset All is confirmed', () => {
-    cy.intercept('POST', '/api/admin/reset', { statusCode: 200, body: { message: 'System reset successful' } }).as('resetSystem');
-
-    // Auto-accept the native confirm dialog
-    cy.window().then((win) => cy.stub(win, 'confirm').returns(true));
+  it('calls seed-random API when Re-randomize Data is clicked', () => {
+    cy.intercept('POST', '/api/admin/seed-random', { statusCode: 200, body: { message: 'Success' } }).as('seedRandom');
 
     cy.contains('button', 'Step 2').click();
-    cy.contains('button', 'Reset All').click();
+    cy.contains('button', 'Re-randomize Data').click();
 
-    cy.wait('@resetSystem').its('request.body').should('deep.equal', {
-      confirm: 'RESET_ALL_DATA',
-    });
-  });
-
-  it('does NOT call reset API when Reset All is cancelled via window.confirm', () => {
-    let resetWasCalled = false;
-
-    cy.intercept('POST', '/api/admin/reset', (req) => {
-      resetWasCalled = true;
-      req.reply({ statusCode: 200, body: {} });
-    });
-
-    // Reject the confirm dialog
-    cy.window().then((win) => cy.stub(win, 'confirm').returns(false));
-
-    cy.contains('button', 'Step 2').click();
-    cy.contains('button', 'Reset All').click();
-
-    cy.wait(500);
-    cy.wrap(resetWasCalled).should('eq', false);
+    cy.wait('@seedRandom');
   });
 });
