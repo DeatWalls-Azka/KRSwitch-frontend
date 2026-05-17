@@ -79,15 +79,10 @@
 }
 
 /* Ensure overlay behavior on modern browsers */
-@supports (scrollbar-gutter: stable) {
-  html {
-    scrollbar-gutter: stable both-edges;
-  }
-}
-
 body {
   overflow-y: overlay;
 }
+
 
 .animate-in {
   animation-duration: 150ms;

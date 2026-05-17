@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 export default function AdminModal({ isOpen, onClose, title, subtitle, children }) {
@@ -14,7 +15,7 @@ export default function AdminModal({ isOpen, onClose, title, subtitle, children 
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-hidden">
       {/* Backdrop */}
       <div 
@@ -24,7 +25,7 @@ export default function AdminModal({ isOpen, onClose, title, subtitle, children 
 
       {/* Modal Panel */}
       <div 
-        className="relative w-full max-w-4xl h-[70vh] bg-background rounded-md shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 fade-in duration-300 border border-border/50"
+        className="relative w-full max-w-4xl h-[80vh] bg-background rounded-md shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 fade-in duration-300 border border-border/50"
       >
         {/* Header */}
         <div className="p-4 px-6 border-b border-border/50 flex items-center justify-between shrink-0 bg-muted/5">
@@ -45,6 +46,7 @@ export default function AdminModal({ isOpen, onClose, title, subtitle, children 
           {children}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

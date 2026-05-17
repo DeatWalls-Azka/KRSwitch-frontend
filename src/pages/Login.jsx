@@ -18,7 +18,13 @@ export default function Login() {
 
   useEffect(() => {
     getCurrentUser()
-      .then(() => navigate('/'))
+      .then((res) => {
+        if (res.data && res.data.role) {
+          navigate('/');
+        } else {
+          setChecking(false);
+        }
+      })
       .catch(() => setChecking(false));
   }, [navigate]);
 

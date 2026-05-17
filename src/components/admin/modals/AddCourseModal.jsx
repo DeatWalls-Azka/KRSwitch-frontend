@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import api from '../../../api';
 import { BookPlus, X, Loader2, Save } from 'lucide-react';
 import { Button } from '../../ui/button';
@@ -58,7 +59,7 @@ const AddCourseModal = ({ isOpen, onClose, studentName, studentNim }) => {
     }
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-in fade-in duration-300">
       <div className="bg-background rounded-xl shadow-2xl w-full max-w-md overflow-hidden border border-border animate-in zoom-in-95 duration-300">
         
@@ -136,7 +137,8 @@ const AddCourseModal = ({ isOpen, onClose, studentName, studentNim }) => {
         </div>
 
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

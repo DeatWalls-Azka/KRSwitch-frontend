@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import api from '../../../api';  // Pastikan path import api.js sudah benar
 
 const EditProfileModal = ({ isOpen, onClose, studentData }) => {
@@ -41,7 +42,7 @@ const EditProfileModal = ({ isOpen, onClose, studentData }) => {
     }
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden border-2 border-rose-500">
         
@@ -96,7 +97,8 @@ const EditProfileModal = ({ isOpen, onClose, studentData }) => {
         </div>
 
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

@@ -304,9 +304,9 @@ export default function StudentManagementPage() {
         title={selectedStudent?.name || 'Detail Mahasiswa'}
         subtitle={selectedStudent?.nim || '—'}
       >
-        <div className="flex flex-col relative min-h-[500px]">
+        <div className="flex flex-col relative h-full">
           {/* Shadcn Style Tabs */}
-          <div className="sticky top-[-2rem] z-20 bg-background/80 backdrop-blur-md -mx-8 -mt-8 px-8 pt-6 pb-4 border-b border-border mb-6">
+          <div className="sticky top-[-1.5rem] z-20 bg-background/80 backdrop-blur-md -mx-6 -mt-6 px-6 pt-6 pb-4 border-b border-border mb-6">
             <div className="admin-tabs-list w-full">
               {['KRS', 'Barter', 'Override', 'Akun'].map(t => (
                 <button
