@@ -1,132 +1,68 @@
-# KRSwitch — Developer Onboarding Playbook
+# 🚀 KRSwitch Frontend — Developer Onboarding Playbook
 
-This playbook provides configuration steps, hands-on codebase exercises, and documentation auto-generation instructions for new developers.
+This playbook provides configuration steps, component walkthrough exercises, and E2E test execution instructions for the frontend client.
 
 ---
 
 ## 📅 Onboarding Checklist
 
-### 1. Database Initialization
-Verify **Node.js 20+** and **PostgreSQL 16** are active locally.
-1. Spin up a local PostgreSQL instance.
-2. In the `KRSwitch-backend` root, copy `.env` file details based on the [Backend README](file:///home/gimigkk/Desktop/Projects/KRSwitch/KRSwitch-backend/README.md).
-3. Ensure `DATABASE_URL` matches your local database settings.
+### 1. Configure Port & Environments
+Verify **Node.js 20+** is installed on your system.
+1. In this folder (`KRSwitch-frontend`), create a `.env` file containing:
+   ```env
+   VITE_API_BASE="http://localhost:5000"
+   ```
+2. Verify that the KRSwitch Backend service is running locally on port `5000`.
 
-> [!IMPORTANT]
-> **PostgreSQL Configuration**: The matchmaking system relies heavily on atomic transactions. Ensure your PostgreSQL connection supports concurrent locking scopes and is not bottlenecked by client pool limits.
+> [!NOTE]
+> **Port Mappings**: By default, the React Vite client runs on port `5173` and maps backend calls to port `5000`. If you override these ports, ensure you update CORS origins in the backend `.env`.
 
-### 2. Run Backend Service
-Initialize dependencies, apply database migrations, and seed mock records:
+### 2. Run Frontend Client
+Initialize dependencies and launch the Vite development server:
 ```bash
-cd KRSwitch-backend
-npm install
-npm run migrate       # Runs Prisma migrations on PostgreSQL
-npm run seed:barter   # Seeds 151 students, 7 courses, and pre-matched barters
-npm run dev           # Runs API on http://localhost:5000
-```
-Verify via `curl http://localhost:5000/health`.
-
-### 3. Run Frontend Client
-```bash
-cd KRSwitch-frontend
 npm install
 npm run dev           # Runs Vite dev server on http://localhost:5173
 ```
 Access the client at `http://localhost:5173`.
 
-> [!NOTE]
-> **Port Mappings**: By default, the React Vite client runs on port `5173` and maps backend calls to port `5000`. If you override these ports, ensure you update CORS origins in the backend `.env`.
-
-### 4. Verify Tests
+### 3. Run E2E Cypress Tests
+Cypress tests require a running database and backend instance to complete OAuth popup verification and route-guard redirections:
 ```bash
-# In KRSwitch-backend:
-npm test
+# Start Cypress in interactive UI mode:
+npm run cypress:open
 
-# In KRSwitch-frontend:
+# Run Cypress headless:
 npm run cypress:run
 ```
 
 ---
 
-## 🛠️ Codebase Walkthrough Exercises
+## 🛠️ Component Walkthrough Exercises
 
-Complete these three tasks to understand the routing, validation, and rendering mechanics of the project:
+Complete this task to understand the styling conventions, state memoizations, and rendering loops of the client:
 
-### Exercise 1: Hover Styles & Re-render Checks
+### Exercise: Hover Styles & Re-render Tracking
 * **File**: [BarterCard.jsx](file:///home/gimigkk/Desktop/Projects/KRSwitch/KRSwitch-frontend/src/components/dash/BarterCard.jsx)
-* **Goal**: Observe component rendering boundaries.
+* **Goal**: Observe component rendering boundaries and customize aesthetics.
 * **Task**:
   1. Modify the card's active border accent on hover.
   2. Place `console.log("Render card id:", offer.id)` inside the card component function body.
   3. Observe logs in the browser console when selecting filters. Note how component updates are memoized via `Dashboard.jsx`.
 
-### Exercise 2: Add Audit Log Parameter
-* **File**: [adminRoutes.ts](file:///home/gimigkk/Desktop/Projects/KRSwitch/KRSwitch-backend/src/routes/adminRoutes.ts)
-* **Goal**: Trace database-driven audit logging.
-* **Task**:
-  1. Navigate to the `/users` POST router endpoint.
-  2. Change the string details parameter of the `logActivity` call when creating a new student to append their email address.
-  3. Create a test student in the Admin tab "Database Mahasiswa" and verify the visual logs table instantly matches your modification.
-
-### Exercise 3: Add Validation Rules
-* **File**: [offerController.ts](file:///home/gimigkk/Desktop/Projects/KRSwitch/KRSwitch-backend/src/controllers/offerController.ts)
-* **Goal**: Trace API schema validations.
-* **Task**:
-  1. Locate `createOfferSchema` Zod definition.
-  2. Append rules requiring `myClassId` and `wantedClassId` to be positive, non-zero integers.
-  3. Append a matching test case in `offerController.test.ts`.
-
-> [!TIP]
-> **Hot Module Reloading**: When completing exercises 2 and 3, backend modifications will automatically trigger server restarts via ts-node-dev. You do not need to manually boot the server between files updates.
-
 ---
 
-## 📊 Code Dependency Graphs & Documentation Generators
+## 📊 Component Graphs Generation (Madge)
 
-Use these packages to dynamically map directories and auto-generate code documentations:
-
-### 1. Module Dependencies (Madge)
-Generates dependency charts for source files:
+Generates component dependency charts:
 ```bash
 npm install --save-dev madge
 
-# Render backend dependencies to SVG:
-npx madge --image backend-graph.svg --layout dot KRSwitch-backend/src/server.ts
-
 # Render frontend components to SVG:
-npx madge --image frontend-graph.svg --layout dot KRSwitch-frontend/src/main.jsx
+npx madge --image frontend-graph.svg --layout dot src/main.jsx
 ```
 
 > [!TIP]
 > **Graphviz Requirement**: Generating graphical SVG files from Madge outputs requires the `graphviz` library installed globally on your operating system (e.g., `sudo apt-get install graphviz` on Ubuntu/Debian).
-
-### 2. Prisma Database ERD (prisma-erd-generator)
-Generates dynamic ERD files during Prisma database generation:
-```bash
-npm install --save-dev prisma-erd-generator @mermaid-js/mermaid-cli
-```
-Add to [schema.prisma](file:///home/gimigkk/Desktop/Projects/KRSwitch/KRSwitch-backend/prisma/schema.prisma):
-```prisma
-generator erd {
-  provider = "prisma-erd-generator"
-  output   = "../db-erd.svg"
-  theme    = "dark"
-}
-```
-Regenerate:
-```bash
-npx prisma generate
-```
-
-### 3. TypeScript API Reference Site (TypeDoc)
-Generates interactive HTML reference sites directly from JSDoc annotations:
-```bash
-npm install --save-dev typedoc
-
-# Build docs:
-npx typedoc --out docs src/
-```
-Open `docs/index.html` to explore the generated references.
 
 ---
 
