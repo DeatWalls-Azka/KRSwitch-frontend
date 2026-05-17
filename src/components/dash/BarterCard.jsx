@@ -91,38 +91,39 @@ export default function BarterCard({
     >
       <div ref={wrapperRef} className="mb-1">
         <div className={`border border-gray-200 bg-white p-2 flex items-center rounded-md shadow-xs transition-all duration-100 ease-out ${animationClasses}`}>
-          {/* 3-col grid: fixed left | flex-1 center | fixed right — guarantees middle is always centered */}
-          <div className="grid w-full items-center" style={{ gridTemplateColumns: '90px 1fr 80px' }}>
+          {/* 3-col grid: 1fr left | auto center | 1fr right — guarantees middle is always centered with equal side spacing */}
+          <div className="grid w-full items-center gap-2" style={{ gridTemplateColumns: '1fr auto 1fr' }}>
 
             {/* Left Course Name*/}
             <div className="min-w-0">
               <div className="text-gray-900 truncate font-bold text-[12px] md:hidden mb-[-3px]" title={offer.seekingCourseName}>
                 {offer.seekingCourseName}
               </div>
-              <div className="font-medium font-mono text-gray-400 text-[10px] truncate md:hidden">{offer.studentName}</div>
+              <div className="font-semibold font-mono text-gray-400 text-[10px] truncate md:hidden">{offer.studentName}</div>
 
               <div className="hidden md:block mb-[-3px] text-gray-900 truncate font-bold text-[12px]" title={offer.seekingCourseName}>
                 {offer.seekingCourseName}
               </div>
-              <div className="hidden md:block font-medium font-sans text-gray-400 text-[10px] truncate">{offer.studentName}</div>
+              <div className="hidden md:block font-semibold font-sans text-gray-400 text-[10px] truncate">{offer.studentName}</div>
             </div>
 
             {/* Middle codes */}
-            <div className="flex items-center justify-center gap-2">
-              <span className="hidden md:inline text-gray-400 text-[10px] whitespace-nowrap">{offer.seekingCourse}</span>
-              <span className="text-red-600 font-bold text-sm">{offer.offeringClass}</span>
-              <span className="text-gray-400 text-sm">⇌</span>
-              <span className="text-green-600 font-bold text-sm">{offer.seekingClass}</span>
-              <span className="hidden md:inline text-gray-400 text-[10px] whitespace-nowrap">{offer.timestamp}</span>
+            <div className="flex flex-col items-center justify-center leading-none mt-[-2px]">
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-red-600 font-black text-sm">{offer.offeringClass}</span>
+                <span className="text-gray-400 font-black text-sm">⇌</span>
+                <span className="text-green-600 font-black text-sm">{offer.seekingClass}</span>
+              </div>
+              <span className="text-gray-400 font-black text-[10px] whitespace-nowrap mt-1">{offer.seekingCourse}</span>
             </div>
 
             {/* Right button*/}
-            <div className="flex justify-end">
+            <div className="flex justify-end min-w-0">
               <button
                 onClick={handleButtonClick}
                 disabled={buttonDisabled}
                 title={conflictsWithSchedule ? 'Jadwal bertabrakan dengan kelas lain' : ''}
-                className={`${buttonColor} text-white text-[11px] font-bold pb-1 pt-1.5 my-1 border-0 cursor-pointer transition-colors rounded-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400 w-[90px]`}
+                className={`${buttonColor} text-white text-[11px] font-black pb-1 pt-1.5 my-1 border-0 cursor-pointer transition-colors rounded-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400 w-full max-w-[120px]`}
               >
                 {buttonText}
               </button>

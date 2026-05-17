@@ -344,7 +344,7 @@ export default function Dashboard() {
             <div className="flex flex-row gap-1 items-center">
               <div className="mr-auto flex flex-col items-left">
                 <h2 className="text-xs font-bold text-gray-900">LIVE BARTER FEED PANEL</h2>
-                <h1 className="text-[11px] font-normal text-gray-600">Real Time: {offersToDisplay.length} Offers</h1>
+                <h1 className="text-[11px] font-medium text-gray-600">Real Time: {offersToDisplay.length} Offers</h1>
               </div>
               <button onClick={() => setFilterByCourse(!filterByCourse)}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-600">

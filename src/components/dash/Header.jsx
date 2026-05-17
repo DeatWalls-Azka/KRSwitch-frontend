@@ -176,11 +176,20 @@ export default function Header({
               onClick={() => setDropdownOpen(prev => !prev)}
               aria-haspopup="true"
               aria-expanded={dropdownOpen}
-              className="flex items-center gap-2 px-2.5 h-8 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
+              className="flex items-center justify-between min-w-[160px] max-w-[220px] px-2 h-9 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
             >
-              <div className="flex flex-col items-start justify-center leading-none">
-                <span className="text-[11px] font-bold text-gray-900 whitespace-nowrap">{displayName}</span>
-                <span className="text-[9px] text-gray-500 tracking-wide mt-[1px]">{displayNim}</span>
+              <div className="flex items-center gap-2 overflow-hidden w-full">
+                <div className="flex items-center justify-center w-6 h-6 rounded-[0.4rem] bg-emerald-600 text-white font-bold text-[10px] shrink-0 overflow-hidden">
+                  {user?.picture ? (
+                    <img src={user.picture} alt={displayName} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  ) : (
+                    displayName ? displayName.charAt(0).toUpperCase() : 'U'
+                  )}
+                </div>
+                <div className="flex flex-col items-start justify-center leading-none overflow-hidden flex-1 pr-1">
+                  <span className="text-[11px] font-bold text-gray-900 truncate w-full text-left">{displayName}</span>
+                  <span className="text-[9px] text-gray-500 tracking-wide mt-[1px] truncate w-full text-left">{displayNim}</span>
+                </div>
               </div>
               <svg
                 width="10" height="10" viewBox="0 0 24 24" fill="none"
@@ -191,9 +200,9 @@ export default function Header({
               </svg>
             </button>
 
-            {/* Full dropdown — right-0 anchored to the full-width button */}
+            {/* Full dropdown — anchored to the full-width button */}
             <div
-              className="absolute right-0 top-full mt-1.5 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50 overflow-hidden"
+              className="absolute left-0 top-full mt-1.5 w-full bg-white border border-gray-200 rounded-md shadow-lg z-50 overflow-hidden"
               style={panelStyle}
             >
               {dropdownMenuContents}

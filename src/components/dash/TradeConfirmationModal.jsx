@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { takeOffer, deleteOffer } from '../../api';
 
-export default function TradeConfirmationModal({ 
-  offer, 
-  isOpen, 
-  onClose, 
-  onAccept, 
+export default function TradeConfirmationModal({
+  offer,
+  isOpen,
+  onClose,
+  onAccept,
   onCancel,
   currentUser,
-  mode = 'accept', 
+  mode = 'accept',
   socketRef,
 }) {
   const [isAvailable, setIsAvailable] = useState(true);
@@ -89,7 +89,7 @@ export default function TradeConfirmationModal({
       if (onCancel) onCancel(offer.id);
       setIsAvailable(false);
       setSuccessMessage('Penawaran berhasil dibatalkan!');
-      
+
       // Tutup otomatis setelah 1 detik jika berhasil
       setTimeout(() => handleClose(), 1000);
     } catch (err) {
@@ -122,27 +122,27 @@ export default function TradeConfirmationModal({
 
   if (!isOpen) return null;
 
-  const primaryButtonColor = isCancel 
+  const primaryButtonColor = isCancel
     ? 'bg-red-600 hover:bg-red-700 active:bg-red-800'
     : 'bg-green-600 hover:bg-green-700 active:bg-green-800';
-  
+
   const primaryButtonText = isCancel
-    ? (isProcessing ? 'MEMBATALKAN...' : successMessage ? 'DIBATALKAN' : 'BATALKAN PENAWARAN')
+    ? (isProcessing ? 'MEMBATALKAN...' : successMessage ? 'DIBATALKAN' : 'BATALKAN')
     : (isProcessing ? 'MENERIMA...' : successMessage ? 'SELESAI' : 'TERIMA PERTUKARAN');
 
   return (
-    <div 
+    <div
       className={`fixed inset-0 bg-gray-900/60 z-50 p-4 ${isClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`}
       onKeyDown={handleKeyDown}
       onClick={handleBackdropClick}
     >
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
-        <div 
+        <div
           className={`bg-white rounded-lg shadow-2xl relative ${isClosing ? 'animate-popDown' : 'animate-popUp'}`}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close Button */}
-          <button 
+          <button
             onClick={handleClose}
             disabled={isProcessing}
             aria-label="Tutup modal"
@@ -157,11 +157,11 @@ export default function TradeConfirmationModal({
           <div className="space-y-4 mx-8 pt-4">
             <div className="text-center pb-2">
               <h3 className="text-lg font-bold text-gray-900">
-                {isCancel ? 'Batalkan Penawaran' : 'Konfirmasi Pertukaran'}
+                {isCancel ? 'Batalkan' : 'Konfirmasi Pertukaran'}
               </h3>
               <p className="text-xs text-gray-500 mt-1">
-                {isCancel 
-                  ? 'Apakah Anda yakin ingin membatalkan penawaran ini?' 
+                {isCancel
+                  ? 'Apakah Anda yakin ingin membatalkan penawaran ini?'
                   : 'Apakah Anda yakin ingin menerima pertukaran ini?'}
               </p>
             </div>
@@ -171,7 +171,7 @@ export default function TradeConfirmationModal({
                 <div className="text-lg font-bold text-gray-900">{offer?.seekingCourse || ''}</div>
                 <div className="text-xs text-gray-500">{offer?.seekingCourseName || ''}</div>
               </div>
-              
+
               <div className="text-right">
                 <div className="font-bold text-gray-900">{offer?.studentName || ''}</div>
                 <div className="text-xs text-gray-500">{offer?.nim || ''}</div>
@@ -186,7 +186,7 @@ export default function TradeConfirmationModal({
                 </div>
 
                 <div className="text-gray-400 text-2xl font-bold">⇌</div>
-                
+
                 <div className="flex-1 text-center">
                   <div className="text-xs text-gray-500">{isCancel ? 'Mencari' : 'Mendapat'}</div>
                   <div className="text-green-600 font-bold text-lg">{isCancel ? offer?.seekingClass : offer?.offeringClass || ''}</div>
@@ -199,14 +199,14 @@ export default function TradeConfirmationModal({
             <button
               onClick={handleClose}
               disabled={isProcessing}
-              className="flex-1 text-sm font-bold py-3 px-4 border border-gray-300 rounded hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 text-sm font-black py-3 px-4 border border-gray-300 rounded hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {successMessage ? 'TUTUP' : 'KEMBALI'}
             </button>
             <button
               onClick={handlePrimaryAction}
               disabled={!isAvailable || isProcessing || !offer?.id}
-              className={`flex-1 text-white text-sm font-bold py-3 px-4 rounded transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed ${primaryButtonColor}`}
+              className={`flex-1 text-white text-sm font-black py-3 px-4 rounded transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed ${primaryButtonColor}`}
             >
               {primaryButtonText}
             </button>
@@ -215,7 +215,7 @@ export default function TradeConfirmationModal({
 
         <div className="h-12 flex items-start justify-center pt-3">
           {errorMessage && (
-            <div 
+            <div
               className="bg-red-600 text-white text-xs font-bold px-4 py-2 rounded shadow-lg"
               style={showMessage ? { animation: 'shake 0.25s ease-in-out' } : {}}
             >
@@ -223,7 +223,7 @@ export default function TradeConfirmationModal({
             </div>
           )}
           {successMessage && (
-            <div 
+            <div
               className="bg-green-600 text-white text-xs font-bold px-4 py-2 rounded shadow-lg"
               style={showMessage ? { animation: 'shake 0.25s ease-in-out' } : {}}
             >
