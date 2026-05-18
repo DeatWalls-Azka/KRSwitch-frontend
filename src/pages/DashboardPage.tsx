@@ -49,12 +49,16 @@ export default function DashboardPage() {
   const [showScheduleModal, setShowScheduleModal] = useState(false);
 
   // State drawer mobile
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  // null berarti ditutup (ada di bawah), number berarti posisi Y dalam pixel dari atas saat di-drag
+  const [drawerY, setDrawerY] = useState<number | null>(null);
+
   const drawerRef = useRef<HTMLDivElement | null>(null);
   const peekBarRef = useRef<HTMLDivElement | null>(null);
-  // Cermin ref biar touch handler (dipasang sekali) selalu dapet value terbaru
-  const drawerOpenRef = useRef(false);
-  const touchStartYRef = useRef<number | null>(null);
+  const backdropRef = useRef<HTMLDivElement | null>(null);
+  const liquidDropletRef = useRef<HTMLDivElement | null>(null);
+  const realButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  const dragRef = useRef<{ startY: number; initialDrawerY: number } | null>(null);
 
   // Ref buat nengahin kartu di mobile
   const userCardRef = useRef<HTMLDivElement | null>(null);
@@ -211,55 +215,147 @@ export default function DashboardPage() {
   };
 
   // Sinkronisasi ref biar touch handler dapet value paling baru
-  useEffect(() => { drawerOpenRef.current = drawerOpen; }, [drawerOpen]);
+  // (Moved to top level refs)
 
   // --- Touch handler buat drawer mobile -----------------------
-  useEffect(() => {
-    const bar = peekBarRef.current;
-    if (!bar) return;
+  const handleDragStart = (clientY: number) => {
+    const TRAVEL = window.innerHeight * 0.88 - PEEK_H;
+    const initialDrawerY = drawerY !== null ? drawerY : TRAVEL;
 
-    const TRAVEL = () => window.innerHeight * 0.88 - PEEK_H;
+    dragRef.current = { startY: clientY, initialDrawerY };
 
-    const onStart = (e: TouchEvent) => {
-      touchStartYRef.current = e.touches[0].clientY;
-    };
+    const handleMove = (e: MouseEvent | TouchEvent) => {
+      if (!dragRef.current || !drawerRef.current) return;
 
-    const onMove = (e: TouchEvent) => {
-      if (touchStartYRef.current === null || !drawerRef.current) return;
-      e.preventDefault(); // block page scroll while dragging drawer
-      const travel = TRAVEL();
-      const base = drawerOpenRef.current ? 0 : travel;
-      const delta = e.touches[0].clientY - touchStartYRef.current;
-      const clamped = Math.max(0, Math.min(travel, base + delta));
+      if (e.cancelable) e.preventDefault();
 
-      // Tulis langsung ke DOM
+      const currentClientY = 'touches' in e ? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).clientY;
+      const delta = currentClientY - dragRef.current.startY;
+      const clampedY = Math.max(0, Math.min(TRAVEL, dragRef.current.initialDrawerY + delta));
+      
+      // Manipulasi DOM langsung biar 60fps
       drawerRef.current.style.transition = 'none';
-      drawerRef.current.style.transform = `translateY(${clamped}px)`;
-    };
+      drawerRef.current.style.transform = `translateY(${clampedY}px)`;
+      const progress = 1 - (clampedY / TRAVEL);
+      drawerRef.current.style.boxShadow = `0 -6px 20px rgba(0,0,0,${0.10 + 0.15 * progress})`;
 
-    const onEnd = (e: TouchEvent) => {
-      if (touchStartYRef.current === null) return;
-      const dy = touchStartYRef.current - e.changedTouches[0].clientY; // +ve = swipe up
-      const newOpen = dy > 40 ? true : dy < -40 ? false : drawerOpenRef.current;
+      const distancePulled = TRAVEL - clampedY;
+      let rawBtn = Math.min(1, Math.max(0, distancePulled / 150));
+      const btnProgress = rawBtn * rawBtn * (3 - 2 * rawBtn); // ease-in-out
 
-      if (drawerRef.current) {
-        drawerRef.current.style.transition = '';
-        drawerRef.current.style.transform = '';
+      if (backdropRef.current) {
+        backdropRef.current.style.transition = 'none';
+        backdropRef.current.style.opacity = String(btnProgress);
+        backdropRef.current.style.backdropFilter = `blur(${5 * btnProgress}px)`;
       }
-      touchStartYRef.current = null;
-      drawerOpenRef.current = newOpen;
-      setDrawerOpen(newOpen);
+
+      // Animasi gooey button mengikuti tarikan drawer
+      const currentBtnY = 110 - (60 * btnProgress);
+      const currentBtnScale = 0.4 + (0.6 * btnProgress);
+
+      if (liquidDropletRef.current) {
+        liquidDropletRef.current.style.transition = 'none';
+        liquidDropletRef.current.style.transform = `translateY(${currentBtnY}px) scale(${currentBtnScale})`;
+        liquidDropletRef.current.style.filter = `blur(${10 * (1 - btnProgress)}px)`;
+      }
+      if (realButtonRef.current) {
+        realButtonRef.current.style.transition = 'none';
+        realButtonRef.current.style.transform = `translateY(${currentBtnY}px) scale(${currentBtnScale})`;
+        realButtonRef.current.style.opacity = String(btnProgress);
+        realButtonRef.current.style.boxShadow = `0 4px 12px rgba(0,0,0,${0.15 * btnProgress})`;
+        realButtonRef.current.style.filter = `blur(${10 * (1 - btnProgress)}px)`;
+        realButtonRef.current.style.pointerEvents = btnProgress > 0.8 ? 'auto' : 'none';
+      }
     };
 
-    bar.addEventListener('touchstart', onStart, { passive: true });
-    bar.addEventListener('touchmove',  onMove,  { passive: false }); // harus non-passive
-    bar.addEventListener('touchend',   onEnd,   { passive: true });
-    return () => {
-      bar.removeEventListener('touchstart', onStart);
-      bar.removeEventListener('touchmove',  onMove);
-      bar.removeEventListener('touchend',   onEnd);
+    const handleEnd = (e: MouseEvent | TouchEvent) => {
+      if (!dragRef.current || !drawerRef.current) return;
+
+      const currentClientY = 'changedTouches' in e ? (e as TouchEvent).changedTouches[0].clientY : (e as MouseEvent).clientY;
+      const delta = currentClientY - dragRef.current.startY;
+
+      const TRAVEL = window.innerHeight * 0.88 - PEEK_H;
+      const finalY = Math.max(0, Math.min(TRAVEL, dragRef.current.initialDrawerY + delta));
+
+      // Hanya snap kalau sangat dekat dengan bawah (ingin ditutup)
+      const SNAP_THRESHOLD = 150;
+      const isClosing = (TRAVEL - finalY) < SNAP_THRESHOLD;
+
+      const targetY = isClosing ? TRAVEL : finalY;
+
+      // Bersihkan event listener
+      cleanup();
+
+      dragRef.current = null;
+
+      // Set transform secara manual untuk transisi CSS yang mulus, jangan dikosongkan!
+      // Jika dikosongkan, browser akan mengira transform: none (0) dan langsung snap ke atas.
+      const targetProgress = 1 - (targetY / TRAVEL);
+      drawerRef.current.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease';
+      drawerRef.current.style.transform = `translateY(${targetY}px)`;
+      drawerRef.current.style.boxShadow = `0 -6px 20px rgba(0,0,0,${0.10 + 0.15 * targetProgress})`;
+
+      const distancePulledEnd = TRAVEL - targetY;
+      let rawBtnEnd = Math.min(1, Math.max(0, distancePulledEnd / 150));
+      const btnProgressEnd = rawBtnEnd * rawBtnEnd * (3 - 2 * rawBtnEnd);
+
+      if (backdropRef.current) {
+        backdropRef.current.style.transition = 'opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), backdrop-filter 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
+        backdropRef.current.style.opacity = isClosing ? '0' : String(btnProgressEnd);
+        backdropRef.current.style.backdropFilter = isClosing ? 'blur(0px)' : `blur(${5 * btnProgressEnd}px)`;
+      }
+
+      const finalBtnY = 110 - (60 * btnProgressEnd);
+      const finalBtnScale = 0.4 + (0.6 * btnProgressEnd);
+
+      if (liquidDropletRef.current) {
+        liquidDropletRef.current.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease';
+        liquidDropletRef.current.style.transform = `translateY(${finalBtnY}px) scale(${finalBtnScale})`;
+        liquidDropletRef.current.style.filter = `blur(${10 * (1 - btnProgressEnd)}px)`;
+      }
+      if (realButtonRef.current) {
+        realButtonRef.current.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease, box-shadow 0.35s ease, filter 0.35s ease';
+        realButtonRef.current.style.transform = `translateY(${finalBtnY}px) scale(${finalBtnScale})`;
+        realButtonRef.current.style.opacity = String(btnProgressEnd);
+        realButtonRef.current.style.boxShadow = `0 4px 12px rgba(0,0,0,${0.15 * btnProgressEnd})`;
+        realButtonRef.current.style.filter = `blur(${10 * (1 - btnProgressEnd)}px)`;
+        realButtonRef.current.style.pointerEvents = btnProgressEnd > 0.8 ? 'auto' : 'none';
+      }
+
+      if (isClosing) {
+        setDrawerY(null); // Tutup drawer
+      } else {
+        setDrawerY(finalY); // Biarkan tetap di tempat user melepaskannya
+      }
     };
-  }, []);
+
+    const onMouseMove = (e: MouseEvent) => handleMove(e);
+    const onTouchMove = (e: TouchEvent) => handleMove(e);
+    const onMouseUp = (e: MouseEvent) => handleEnd(e);
+    const onTouchEnd = (e: TouchEvent) => handleEnd(e);
+
+    const cleanup = () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener('touchend', onTouchEnd);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('touchmove', onTouchMove, { passive: false });
+    window.addEventListener('mouseup', onMouseUp);
+    window.addEventListener('touchend', onTouchEnd);
+  };
+
+  // Derived state untuk sinkronisasi render React
+  const TRAVEL_VAL = typeof window !== 'undefined' ? window.innerHeight * 0.88 - PEEK_H : 800;
+  const currentY = drawerY !== null ? drawerY : TRAVEL_VAL;
+  const drawerProgress = 1 - (currentY / TRAVEL_VAL);
+  const distancePulledVal = TRAVEL_VAL - currentY;
+  const rawBtnVal = Math.min(1, Math.max(0, distancePulledVal / 150));
+  const btnProgVal = rawBtnVal * rawBtnVal * (3 - 2 * rawBtnVal);
+  const btnYVal = 110 - (60 * btnProgVal);
+  const btnScaleVal = 0.4 + (0.6 * btnProgVal);
 
   // --- Render -------------------------------------------------
   if (loading) {
@@ -307,7 +403,7 @@ export default function DashboardPage() {
               canAccept={myEnrollmentMap[`${offer.seekingCourse}-${offer.seekingClass[0]}`] === offer.seekingClass}
               conflictsWithSchedule={conflictsWithSchedule}
               isOwnOffer={offer.nim === currentUser?.nim}
-              onAnimationComplete={() => {}}
+              onAnimationComplete={() => { }}
               onOpenModal={handleOpenModal}
             />
           );
@@ -320,6 +416,17 @@ export default function DashboardPage() {
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
+      {/* SVG Filters for Gooey Effect */}
+      <svg width="0" height="0" className="absolute pointer-events-none">
+        <defs>
+          <filter id="goo">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur" />
+            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" />
+            <feBlend in="SourceGraphic" in2="goo" />
+          </filter>
+        </defs>
+      </svg>
+
       <Header
         isConnected={isConnected}
         user={currentUser}
@@ -410,30 +517,73 @@ export default function DashboardPage() {
 
       {/* Backdrop */}
       <div
-        className="md:hidden fixed inset-0 z-30 bg-black/30 pointer-events-none"
+        ref={backdropRef}
+        className="md:hidden fixed inset-0 z-30 bg-[#0f2930]/20 pointer-events-none"
         style={{
-          opacity: drawerOpen ? 1 : 0,
-          transition: 'opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
-          pointerEvents: drawerOpen ? 'auto' : 'none',
+          opacity: btnProgVal,
+          backdropFilter: `blur(${5 * btnProgVal}px)`,
+          transition: 'opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), backdrop-filter 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+          pointerEvents: drawerY !== null ? 'auto' : 'none',
         }}
-        onClick={() => setDrawerOpen(false)}
+        onClick={() => setDrawerY(null)}
       />
 
       {/* Drawer */}
       <div
         ref={drawerRef}
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 h-[88vh] bg-white rounded-t-2xl shadow-[0_-4px_24px_rgba(0,0,0,0.10)] ring-1 ring-gray-200 flex flex-col border-t border-gray-300"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 h-[88vh] bg-white rounded-t-2xl flex flex-col"
         style={{
-          transform: drawerOpen ? 'translateY(0)' : `translateY(calc(88vh - ${PEEK_H}px))`,
-          transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+          transform: `translateY(${currentY}px)`,
+          boxShadow: `0 -6px 20px rgba(0,0,0,${0.2 + 0.15 * drawerProgress})`,
+          transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease',
         }}
       >
+        {/* Gooey Close Button Container (Behind the drawer) */}
+        <div className="absolute left-1/2 -translate-x-1/2 top-[-100px] w-[140px] h-[150px] pointer-events-none -z-10">
+
+          {/* Gooey Blob Layer */}
+          <div className="absolute inset-0 pointer-events-none" style={{ filter: 'url(#goo)' }}>
+            {/* Base attached to drawer top (but hidden behind it) */}
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[80px] h-[30px] bg-white rounded-t-full" />
+            {/* Liquid Droplet */}
+            <div
+              ref={liquidDropletRef}
+              className="absolute left-1/2 -translate-x-1/2 w-[40px] h-[40px] bg-white rounded-full"
+              style={{
+                transform: `translateY(${btnYVal}px) scale(${btnScaleVal})`,
+                filter: `blur(${10 * (1 - btnProgVal)}px)`,
+                transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease'
+              }}
+            />
+          </div>
+
+          {/* Real Button Layer (Clickable) */}
+          <button
+            ref={realButtonRef}
+            onClick={(e) => { e.stopPropagation(); setDrawerY(null); }}
+            className="absolute left-1/2 -translate-x-1/2 w-[40px] h-[40px] bg-transparent rounded-full flex items-center justify-center text-gray-500 hover:text-gray-900 border-0 cursor-pointer pointer-events-auto"
+            style={{
+              transform: `translateY(${btnYVal}px) scale(${btnScaleVal})`,
+              transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease, box-shadow 0.35s ease, filter 0.35s ease',
+              boxShadow: `0 4px 12px rgba(0,0,0,${0.15 * btnProgVal})`,
+              opacity: btnProgVal,
+              filter: `blur(${10 * (1 - btnProgVal)}px)`,
+              pointerEvents: btnProgVal > 0.8 ? 'auto' : 'none'
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
+        </div>
+
         {/* Peek bar */}
         <div
           ref={peekBarRef}
           className="shrink-0 px-4 pt-2.5 pb-4 cursor-pointer select-none"
-          style={{ height: PEEK_H, touchAction: 'manipulation' }}
-          onClick={() => setDrawerOpen(prev => !prev)}
+          style={{ height: PEEK_H, touchAction: 'none' }}
+          onMouseDown={(e) => handleDragStart(e.clientY)}
+          onTouchStart={(e) => handleDragStart(e.touches[0].clientY)}
         >
           {/* Pill pegangan buat drag */}
           <div className="flex justify-center mb-2">
@@ -516,7 +666,7 @@ export default function DashboardPage() {
       />
 
       {isFormOpen && (
-        <CreateOfferForm onSuccess={() => {}} onClose={() => setIsFormOpen(false)} />
+        <CreateOfferForm onSuccess={() => { }} onClose={() => setIsFormOpen(false)} />
       )}
 
       {/* Toast */}
