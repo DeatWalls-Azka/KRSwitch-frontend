@@ -91,11 +91,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       to: '/admin/courses',
       label: 'Data Mata Kuliah',
       icon: BookOpenText
-    },
-    {
-      to: '/admin/logs',
-      label: 'Log Aktivitas',
-      icon: ShieldAlert
     }
   ];
 
@@ -106,6 +101,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       icon: Fingerprint
     });
   }
+
+  navItems.push({
+    to: '/admin/logs',
+    label: 'Log Aktivitas',
+    icon: ShieldAlert
+  });
 
   return (
     <div className="min-h-screen bg-slate-50 flex font-sans text-foreground">
