@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import api, { getSocketToken } from '../../api';
+import { useTableKeyboardPagination } from '../../hooks/useTableKeyboardPagination';
 import {
     ShieldAlert,
     Loader2,
@@ -107,6 +108,8 @@ const AdminLogTable = () => {
         (currentPage - 1) * pageSize,
         currentPage * pageSize
     );
+
+    useTableKeyboardPagination(currentPage, totalPages, setCurrentPage);
 
     const getActionStyle = (action: string): ActionStyle => {
         const a = (action || '').toUpperCase();

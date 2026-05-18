@@ -7,7 +7,8 @@ import {
   Fingerprint,
   LogOut,
   Menu,
-  BookOpenText
+  BookOpenText,
+  ShieldAlert
 } from 'lucide-react';
 import marbotLogo from '../../assets/MarbotBanner.jpg';
 import type { User } from '../../types';
@@ -90,6 +91,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       to: '/admin/courses',
       label: 'Data Mata Kuliah',
       icon: BookOpenText
+    },
+    {
+      to: '/admin/logs',
+      label: 'Log Aktivitas',
+      icon: ShieldAlert
     }
   ];
 

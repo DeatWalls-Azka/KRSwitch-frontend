@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import api, { getSocketToken } from '../api';
 import { io } from 'socket.io-client';
+import { useTableKeyboardPagination } from '../hooks/useTableKeyboardPagination';
 import AddAdminModal from '../components/admin/modals/AddAdminModal';
 import EditAdminModal from '../components/admin/modals/EditAdminModal';
 import {
@@ -125,6 +126,8 @@ export default function AdminManagementPage() {
   };
 
   const goToPage = (p: number) => setCurrentPage(Math.max(1, Math.min(p, totalPages)));
+
+  useTableKeyboardPagination(currentPage, totalPages, goToPage);
 
   return (
     <div className="space-y-6 pb-8">

@@ -7,6 +7,7 @@ import AuthCallback from './pages/AuthCallback';
 import StudentManagementPage from './pages/StudentManagementPage'; 
 import AdminManagementPage from './pages/AdminManagementPage';
 import CourseManagementPage from './pages/CourseManagementPage';
+import AuditLogPage from './pages/AuditLogPage';
 import AdminLayout from './components/admin/AdminLayout';
 import { getCurrentUser } from './api';
 
@@ -191,6 +192,7 @@ export default function App() {
             <Route index element={<Admin />} />
             <Route path="students" element={<StudentManagementPage />} />
             <Route path="courses" element={<CourseManagementPage />} />
+            <Route path="logs" element={<AuditLogPage />} />
             <Route path="management" element={<SuperAdminRoute><AdminManagementPage /></SuperAdminRoute>} />
           </Route>
         </Routes>

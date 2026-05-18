@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import api, { getSocketToken } from '../api';
 import { io } from 'socket.io-client';
+import { useTableKeyboardPagination } from '../hooks/useTableKeyboardPagination';
 
 import AddCourseModal from '../components/admin/modals/AddCourseModal';
 import ExportRecapCard from '../components/admin/ExportRecapCard';
@@ -134,6 +135,8 @@ export default function CourseManagementPage() {
   const paginatedClasses = filteredClasses.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const goToPage = (p: number) => setCurrentPage(Math.max(1, Math.min(p, totalPages)));
+
+  useTableKeyboardPagination(currentPage, totalPages, goToPage);
 
   // -- Inline Edit Handlers --
   const handleEditClick = (cls: ParallelClassWithEnrollment) => {
