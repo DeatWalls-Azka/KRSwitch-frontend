@@ -16,13 +16,14 @@ interface AddStudentModalProps {
 const AddStudentModal = ({ isOpen, onClose }: AddStudentModalProps) => {
   const [nim, setNim] = useState('');
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
   if (!isOpen) return null;
 
   const handleSave = async () => {
-    if (!nim || !name) {
-      return alert('Harap isi NIM dan Nama Mahasiswa!');
+    if (!nim || !name || !email) {
+      return alert('Harap isi NIM, Nama, dan Email Mahasiswa!');
     }
 
     setIsProcessing(true);
@@ -30,12 +31,13 @@ const AddStudentModal = ({ isOpen, onClose }: AddStudentModalProps) => {
       await api.post('/api/admin/users', {
         nim: nim.toUpperCase(),
         name: name,
-        email: `${nim.toLowerCase()}@apps.ipb.ac.id` 
+        email: email.toLowerCase().trim()
       });
 
       alert(`Mahasiswa ${name} berhasil ditambahkan!`);
       setNim('');
       setName('');
+      setEmail('');
       onClose();
       window.location.reload(); 
     } catch (error: any) {
@@ -90,6 +92,17 @@ const AddStudentModal = ({ isOpen, onClose }: AddStudentModalProps) => {
               placeholder="Masukkan nama lengkap..." 
               value={name}
               onChange={(e) => setName(e.target.value)}
+              disabled={isProcessing}
+              className="w-full px-4 py-2.5 bg-background border border-input rounded-md outline-none focus:ring-2 focus:ring-ring focus:border-primary text-sm font-bold text-foreground transition-all" 
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest block">Email Mahasiswa</label>
+            <input 
+              type="email" 
+              placeholder="example@student.itb.ac.id" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               disabled={isProcessing}
               className="w-full px-4 py-2.5 bg-background border border-input rounded-md outline-none focus:ring-2 focus:ring-ring focus:border-primary text-sm font-bold text-foreground transition-all" 
             />

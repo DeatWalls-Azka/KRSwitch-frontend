@@ -73,10 +73,11 @@ export default function StudentManagementPage() {
     }
   };
 
-  const refreshSelectedStudent = async () => {
-    if (!selectedStudent) return;
+  const refreshSelectedStudent = async (updatedNim?: string) => {
+    const nimToFetch = updatedNim || selectedStudent?.nim;
+    if (!nimToFetch) return;
     try {
-      const res = await api.get(`/api/admin/users/${selectedStudent.nim}`);
+      const res = await api.get(`/api/admin/users/${nimToFetch}`);
       setSelectedStudent(res.data);
     } catch (err) {
       console.error('Gagal refresh detail mahasiswa:', err);

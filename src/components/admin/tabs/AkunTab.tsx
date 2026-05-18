@@ -13,7 +13,7 @@ interface Student {
 
 interface AkunTabProps {
   student: Student;
-  onRefresh?: () => void;
+  onRefresh?: (updatedNim?: string) => void;
 }
 
 // --- Komponen Utama -------------------------------------------
@@ -47,7 +47,7 @@ const AkunTab = ({ student, onRefresh }: AkunTabProps) => {
         newEmail: email
       });
       alert('Profil mahasiswa berhasil diperbarui!');
-      if (onRefresh) onRefresh();
+      if (onRefresh) onRefresh(nim.toUpperCase());
     } catch (error: any) {
       console.error("Gagal update profil:", error);
       alert(error.response?.data?.error || "Gagal memperbarui profil.");
