@@ -57,6 +57,7 @@ export default function DashboardPage() {
   const backdropRef = useRef<HTMLDivElement | null>(null);
   const liquidDropletRef = useRef<HTMLDivElement | null>(null);
   const realButtonRef = useRef<HTMLButtonElement | null>(null);
+  const svgPathRef = useRef<SVGPathElement | null>(null);
 
   // Track info saat drag dimulai
   const dragRef = useRef<{ 
@@ -264,7 +265,7 @@ export default function DashboardPage() {
       drawerRef.current.style.transition = 'none';
       drawerRef.current.style.transform = `translateY(${clampedY}px)`;
       const progress = 1 - (clampedY / TRAVEL);
-      drawerRef.current.style.boxShadow = `0 -6px 20px rgba(0,0,0,${0.10 + 0.15 * progress})`;
+      drawerRef.current.style.filter = `drop-shadow(0 -6px 24px rgba(0,0,0,${0.25 + 0.25 * progress}))`;
 
       const distancePulled = TRAVEL - clampedY;
       let rawBtn = Math.min(1, Math.max(0, distancePulled / 150));
@@ -277,21 +278,32 @@ export default function DashboardPage() {
       }
 
       // Animasi gooey button mengikuti tarikan drawer
-      const currentBtnY = 110 - (60 * btnProgress);
-      const currentBtnScale = 0.4 + (0.6 * btnProgress);
+      const p = btnProgress;
+      const dropY = 110 - (60 * p);
+      const dropScale = 0.4 + (0.6 * p);
+      const svgY = 88 - (42 * p);
 
       if (liquidDropletRef.current) {
         liquidDropletRef.current.style.transition = 'none';
-        liquidDropletRef.current.style.transform = `translateY(${currentBtnY}px) scale(${currentBtnScale})`;
-        liquidDropletRef.current.style.filter = `blur(${10 * (1 - btnProgress)}px)`;
+        liquidDropletRef.current.style.transform = `translateY(${dropY}px) scale(${dropScale})`;
+        liquidDropletRef.current.style.filter = `blur(${10 * (1 - p)}px)`;
       }
-      if (realButtonRef.current) {
+      if (realButtonRef.current && svgPathRef.current) {
         realButtonRef.current.style.transition = 'none';
-        realButtonRef.current.style.transform = `translateY(${currentBtnY}px) scale(${currentBtnScale})`;
-        realButtonRef.current.style.opacity = String(btnProgress);
-        realButtonRef.current.style.boxShadow = `0 4px 12px rgba(0,0,0,${0.15 * btnProgress})`;
-        realButtonRef.current.style.filter = `blur(${10 * (1 - btnProgress)}px)`;
-        realButtonRef.current.style.pointerEvents = btnProgress > 0.8 ? 'auto' : 'none';
+        realButtonRef.current.style.transform = `translateY(${svgY}px)`;
+        realButtonRef.current.style.boxShadow = 'none';
+        realButtonRef.current.style.pointerEvents = p > 0.8 ? 'auto' : 'none';
+        
+        const lx = -20 + (13 * p);
+        const ly = 0 + (-3.5 * p);
+        const mx = 0;
+        const my = 0 + (3.5 * p);
+        const rx = 20 + (-13 * p);
+        const ry = 0 + (-3.5 * p);
+        const sw = 4 + (-1.5 * p);
+        svgPathRef.current.style.transition = 'none';
+        svgPathRef.current.setAttribute('d', `M ${lx} ${ly} L ${mx} ${my} L ${rx} ${ry}`);
+        svgPathRef.current.setAttribute('stroke-width', String(sw));
       }
     };
 
@@ -339,9 +351,11 @@ export default function DashboardPage() {
 
       // Set transform secara manual untuk transisi CSS
       const targetProgress = 1 - (targetY / TRAVEL);
-      drawerRef.current.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease';
-      drawerRef.current.style.transform = `translateY(${targetY}px)`;
-      drawerRef.current.style.boxShadow = `0 -6px 20px rgba(0,0,0,${0.10 + 0.15 * targetProgress})`;
+      if (drawerRef.current) {
+        drawerRef.current.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease';
+        drawerRef.current.style.transform = `translateY(${targetY}px)`;
+        drawerRef.current.style.filter = `drop-shadow(0 -6px 24px rgba(0,0,0,${0.25 + 0.25 * targetProgress}))`;
+      }
 
       const distancePulledEnd = TRAVEL - targetY;
       let rawBtnEnd = Math.min(1, Math.max(0, distancePulledEnd / 150));
@@ -353,21 +367,33 @@ export default function DashboardPage() {
         backdropRef.current.style.backdropFilter = isClosing ? 'blur(0px)' : `blur(${5 * btnProgressEnd}px)`;
       }
 
-      const finalBtnY = 110 - (60 * btnProgressEnd);
-      const finalBtnScale = 0.4 + (0.6 * btnProgressEnd);
+      const p = btnProgressEnd;
+      const dropY = 110 - (60 * p);
+      const dropScale = 0.4 + (0.6 * p);
+      const svgY = 88 - (42 * p);
 
       if (liquidDropletRef.current) {
         liquidDropletRef.current.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease';
-        liquidDropletRef.current.style.transform = `translateY(${finalBtnY}px) scale(${finalBtnScale})`;
-        liquidDropletRef.current.style.filter = `blur(${10 * (1 - btnProgressEnd)}px)`;
+        liquidDropletRef.current.style.transform = `translateY(${dropY}px) scale(${dropScale})`;
+        liquidDropletRef.current.style.filter = `blur(${10 * (1 - p)}px)`;
       }
-      if (realButtonRef.current) {
-        realButtonRef.current.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease, box-shadow 0.35s ease, filter 0.35s ease';
-        realButtonRef.current.style.transform = `translateY(${finalBtnY}px) scale(${finalBtnScale})`;
-        realButtonRef.current.style.opacity = String(btnProgressEnd);
-        realButtonRef.current.style.boxShadow = `0 4px 12px rgba(0,0,0,${0.15 * btnProgressEnd})`;
-        realButtonRef.current.style.filter = `blur(${10 * (1 - btnProgressEnd)}px)`;
-        realButtonRef.current.style.pointerEvents = btnProgressEnd > 0.8 ? 'auto' : 'none';
+      if (realButtonRef.current && svgPathRef.current) {
+        realButtonRef.current.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
+        realButtonRef.current.style.transform = `translateY(${svgY}px)`;
+        realButtonRef.current.style.boxShadow = 'none';
+        realButtonRef.current.style.pointerEvents = p > 0.8 ? 'auto' : 'none';
+
+        const lx = -20 + (13 * p);
+        const ly = 0 + (-3.5 * p);
+        const mx = 0;
+        const my = 0 + (3.5 * p);
+        const rx = 20 + (-13 * p);
+        const ry = 0 + (-3.5 * p);
+        const sw = 4 + (-1.5 * p);
+        
+        svgPathRef.current.style.transition = 'd 0.35s cubic-bezier(0.16, 1, 0.3, 1), stroke-width 0.35s ease';
+        svgPathRef.current.setAttribute('d', `M ${lx} ${ly} L ${mx} ${my} L ${rx} ${ry}`);
+        svgPathRef.current.setAttribute('stroke-width', String(sw));
       }
 
       // Sinkronisasi state React SETELAH CSS animation benar-benar selesai dan menetap (400ms)
@@ -412,8 +438,16 @@ export default function DashboardPage() {
   const distancePulledVal = TRAVEL_VAL - currentY;
   const rawBtnVal = Math.min(1, Math.max(0, distancePulledVal / 150));
   const btnProgVal = rawBtnVal * rawBtnVal * (3 - 2 * rawBtnVal);
-  const btnYVal = 110 - (60 * btnProgVal);
-  const btnScaleVal = 0.4 + (0.6 * btnProgVal);
+  const dropY = 110 - (60 * btnProgVal);
+  const dropScale = 0.4 + (0.6 * btnProgVal);
+  const svgY = 88 - (42 * btnProgVal);
+  const lxVal = -20 + (13 * btnProgVal);
+  const lyVal = 0 + (-3.5 * btnProgVal);
+  const mxVal = 0;
+  const myVal = 0 + (3.5 * btnProgVal);
+  const rxVal = 20 + (-13 * btnProgVal);
+  const ryVal = 0 + (-3.5 * btnProgVal);
+  const swVal = 4 + (-1.5 * btnProgVal);
 
   // --- Render -------------------------------------------------
   if (loading) {
@@ -592,10 +626,35 @@ export default function DashboardPage() {
         className="md:hidden fixed bottom-0 left-0 right-0 z-40 h-[88vh] bg-white rounded-t-2xl flex flex-col"
         style={{
           transform: `translateY(${currentY}px)`,
-          boxShadow: `0 -6px 20px rgba(0,0,0,${0.10 + 0.15 * drawerProgress})`,
-          transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease',
+          filter: `drop-shadow(0 -6px 24px rgba(0,0,0,${0.25 + 0.25 * drawerProgress}))`,
+          transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease',
         }}
       >
+        {/* SVG Morphing Handle (In front of drawer) */}
+        <div className="absolute left-1/2 -translate-x-1/2 top-[-100px] w-[140px] h-[150px] pointer-events-none z-20">
+          <button 
+             ref={realButtonRef}
+             onClick={(e) => { e.stopPropagation(); setDrawerY(null); }}
+             className="absolute left-1/2 -translate-x-1/2 w-[48px] h-[48px] bg-transparent rounded-full flex items-center justify-center border-0 cursor-pointer pointer-events-auto"
+             style={{
+                transform: `translateY(${svgY}px)`,
+                transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+                boxShadow: 'none',
+                pointerEvents: btnProgVal > 0.8 ? 'auto' : 'none',
+                color: '#4b5563' // text-gray-600
+             }}
+          >
+             <svg width="48" height="48" viewBox="-24 -24 48 48" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+                <path 
+                   ref={svgPathRef} 
+                   d={`M ${lxVal} ${lyVal} L ${mxVal} ${myVal} L ${rxVal} ${ryVal}`} 
+                   strokeWidth={swVal}
+                   style={{ transition: 'd 0.35s cubic-bezier(0.16, 1, 0.3, 1), stroke-width 0.35s ease' }}
+                />
+             </svg>
+          </button>
+        </div>
+
         {/* Gooey Close Button Container (Behind the drawer) */}
         <div className="absolute left-1/2 -translate-x-1/2 top-[-100px] w-[140px] h-[150px] pointer-events-none -z-10">
 
@@ -608,31 +667,12 @@ export default function DashboardPage() {
               ref={liquidDropletRef}
               className="absolute left-1/2 -translate-x-1/2 w-[40px] h-[40px] bg-white rounded-full"
               style={{
-                transform: `translateY(${btnYVal}px) scale(${btnScaleVal})`,
+                transform: `translateY(${dropY}px) scale(${dropScale})`,
                 filter: `blur(${10 * (1 - btnProgVal)}px)`,
                 transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease'
               }}
             />
           </div>
-
-          {/* Real Button Layer (Clickable) */}
-          <button
-            ref={realButtonRef}
-            onClick={(e) => { e.stopPropagation(); setDrawerY(null); }}
-            className="absolute left-1/2 -translate-x-1/2 w-[40px] h-[40px] bg-transparent rounded-full flex items-center justify-center text-gray-500 hover:text-gray-900 border-0 cursor-pointer pointer-events-auto"
-            style={{
-              transform: `translateY(${btnYVal}px) scale(${btnScaleVal})`,
-              transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease, box-shadow 0.35s ease, filter 0.35s ease',
-              boxShadow: `0 4px 12px rgba(0,0,0,${0.15 * btnProgVal})`,
-              opacity: btnProgVal,
-              filter: `blur(${10 * (1 - btnProgVal)}px)`,
-              pointerEvents: btnProgVal > 0.8 ? 'auto' : 'none'
-            }}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M6 9l6 6 6-6" />
-            </svg>
-          </button>
         </div>
 
         {/* Peek bar */}
@@ -643,10 +683,8 @@ export default function DashboardPage() {
           onMouseDown={(e) => handleDragStart(e.clientY)}
           onTouchStart={(e) => handleDragStart(e.touches[0].clientY)}
         >
-          {/* Pill pegangan buat drag */}
-          <div className="flex justify-center mb-2">
-            <div className="w-8 h-1 rounded-full bg-gray-300" />
-          </div>
+          {/* Pill pegangan buat drag dihapus, karena digantikan oleh SVG Morphing Handle di atas */}
+          <div className="h-1 mb-2" /> {/* Spacer untuk mempertahankan posisi title */}
 
           {/* Judul + bikin instan */}
           <div className="flex items-center gap-2">
