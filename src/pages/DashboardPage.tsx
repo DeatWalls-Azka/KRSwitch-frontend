@@ -58,7 +58,13 @@ export default function DashboardPage() {
   const liquidDropletRef = useRef<HTMLDivElement | null>(null);
   const realButtonRef = useRef<HTMLButtonElement | null>(null);
 
-  const dragRef = useRef<{ startY: number; initialDrawerY: number } | null>(null);
+  // Track info saat drag dimulai
+  const dragRef = useRef<{ 
+      startY: number; 
+      initialDrawerY: number;
+      history: { y: number; t: number }[];
+      timeoutId?: NodeJS.Timeout;
+  } | null>(null);
 
   // Ref buat nengahin kartu di mobile
   const userCardRef = useRef<HTMLDivElement | null>(null);
@@ -214,15 +220,32 @@ export default function DashboardPage() {
     }
   };
 
-  // Sinkronisasi ref biar touch handler dapet value paling baru
-  // (Moved to top level refs)
-
   // --- Touch handler buat drawer mobile -----------------------
   const handleDragStart = (clientY: number) => {
     const TRAVEL = window.innerHeight * 0.88 - PEEK_H;
-    const initialDrawerY = drawerY !== null ? drawerY : TRAVEL;
+    let initialDrawerY = drawerY !== null ? drawerY : TRAVEL;
 
-    dragRef.current = { startY: clientY, initialDrawerY };
+    if (dragRef.current?.timeoutId) {
+        clearTimeout(dragRef.current.timeoutId);
+    }
+
+    // Tangkap posisi drawer secara real-time jika sedang di tengah animasi lemparan
+    if (drawerRef.current) {
+        const style = window.getComputedStyle(drawerRef.current);
+        if (style.transform && style.transform !== 'none') {
+            const matrix = new DOMMatrix(style.transform);
+            initialDrawerY = matrix.m42;
+        }
+        // Hentikan CSS transition seketika agar drawer menempel di jari
+        drawerRef.current.style.transition = 'none';
+        drawerRef.current.style.transform = `translateY(${initialDrawerY}px)`;
+    }
+
+    dragRef.current = { 
+        startY: clientY, 
+        initialDrawerY,
+        history: [{ y: clientY, t: Date.now() }]
+    };
 
     const handleMove = (e: MouseEvent | TouchEvent) => {
       if (!dragRef.current || !drawerRef.current) return;
@@ -233,6 +256,10 @@ export default function DashboardPage() {
       const delta = currentClientY - dragRef.current.startY;
       const clampedY = Math.max(0, Math.min(TRAVEL, dragRef.current.initialDrawerY + delta));
       
+      const now = Date.now();
+      dragRef.current.history.push({ y: currentClientY, t: now });
+      if (dragRef.current.history.length > 5) dragRef.current.history.shift();
+
       // Manipulasi DOM langsung biar 60fps
       drawerRef.current.style.transition = 'none';
       drawerRef.current.style.transform = `translateY(${clampedY}px)`;
@@ -277,19 +304,40 @@ export default function DashboardPage() {
       const TRAVEL = window.innerHeight * 0.88 - PEEK_H;
       const finalY = Math.max(0, Math.min(TRAVEL, dragRef.current.initialDrawerY + delta));
 
-      // Hanya snap kalau sangat dekat dengan bawah (ingin ditutup)
-      const SNAP_THRESHOLD = 150;
-      const isClosing = (TRAVEL - finalY) < SNAP_THRESHOLD;
+      const now = Date.now();
+      const history = dragRef.current.history;
+      let velocity = 0;
+      if (history.length > 1) {
+          const oldest = history[0];
+          const dt = now - oldest.t;
+          if (dt > 0) velocity = (currentClientY - oldest.y) / dt;
+      }
 
-      const targetY = isClosing ? TRAVEL : finalY;
+      let isClosing = false;
+      let targetY = finalY;
+      
+      const VELOCITY_THRESHOLD = 0.4; // px per ms
+
+      if (velocity < -VELOCITY_THRESHOLD) {
+          targetY = 0; // Terlempar ke atas
+      } else if (velocity > VELOCITY_THRESHOLD) {
+          targetY = TRAVEL; // Terlempar ke bawah
+          isClosing = true;
+      } else {
+          const SNAP_THRESHOLD = 150;
+          if (TRAVEL - finalY < SNAP_THRESHOLD) {
+             targetY = TRAVEL;
+             isClosing = true;
+          }
+      }
 
       // Bersihkan event listener
       cleanup();
 
-      dragRef.current = null;
+      // Force browser reflow to ensure transitions apply correctly
+      void drawerRef.current.offsetHeight;
 
-      // Set transform secara manual untuk transisi CSS yang mulus, jangan dikosongkan!
-      // Jika dikosongkan, browser akan mengira transform: none (0) dan langsung snap ke atas.
+      // Set transform secara manual untuk transisi CSS
       const targetProgress = 1 - (targetY / TRAVEL);
       drawerRef.current.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease';
       drawerRef.current.style.transform = `translateY(${targetY}px)`;
@@ -322,10 +370,20 @@ export default function DashboardPage() {
         realButtonRef.current.style.pointerEvents = btnProgressEnd > 0.8 ? 'auto' : 'none';
       }
 
-      if (isClosing) {
-        setDrawerY(null); // Tutup drawer
-      } else {
-        setDrawerY(finalY); // Biarkan tetap di tempat user melepaskannya
+      // Sinkronisasi state React SETELAH CSS animation benar-benar selesai dan menetap (400ms)
+      const timeoutId = setTimeout(() => {
+          if (dragRef.current) {
+              dragRef.current.timeoutId = undefined;
+          }
+          if (isClosing) {
+            setDrawerY(null);
+          } else {
+            setDrawerY(targetY);
+          }
+      }, 400);
+
+      if (dragRef.current) {
+          dragRef.current.timeoutId = timeoutId;
       }
     };
 
@@ -534,7 +592,7 @@ export default function DashboardPage() {
         className="md:hidden fixed bottom-0 left-0 right-0 z-40 h-[88vh] bg-white rounded-t-2xl flex flex-col"
         style={{
           transform: `translateY(${currentY}px)`,
-          boxShadow: `0 -6px 20px rgba(0,0,0,${0.2 + 0.15 * drawerProgress})`,
+          boxShadow: `0 -6px 20px rgba(0,0,0,${0.10 + 0.15 * drawerProgress})`,
           transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease',
         }}
       >
