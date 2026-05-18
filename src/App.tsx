@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import Admin from './pages/Admin';
-import AuthCallback from './pages/AuthCallback';
+import LoginPage from './pages/LoginPage';
+import DashboardPage from './pages/DashboardPage';
+import AdminPage from './pages/AdminPage';
+import AuthCallbackPage from './pages/AuthCallbackPage';
 import StudentManagementPage from './pages/StudentManagementPage'; 
 import AdminManagementPage from './pages/AdminManagementPage';
 import CourseManagementPage from './pages/CourseManagementPage';
@@ -185,11 +185,11 @@ export default function App() {
     <Router>
       <RedirectLoopGuard>
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/" element={<StudentRoute><Dashboard /></StudentRoute>} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/auth/callback" element={<AuthCallbackPage />} />
+          <Route path="/" element={<StudentRoute><DashboardPage /></StudentRoute>} />
           <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
-            <Route index element={<Admin />} />
+            <Route index element={<AdminPage />} />
             <Route path="students" element={<StudentManagementPage />} />
             <Route path="courses" element={<CourseManagementPage />} />
             <Route path="logs" element={<AuditLogPage />} />

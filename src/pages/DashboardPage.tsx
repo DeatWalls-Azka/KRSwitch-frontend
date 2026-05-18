@@ -30,7 +30,7 @@ interface Course {
 
 // --- Komponen Utama -------------------------------------------
 
-export default function Dashboard() {
+export default function DashboardPage() {
   // --- State UI -----------------------------------------------
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [selectedSessionType, setSelectedSessionType] = useState('kuliah');

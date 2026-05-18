@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 // Halaman ini jalan di dalam popup window pas login
 // Tugasnya cuma baca query param, kirim pesan ke parent, lalu tutup diri sendiri
-export default function AuthCallback() {
+export default function AuthCallbackPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const error = params.get('error');

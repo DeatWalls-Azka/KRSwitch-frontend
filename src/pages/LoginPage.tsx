@@ -13,7 +13,7 @@ const ERROR_MESSAGES: Record<string, string> = {
 
 // --- Komponen Utama -------------------------------------------
 
-export default function Login() {
+export default function LoginPage() {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);

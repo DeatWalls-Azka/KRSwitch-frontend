@@ -20,7 +20,7 @@ interface AdminStats {
 
 // --- Komponen Utama -------------------------------------------
 
-export default function Admin() {
+export default function AdminPage() {
   const [stats, setStats] = useState<AdminStats>({
     totalClasses: 0, 
     activeOffers: 0, 
