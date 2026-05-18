@@ -56,29 +56,10 @@ export default function Login() {
     return () => window.removeEventListener('message', handleMessage);
   }, [navigate]);
 
-  const handleLogin = () => {
+  const handleGoogleLogin = () => {
     setError(null);
     setLoading(true);
-    if (popupRef.current && !popupRef.current.closed) popupRef.current.close();
-
-    const width = 500;
-    const height = 600;
-    const left = window.screenX + (window.outerWidth - width) / 2;
-    const top = window.screenY + (window.outerHeight - height) / 2;
-
-    const popup = window.open(
-      'http://localhost:5000/auth/google',
-      'google-oauth',
-      `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes`
-    );
-    popupRef.current = popup;
-
-    const pollClosed = setInterval(() => {
-      if (popup?.closed) {
-        clearInterval(pollClosed);
-        setLoading(false);
-      }
-    }, 500);
+    window.location.href = '/auth/google';
   };
 
   if (checking) return null;
@@ -114,7 +95,7 @@ export default function Login() {
 
           {/* Tombol Google, efek hover mirip FilterButton aktif */}
           <button
-            onClick={handleLogin}
+            onClick={handleGoogleLogin}
             disabled={loading}
             className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 px-5 py-3 text-[12px] font-bold text-gray-500 rounded-sm transition-all duration-150 hover:bg-green-50 hover:text-green-600 hover:border-green-600 hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 active:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:bg-white disabled:hover:text-gray-500 disabled:hover:border-gray-300 disabled:hover:shadow-none"
           >
