@@ -26,10 +26,15 @@ const AddStudentModal = ({ isOpen, onClose }: AddStudentModalProps) => {
       return alert('Harap isi NIM, Nama, dan Email Mahasiswa!');
     }
 
+    const cleanNim = nim.toUpperCase().trim();
+    if (!/^M\d{10}$/.test(cleanNim)) {
+      return alert('Format NIM harus diawali M diikuti 10 digit! Contoh: M6401211064');
+    }
+
     setIsProcessing(true);
     try {
       await api.post('/api/admin/users', {
-        nim: nim.toUpperCase(),
+        nim: cleanNim,
         name: name,
         email: email.toLowerCase().trim()
       });
