@@ -452,7 +452,7 @@ export default function DashboardPage() {
             </div>
             <button
               onClick={(e) => { e.stopPropagation(); setIsFormOpen(true); }}
-              className="shrink-0 bg-green-600 text-white text-[11px] font-bold pb-2 pt-2 px-3 rounded-sm hover:bg-green-700 active:bg-green-800 transition-colors whitespace-nowrap border-0"
+              className="shrink-0 bg-green-600 text-white text-[11px] font-bold py-2 px-3 rounded-sm hover:bg-green-700 active:bg-green-800 transition-colors whitespace-nowrap border-0"
             >
               CREATE OFFER
             </button>
