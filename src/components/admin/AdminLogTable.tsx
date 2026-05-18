@@ -58,7 +58,9 @@ const AdminLogTable = () => {
 
     useEffect(() => {
         fetchLogs();
-        const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
+        const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
+            transports: ['websocket']
+        });
         getSocketToken()
             .then(res => socket.emit('authenticate', res.data.token))
             .catch(console.error);

@@ -93,7 +93,9 @@ export default function CourseManagementPage() {
   useEffect(() => {
     fetchClasses();
 
-    const socket = io((import.meta as any).env.VITE_API_URL || 'http://localhost:5000');
+    const socket = io((import.meta as any).env.VITE_API_URL || 'http://localhost:5000', {
+      transports: ['websocket']
+    });
     getSocketToken().then(res => socket.emit('authenticate', res.data.token)).catch(console.error);
 
     socket.on('admin-schedule-updated', fetchClasses);
