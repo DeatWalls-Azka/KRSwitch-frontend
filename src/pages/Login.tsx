@@ -59,7 +59,36 @@ export default function Login() {
   const handleGoogleLogin = () => {
     setError(null);
     setLoading(true);
-    window.location.href = '/auth/google';
+
+    if (popupRef.current && !popupRef.current.closed) {
+      popupRef.current.close();
+    }
+
+    const width = 500;
+    const height = 650;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+
+    const popup = window.open(
+      '/auth/google',
+      'google-oauth-popup',
+      `width=${width},height=${height},left=${left},top=${top},status=no,resizable=yes,scrollbars=yes`
+    );
+
+    if (popup) {
+      popupRef.current = popup;
+
+      const timer = setInterval(() => {
+        if (!popup || popup.closed) {
+          clearInterval(timer);
+          setLoading(false);
+          popupRef.current = null;
+        }
+      }, 500);
+    } else {
+      setLoading(false);
+      setError('Pop-up terblokir oleh browser. Harap izinkan akses pop-up untuk masuk.');
+    }
   };
 
   if (checking) return null;
