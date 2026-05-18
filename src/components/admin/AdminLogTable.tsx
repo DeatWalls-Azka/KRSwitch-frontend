@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import api, { getSocketToken } from '../../api';
 import { useTableKeyboardPagination } from '../../hooks/useTableKeyboardPagination';
 import {
@@ -31,6 +32,10 @@ interface ActionStyle {
 // --- Komponen Utama -------------------------------------------
 
 const AdminLogTable = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const isDashboard = location.pathname === '/admin' || location.pathname === '/admin/';
+
     const [pageSize, setPageSize] = useState(10);
     const tableContainerRef = useRef<HTMLDivElement>(null);
 
@@ -149,7 +154,14 @@ const AdminLogTable = () => {
     return (
         <Card className="border-border/50 shadow-sm rounded-md overflow-hidden flex flex-col bg-background">
             <CardHeader className="py-3 px-4 border-b border-border/50 bg-muted/5 flex flex-row items-center justify-between space-y-0">
-                <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80 flex items-center gap-2">
+                <CardTitle 
+                    className={`text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 select-none ${
+                        isDashboard 
+                            ? 'text-muted-foreground/80 hover:text-primary cursor-pointer transition-colors hover:underline decoration-primary/50' 
+                            : 'text-muted-foreground/80'
+                    }`}
+                    onClick={() => isDashboard && navigate('/admin/logs')}
+                >
                     <ShieldAlert size={14} />
                     Activity Log
                 </CardTitle>
