@@ -63,6 +63,11 @@ export default function AdminWizardCard({ stats, onRefresh }: AdminWizardCardPro
     }
   };
 
+  const onRefreshRef = React.useRef(onRefresh);
+  useEffect(() => {
+    onRefreshRef.current = onRefresh;
+  }, [onRefresh]);
+
   useEffect(() => {
     fetchMasterFiles();
 
@@ -74,12 +79,12 @@ export default function AdminWizardCard({ stats, onRefresh }: AdminWizardCardPro
 
     socket.on('admin-master-files-updated', () => {
       fetchMasterFiles();
-      onRefresh(); // Biar stats ikut update
+      onRefreshRef.current(); // Biar stats ikut update aman tanpa re-trigger connection
     });
     
     socket.on('admin-system-reset', () => {
       fetchMasterFiles();
-      onRefresh();
+      onRefreshRef.current();
       setActiveStep(0);
     });
     
@@ -89,7 +94,7 @@ export default function AdminWizardCard({ stats, onRefresh }: AdminWizardCardPro
     return () => {
       socket.disconnect();
     };
-  }, [onRefresh]);
+  }, []);
 
   useEffect(() => {
     if (stats) {
