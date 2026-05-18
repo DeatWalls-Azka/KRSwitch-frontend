@@ -32,7 +32,7 @@ interface Course {
 
 export default function DashboardPage() {
   useEffect(() => {
-    document.title = 'KRSwitch | Dashboard';
+    document.title = 'KRSwitch | Live Barter Feed';
   }, []);
 
   // --- State UI -----------------------------------------------
