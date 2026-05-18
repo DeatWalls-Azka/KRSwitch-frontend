@@ -51,6 +51,13 @@ export default function DashboardPage() {
   // State drawer mobile
   // null berarti ditutup (ada di bawah), number berarti posisi Y dalam pixel dari atas saat di-drag
   const [drawerY, setDrawerY] = useState<number | null>(null);
+  const [windowHeight, setWindowHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 800);
+
+  useEffect(() => {
+    const handleResize = () => setWindowHeight(window.innerHeight);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const drawerRef = useRef<HTMLDivElement | null>(null);
   const peekBarRef = useRef<HTMLDivElement | null>(null);
@@ -432,7 +439,7 @@ export default function DashboardPage() {
   };
 
   // Derived state untuk sinkronisasi render React
-  const TRAVEL_VAL = typeof window !== 'undefined' ? window.innerHeight * 0.88 - PEEK_H : 800;
+  const TRAVEL_VAL = windowHeight * 0.88 - PEEK_H;
   const currentY = drawerY !== null ? drawerY : TRAVEL_VAL;
   const drawerProgress = 1 - (currentY / TRAVEL_VAL);
   const distancePulledVal = TRAVEL_VAL - currentY;
