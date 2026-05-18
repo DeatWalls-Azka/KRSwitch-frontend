@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUser } from '../api';
 import MarbotBanner from '../assets/MarbotBanner.jpg';
+import NetworkBackground from '../components/NetworkBackground';
 
 // --- Types & Constants ----------------------------------------
 
@@ -97,11 +98,12 @@ export default function LoginPage() {
   if (checking) return null;
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center bg-gray-50 font-mono">
-      <div className="flex flex-col gap-2" style={{ width: '432px' }}>
+    <div className="relative overflow-hidden h-screen flex flex-col items-center justify-center bg-gray-50 font-mono">
+      <NetworkBackground />
+      <div className="flex flex-col gap-2 w-full max-w-[432px] px-4 sm:px-0">
 
         {/* Kotak banner gambar */}
-        <div className="rounded-t-xl rounded-b-md overflow-hidden border border-gray-200 shadow-md" style={{ height: '240px' }}>
+        <div className="relative rounded-t-xl rounded-b-md overflow-hidden border border-gray-200 shadow-md h-44 sm:h-[240px] z-10">
           <img
             src={MarbotBanner}
             alt="KRSwitch Banner"
@@ -151,7 +153,7 @@ export default function LoginPage() {
             )}
           </button>
 
-          <p className="text-[10px] text-gray-400 mt-[-12px]">
+          <p className="text-[10px] text-gray-400 mt-[-12px] text-center">
             *hanya akun yang terdaftar yang dapat mengakses platform ini.
           </p>
         </div>
