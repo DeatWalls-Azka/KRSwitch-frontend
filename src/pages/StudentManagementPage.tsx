@@ -46,6 +46,9 @@ interface StudentDetail extends StudentSummary {
 // --- Komponen Utama -------------------------------------------
 
 export default function StudentManagementPage() {
+  useEffect(() => {
+    document.title = 'KRSwitch | Student Management';
+  }, []);
   const [pageSize, setPageSize] = useState(15);
   const tableContainerRef = useRef<HTMLDivElement | null>(null);
 

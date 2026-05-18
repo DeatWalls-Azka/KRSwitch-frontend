@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import AdminLogTable from '../components/admin/AdminLogTable';
 
 export default function AuditLogPage() {
+  useEffect(() => {
+    document.title = 'KRSwitch | Audit Log';
+  }, []);
   return (
     <div className="space-y-6 pb-8">
       {/* Bagian Header */}

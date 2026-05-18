@@ -31,6 +31,10 @@ interface Course {
 // --- Komponen Utama -------------------------------------------
 
 export default function DashboardPage() {
+  useEffect(() => {
+    document.title = 'KRSwitch | Dashboard';
+  }, []);
+
   // --- State UI -----------------------------------------------
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [selectedSessionType, setSelectedSessionType] = useState('kuliah');

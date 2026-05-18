@@ -20,6 +20,9 @@ import type { User } from '../types';
 // --- Komponen Utama -------------------------------------------
 
 export default function AdminManagementPage() {
+  useEffect(() => {
+    document.title = 'KRSwitch | Admin Management';
+  }, []);
   const [admins, setAdmins] = useState<User[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);

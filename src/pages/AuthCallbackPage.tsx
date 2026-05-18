@@ -4,6 +4,9 @@ import { useEffect } from 'react';
 // Tugasnya cuma baca query param, kirim pesan ke parent, lalu tutup diri sendiri
 export default function AuthCallbackPage() {
   useEffect(() => {
+    document.title = 'KRSwitch | Autentikasi...';
+  }, []);
+  useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const error = params.get('error');
 

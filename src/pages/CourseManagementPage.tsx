@@ -53,6 +53,9 @@ interface EditClassFormData {
 // --- Komponen Utama -------------------------------------------
 
 export default function CourseManagementPage() {
+  useEffect(() => {
+    document.title = 'KRSwitch | Course Management';
+  }, []);
   const [pageSize, setPageSize] = useState(15);
   const tableContainerRef = useRef<HTMLDivElement | null>(null);
 

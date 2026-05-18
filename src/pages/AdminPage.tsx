@@ -21,6 +21,9 @@ interface AdminStats {
 // --- Komponen Utama -------------------------------------------
 
 export default function AdminPage() {
+  useEffect(() => {
+    document.title = 'KRSwitch | Admin Dashboard';
+  }, []);
   const [stats, setStats] = useState<AdminStats>({
     totalClasses: 0, 
     activeOffers: 0, 
