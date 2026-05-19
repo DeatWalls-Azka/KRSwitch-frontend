@@ -168,7 +168,7 @@ export default function TradeConfirmationModal({
       onKeyDown={handleKeyDown}
       onClick={handleBackdropClick}
     >
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4 md:px-0">
         <div
           className={`bg-white rounded-lg shadow-2xl relative ${isClosing ? 'animate-popDown' : 'animate-popUp'}`}
           onClick={(e) => e.stopPropagation()}
@@ -186,7 +186,7 @@ export default function TradeConfirmationModal({
             </svg>
           </button>
 
-          <div className="space-y-4 mx-8 pt-4">
+          <div className="space-y-4 mx-4 md:mx-8 pt-5">
             <div className="text-center pb-2">
               <h3 className="text-lg font-bold text-gray-900">
                 {isCancel ? 'Batalkan' : 'Konfirmasi Pertukaran'}
@@ -198,47 +198,47 @@ export default function TradeConfirmationModal({
               </p>
             </div>
 
-            <div className="flex items-baseline justify-between">
-              <div className="text-left">
-                <div className="text-lg font-bold text-gray-900">{offer?.seekingCourse || ''}</div>
-                <div className="text-xs text-gray-500">{offer?.seekingCourseName || ''}</div>
+            <div className="flex items-baseline justify-between gap-4">
+              <div className="text-left min-w-0 flex-1">
+                <div className="text-base md:text-lg font-bold text-gray-900 truncate">{offer?.seekingCourse || ''}</div>
+                <div className="text-[11px] md:text-xs text-gray-500 truncate" title={offer?.seekingCourseName}>{offer?.seekingCourseName || ''}</div>
               </div>
 
-              <div className="text-right">
-                <div className="font-bold text-gray-900">{offer?.studentName || ''}</div>
-                <div className="text-xs text-gray-500">{offer?.nim || ''}</div>
+              <div className="text-right min-w-0 flex-1">
+                <div className="font-bold text-sm md:text-base text-gray-900 truncate" title={offer?.studentName}>{offer?.studentName || ''}</div>
+                <div className="text-[11px] md:text-xs text-gray-500 truncate">{offer?.nim || ''}</div>
               </div>
             </div>
 
-            <div className="py-2 border-y border-gray-200">
-              <div className="flex items-center gap-4">
+            <div className="py-2 border-y border-gray-100">
+              <div className="flex items-center gap-2 md:gap-4">
                 <div className="flex-1 text-center">
-                  <div className="text-xs text-gray-500">{isCancel ? 'Menawarkan' : 'Melepas'}</div>
-                  <div className="text-red-600 font-bold text-lg">{isCancel ? offer?.offeringClass : offer?.seekingClass || ''}</div>
+                  <div className="text-[10px] md:text-xs text-gray-500">{isCancel ? 'Menawarkan' : 'Melepas'}</div>
+                  <div className="text-red-600 font-bold text-base md:text-lg">{isCancel ? offer?.offeringClass : offer?.seekingClass || ''}</div>
                 </div>
 
-                <div className="text-gray-400 text-2xl font-bold">⇌</div>
+                <div className="text-gray-400 text-xl md:text-2xl font-bold select-none">⇌</div>
 
                 <div className="flex-1 text-center">
-                  <div className="text-xs text-gray-500">{isCancel ? 'Mencari' : 'Mendapat'}</div>
-                  <div className="text-green-600 font-bold text-lg">{isCancel ? offer?.seekingClass : offer?.offeringClass || ''}</div>
+                  <div className="text-[10px] md:text-xs text-gray-500">{isCancel ? 'Mencari' : 'Mendapat'}</div>
+                  <div className="text-green-600 font-bold text-base md:text-lg">{isCancel ? offer?.seekingClass : offer?.offeringClass || ''}</div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="px-8 py-5 rounded-b-lg flex gap-3">
+          <div className="px-4 md:px-8 py-4 md:py-5 rounded-b-lg flex gap-3">
             <button
               onClick={handleClose}
               disabled={isProcessing}
-              className="flex-1 text-sm font-black py-3 px-4 border border-gray-300 rounded hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 text-sm font-black py-2.5 md:py-3 px-4 border border-gray-300 rounded hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {successMessage ? 'TUTUP' : 'KEMBALI'}
             </button>
             <button
               onClick={handlePrimaryAction}
               disabled={!isAvailable || isProcessing || !offer?.id}
-              className={`flex-1 text-white text-sm font-black py-3 px-4 rounded transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed ${primaryButtonColor}`}
+              className={`flex-1 text-white text-sm font-black py-2.5 md:py-3 px-4 rounded transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed ${primaryButtonColor}`}
             >
               {primaryButtonText}
             </button>
