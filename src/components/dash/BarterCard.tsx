@@ -135,7 +135,7 @@ export default function BarterCard({
       <div ref={wrapperRef} className="mb-1" onClick={handleCardClick}>
         <div className={`border p-2 flex items-center rounded-md shadow-xs transition-all duration-150 ease-out ${
           isUnavailable 
-            ? 'border-gray-200/60 bg-gray-50/50 opacity-60 grayscale-[30%] hover:opacity-85 cursor-default' 
+            ? 'border-gray-200/40 bg-gray-50/30 opacity-40 grayscale cursor-default' 
             : `border-gray-200 bg-white ${buttonDisabled ? 'cursor-default' : 'cursor-pointer hover:border-gray-300 hover:shadow-xs'}`
         } ${animationClasses}`}>
           
@@ -193,15 +193,16 @@ export default function BarterCard({
                       isUnavailable ? 'border-gray-200/50 opacity-60' : 'border-gray-200'
                     }`}
                   />
-                ) : (
-                  <div className={`w-7 h-7 rounded-full font-bold text-[9px] flex items-center justify-center border transition-all ${
-                    isUnavailable 
-                      ? 'bg-gray-100/50 text-gray-400 border-gray-200/30' 
-                      : 'bg-green-50 text-green-700 border-green-200'
-                  }`}>
-                    {getInitials(offer.studentName)}
-                  </div>
-                )}
+                ) : (() => {
+                  const fallback = getGoogleFallback(offer.studentName);
+                  return (
+                    <div className={`w-7 h-7 rounded-full font-medium text-[11.5px] font-sans flex items-center justify-center text-white border transition-all ${fallback.bg} ${
+                      isUnavailable ? 'opacity-50 border-gray-200/30' : 'border-white/10 shadow-xs'
+                    }`}>
+                      {fallback.char}
+                    </div>
+                  );
+                })()}
               </div>
             </div>
 
@@ -215,11 +216,20 @@ export default function BarterCard({
 
 // --- Helpers --------------------------------------------------
 
-const getInitials = (name: string) => {
-  if (!name) return '';
-  const parts = name.trim().split(/\s+/);
-  if (parts.length >= 2) {
-    return (parts[0][0] + parts[1][0]).toUpperCase();
-  }
-  return parts[0][0].toUpperCase();
+const getGoogleFallback = (name: string) => {
+  if (!name) return { char: '?', bg: 'bg-[#1a73e8]' };
+  const trimmed = name.trim();
+  const char = trimmed.charAt(0).toUpperCase();
+  
+  // Google's 5 default colors
+  const colors = [
+    'bg-[#1a73e8]', // Google Blue
+    'bg-[#d93025]', // Google Red
+    'bg-[#e37400]', // Google Yellow/Orange
+    'bg-[#1e8e3e]', // Google Green
+    'bg-[#ab47bc]', // Google Purple
+  ];
+  
+  const index = char.charCodeAt(0) % colors.length;
+  return { char, bg: colors[index] };
 };
