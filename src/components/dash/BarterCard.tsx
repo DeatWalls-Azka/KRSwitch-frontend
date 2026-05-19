@@ -96,6 +96,8 @@ export default function BarterCard({
     }
   };
 
+  const isUnavailable = !isOwnOffer && (!canAccept || conflictsWithSchedule);
+
   const animationClasses = (isVisible && !isExiting)
     ? 'opacity-100 translate-x-0 scale-100'
     : 'opacity-0 translate-x-8 scale-y-0';
@@ -112,6 +114,16 @@ export default function BarterCard({
       ? 'bg-yellow-500'
       : 'bg-green-600 hover:bg-green-700 active:bg-green-800';
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // If the click is on a button or button child, let the button handle it
+    if (e.target instanceof HTMLButtonElement || (e.target as HTMLElement).closest('button')) {
+      return;
+    }
+    if (!buttonDisabled) {
+      handleButtonClick();
+    }
+  };
+
   return (
     <div
       data-offer-id={offer.id}
@@ -120,44 +132,55 @@ export default function BarterCard({
       }}
       className="transition-all duration-100 ease-out overflow-hidden"
     >
-      <div ref={wrapperRef} className="mb-1">
-        <div className={`border border-gray-200 bg-white p-2 flex items-center rounded-md shadow-xs transition-all duration-100 ease-out ${animationClasses}`}>
+      <div ref={wrapperRef} className="mb-1" onClick={handleCardClick}>
+        <div className={`border p-2 flex items-center rounded-md shadow-xs transition-all duration-150 ease-out ${
+          isUnavailable 
+            ? 'border-gray-200/60 bg-gray-50/50 opacity-60 grayscale-[30%] hover:opacity-85 cursor-default' 
+            : `border-gray-200 bg-white ${buttonDisabled ? 'cursor-default' : 'cursor-pointer hover:border-gray-300'}`
+        } ${animationClasses}`}>
           {/* Grid 3 kolom: 1fr kiri, auto tengah, 1fr kanan, menjamin bagian tengah selalu simetris dengan jarak yang sama */}
           <div className="grid w-full items-center gap-2" style={{ gridTemplateColumns: '1fr auto 1fr' }}>
 
             {/* Left Course Name*/}
             <div className="min-w-0 pr-6">
-              <div className="text-gray-900 truncate font-bold text-[12px] md:hidden" title={offer.seekingCourseName}>
+              <div className={`truncate font-bold text-[12px] md:hidden ${isUnavailable ? 'text-gray-400 font-medium' : 'text-gray-900'}`} title={offer.seekingCourseName}>
                 {offer.seekingCourseName}
               </div>
-              <div className="font-semibold font-mono text-gray-400 text-[10px] truncate md:hidden ">{offer.studentName}</div>
+              <div className={`font-semibold font-mono text-[10px] truncate md:hidden ${isUnavailable ? 'text-gray-300' : 'text-gray-400'}`}>{offer.studentName}</div>
 
-              <div className="hidden md:block text-gray-900 truncate font-bold text-[12px]" title={offer.seekingCourseName}>
+              <div className={`hidden md:block truncate font-bold text-[12px] ${isUnavailable ? 'text-gray-400 font-medium' : 'text-gray-900'}`} title={offer.seekingCourseName}>
                 {offer.seekingCourseName}
               </div>
-              <div className="hidden md:block font-semibold font-sans text-gray-400 text-[10px] truncate">{offer.studentName}</div>
+              <div className={`hidden md:block font-semibold font-sans text-[10px] truncate ${isUnavailable ? 'text-gray-300' : 'text-gray-400'}`}>{offer.studentName}</div>
             </div>
 
             {/* Middle codes */}
             <div className="flex flex-col items-center justify-center leading-none mt-[-2px]">
               <div className="flex items-center justify-center gap-2">
-                <span className="text-red-600 font-black text-sm">{offer.offeringClass}</span>
+                <span className={`font-black text-sm ${isUnavailable ? 'text-red-400/70' : 'text-red-600'}`}>{offer.offeringClass}</span>
                 <span className="text-gray-400 font-black text-sm">⇌</span>
-                <span className="text-green-600 font-black text-sm">{offer.seekingClass}</span>
+                <span className={`font-black text-sm ${isUnavailable ? 'text-green-400/70' : 'text-green-600'}`}>{offer.seekingClass}</span>
               </div>
-              <span className="text-gray-400 font-black text-[10px] whitespace-nowrap mt-1">{offer.seekingCourse}</span>
+              <span className={`font-black text-[10px] whitespace-nowrap mt-1 ${isUnavailable ? 'text-gray-300' : 'text-gray-400'}`}>{offer.seekingCourse}</span>
             </div>
 
             {/* Right button*/}
-            <div className="flex justify-end min-w-0">
+            <div className="flex justify-end min-w-0 items-center">
               <button
                 onClick={handleButtonClick}
                 disabled={buttonDisabled}
                 title={conflictsWithSchedule ? 'Jadwal bertabrakan dengan kelas lain' : ''}
-                className={`${buttonColor} text-white text-[11px] font-black pb-1 pt-1.5 my-1 border-0 cursor-pointer transition-colors rounded-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400 w-full max-w-[100px]`}
+                className={`hidden md:block ${buttonColor} text-white text-[11px] font-black pb-1 pt-1.5 my-1 border-0 cursor-pointer transition-colors rounded-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400 w-full max-w-[100px]`}
               >
                 {buttonText}
               </button>
+
+              {/* Mobile Chevron (only visible if card is clickable) */}
+              {!buttonDisabled && (
+                <svg className="md:hidden w-4 h-4 text-green-600 animate-pulse mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+                </svg>
+              )}
             </div>
           </div>
 
