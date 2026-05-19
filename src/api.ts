@@ -8,6 +8,31 @@ const api = axios.create({
   withCredentials: true,
 });
 
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response && error.response.status === 401) {
+      // Jangan intercept jika itu request /api/me pas loading awal
+      if (error.config && error.config.url && error.config.url.includes('/api/me')) {
+        return Promise.reject(error);
+      }
+      
+      // Bersihkan sesi lokal
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Notify backend logout
+      try {
+        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        await fetch(`${baseUrl}/auth/logout`, { method: 'POST', credentials: 'include' }).catch(() => {});
+      } catch {}
+
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 // --- API Mahasiswa --------------------------------------------
 
 export const getUsers = () => api.get<User[]>('/api/users');

@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
-import { getUsers, getClasses, getEnrollments, getCurrentUser, getOffers, getNotifications } from '../api';
+import { getUsers, getClasses, getEnrollments, getOffers, getNotifications } from '../api';
+import { useAuth } from '../context/AuthContext';
 import type { User, ParallelClass, Enrollment, Offer, Notification } from '../types';
 
 export function useDashboardData() {
   const [users, setUsers] = useState<User[]>([]);
   const [parallelClasses, setParallelClasses] = useState<ParallelClass[]>([]);
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const { user: currentUser } = useAuth();
   const [apiOffers, setApiOffers] = useState<Offer[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,19 +27,17 @@ export function useDashboardData() {
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const [usersRes, classesRes, enrollmentsRes, currentUserRes, offersRes, notificationsRes] =
+        const [usersRes, classesRes, enrollmentsRes, offersRes, notificationsRes] =
           await Promise.all([
             getUsers(),
             getClasses(),
             getEnrollments(),
-            getCurrentUser(),
             getOffers(),
             getNotifications(),
           ]);
         setUsers(usersRes.data);
         setParallelClasses(classesRes.data);
         setEnrollments(enrollmentsRes.data);
-        setCurrentUser(currentUserRes.data);
         setApiOffers(offersRes.data);
         setNotifications(notificationsRes.data);
       } catch (err) {

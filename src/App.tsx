@@ -9,7 +9,7 @@ import AdminManagementPage from './pages/AdminManagementPage';
 import CourseManagementPage from './pages/CourseManagementPage';
 import AuditLogPage from './pages/AuditLogPage';
 import AdminLayout from './components/admin/AdminLayout';
-import { getCurrentUser } from './api';
+import { AuthProvider, useAuth } from './context/AuthContext';
 
 // --- Konstanta ------------------------------------------------
 
@@ -113,69 +113,52 @@ function RedirectLoopGuard({ children }: GuardProps) {
   return <>{children}</>;
 }
 
+function AuthLoadingScreen() {
+  return (
+    <div className="h-screen w-screen flex items-center justify-center bg-slate-50 font-mono">
+      <div className="flex flex-col items-center gap-3">
+        <svg className="animate-spin text-green-600" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+        </svg>
+        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest animate-pulse">Memuat Sesi...</span>
+      </div>
+    </div>
+  );
+}
+
 function ProtectedRoute({ children }: GuardProps) {
-  const [authed, setAuthed] = useState<boolean | null>(null);
-  useEffect(() => {
-    getCurrentUser().then(() => setAuthed(true)).catch(() => setAuthed(false));
-  }, []);
-  if (authed === null) return null;
-  if (authed === false) return <Navigate to="/login" replace />;
+  const { user, loading } = useAuth();
+  if (loading) return <AuthLoadingScreen />;
+  if (!user) return <Navigate to="/login" replace />;
   return <>{children}</>;
 }
 
 function StudentRoute({ children }: GuardProps) {
-  const [status, setStatus] = useState<string | null>(null);
-  useEffect(() => {
-    getCurrentUser()
-      .then(res => {
-        if (!res.data) setStatus('unauthenticated');
-        else if (res.data.role === 'student') setStatus('student');
-        else if (ADMIN_ROLES.includes(res.data.role)) setStatus('admin');
-        else setStatus('unauthenticated');
-      })
-      .catch(() => setStatus('unauthenticated'));
-  }, []);
+  const { user, loading } = useAuth();
 
-  if (status === null) return null;
-  if (status === 'unauthenticated') return <Navigate to="/login" replace />;
-  if (status === 'admin') return <Navigate to="/admin" replace />;
-  return <>{children}</>;
+  if (loading) return <AuthLoadingScreen />;
+  if (!user) return <Navigate to="/login" replace />;
+  if (ADMIN_ROLES.includes(user.role)) return <Navigate to="/admin" replace />;
+  if (user.role === 'student') return <>{children}</>;
+  return <Navigate to="/login" replace />;
 }
 
 function AdminRoute({ children }: GuardProps) {
-  const [status, setStatus] = useState<string | null>(null);
-  useEffect(() => {
-    getCurrentUser()
-      .then(res => {
-        if (!res.data) setStatus('unauthenticated');
-        else if (ADMIN_ROLES.includes(res.data.role)) setStatus('admin');
-        else setStatus('forbidden');
-      })
-      .catch(() => setStatus('unauthenticated'));
-  }, []);
+  const { user, loading } = useAuth();
 
-  if (status === null) return null;
-  if (status === 'unauthenticated') return <Navigate to="/login" replace />;
-  if (status === 'forbidden') return <Navigate to="/" replace />;
-  return <>{children}</>;
+  if (loading) return <AuthLoadingScreen />;
+  if (!user) return <Navigate to="/login" replace />;
+  if (ADMIN_ROLES.includes(user.role)) return <>{children}</>;
+  return <Navigate to="/" replace />;
 }
 
 function SuperAdminRoute({ children }: GuardProps) {
-  const [status, setStatus] = useState<string | null>(null);
-  useEffect(() => {
-    getCurrentUser()
-      .then(res => {
-        if (!res.data) setStatus('unauthenticated');
-        else if (SUPER_ADMIN_ROLES.includes(res.data.role)) setStatus('super_admin');
-        else setStatus('forbidden');
-      })
-      .catch(() => setStatus('unauthenticated'));
-  }, []);
+  const { user, loading } = useAuth();
 
-  if (status === null) return null;
-  if (status === 'unauthenticated') return <Navigate to="/login" replace />;
-  if (status === 'forbidden') return <Navigate to="/admin" replace />;
-  return <>{children}</>;
+  if (loading) return <AuthLoadingScreen />;
+  if (!user) return <Navigate to="/login" replace />;
+  if (SUPER_ADMIN_ROLES.includes(user.role)) return <>{children}</>;
+  return <Navigate to="/admin" replace />;
 }
 
 // --- Aplikasi Utama -------------------------------------------
@@ -183,20 +166,22 @@ function SuperAdminRoute({ children }: GuardProps) {
 export default function App() {
   return (
     <Router>
-      <RedirectLoopGuard>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/auth/callback" element={<AuthCallbackPage />} />
-          <Route path="/" element={<StudentRoute><DashboardPage /></StudentRoute>} />
-          <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
-            <Route index element={<AdminPage />} />
-            <Route path="students" element={<StudentManagementPage />} />
-            <Route path="courses" element={<CourseManagementPage />} />
-            <Route path="logs" element={<AuditLogPage />} />
-            <Route path="management" element={<SuperAdminRoute><AdminManagementPage /></SuperAdminRoute>} />
-          </Route>
-        </Routes>
-      </RedirectLoopGuard>
+      <AuthProvider>
+        <RedirectLoopGuard>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/auth/callback" element={<AuthCallbackPage />} />
+            <Route path="/" element={<StudentRoute><DashboardPage /></StudentRoute>} />
+            <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+              <Route index element={<AdminPage />} />
+              <Route path="students" element={<StudentManagementPage />} />
+              <Route path="courses" element={<CourseManagementPage />} />
+              <Route path="logs" element={<AuditLogPage />} />
+              <Route path="management" element={<SuperAdminRoute><AdminManagementPage /></SuperAdminRoute>} />
+            </Route>
+          </Routes>
+        </RedirectLoopGuard>
+      </AuthProvider>
     </Router>
   );
 }

@@ -54,16 +54,18 @@ describe('Admin Student Management', () => {
   });
 
   it('submits Add Student modal and calls API', () => {
-    cy.intercept('POST', '/api/admin/users', { statusCode: 201, body: { nim: 'M0003' } }).as('createUser');
+    cy.intercept('POST', '/api/admin/users', { statusCode: 201, body: { nim: 'M0000000003' } }).as('createUser');
 
     cy.contains('button', 'ADD MAHASISWA').click();
-    cy.get('input[placeholder="G6401211XXX"]').type('M0003');
+    cy.get('input[placeholder="G6401211XXX"]').type('M0000000003');
     cy.get('input[placeholder="Masukkan nama lengkap..."]').type('Charlie');
+    cy.get('input[placeholder="example@student.itb.ac.id"]').type('charlie@student.itb.ac.id');
     cy.contains('button', 'Daftarkan Mahasiswa').click();
 
     cy.wait('@createUser').its('request.body').should('deep.include', {
-      nim: 'M0003',
-      name: 'Charlie'
+      nim: 'M0000000003',
+      name: 'Charlie',
+      email: 'charlie@student.itb.ac.id'
     });
   });
 

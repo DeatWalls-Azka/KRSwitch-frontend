@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCurrentUser } from '../api';
+import { useAuth } from '../context/AuthContext';
 import MarbotBanner from '../assets/MarbotBanner.jpg';
 import NetworkBackground from '../components/NetworkBackground';
 
@@ -19,22 +19,27 @@ export default function LoginPage() {
     document.title = 'KRSwitch | Login';
   }, []);
   const navigate = useNavigate();
+  const { user, loading: authLoading, refetchUser, logout } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
   const popupRef = useRef<Window | null>(null);
 
   useEffect(() => {
-    getCurrentUser()
-      .then((res) => {
-        if (res.data && res.data.role) {
+    if (!authLoading) {
+      if (user && user.role) {
+        const ADMIN_ROLES = ['admin', 'super_admin', 'operator'];
+        if (user.role === 'student' || ADMIN_ROLES.includes(user.role)) {
           navigate('/');
         } else {
+          setError(ERROR_MESSAGES.not_registered);
           setChecking(false);
         }
-      })
-      .catch(() => setChecking(false));
-  }, [navigate]);
+      } else {
+        setChecking(false);
+      }
+    }
+  }, [user, authLoading, navigate]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -51,14 +56,14 @@ export default function LoginPage() {
       setLoading(false);
       popupRef.current = null;
       if (e.data.success) {
-        navigate('/');
+        refetchUser();
       } else {
         setError(ERROR_MESSAGES[e.data.error] ?? ERROR_MESSAGES.oauth_failed);
       }
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [navigate]);
+  }, [refetchUser]);
 
   const handleGoogleLogin = () => {
     setError(null);
@@ -122,8 +127,17 @@ export default function LoginPage() {
 
           {/* Pesan error */}
           {error && (
-            <div className="w-full bg-red-50 border border-red-200 px-3 py-2 rounded-sm">
+            <div className="w-full bg-red-50 border border-red-200 px-3 py-2 rounded-sm flex flex-col gap-1 items-start">
               <p className="text-[12px] text-red-700 font-bold">{error}</p>
+              {error === ERROR_MESSAGES.not_registered && (
+                <button
+                  type="button"
+                  onClick={() => logout()}
+                  className="text-[10px] text-blue-600 hover:text-blue-800 underline font-bold bg-transparent border-0 cursor-pointer p-0 block"
+                >
+                  Gunakan Akun Lain
+                </button>
+              )}
             </div>
           )}
 

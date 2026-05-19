@@ -19,16 +19,16 @@ interface BarterCardProps {
 
 // --- Komponen Utama -------------------------------------------
 
-export default function BarterCard({ 
-  offer, 
-  index = 0, 
-  exitIndex = 0, 
+export default function BarterCard({
+  offer,
+  index = 0,
+  exitIndex = 0,
   shouldExit = false,
   shouldEnter = false,
   canAccept = true,
   conflictsWithSchedule = false,
   isOwnOffer = false,
-  onAnimationComplete, 
+  onAnimationComplete,
   onOpenModal
 }: BarterCardProps) {
   const [isVisible, setIsVisible] = useState(false);
@@ -43,8 +43,8 @@ export default function BarterCard({
       timer = setTimeout(() => setIsVisible(true), 50);
     } else {
       // Snappy Dynamic Stagger: Hitung berapa kartu yang muat di viewport untuk menstagger semua yang keliatan
-      const visibleCount = typeof window !== 'undefined' 
-        ? Math.max(6, Math.ceil(window.innerHeight / 76)) 
+      const visibleCount = typeof window !== 'undefined'
+        ? Math.max(6, Math.ceil(window.innerHeight / 76))
         : 8;
       const delay = index < visibleCount ? index * 30 : visibleCount * 30;
       timer = setTimeout(() => setIsVisible(true), delay);
@@ -61,7 +61,7 @@ export default function BarterCard({
         const rect = wrapperRef.current.getBoundingClientRect();
         setHeight(rect.height);
       }
-      
+
       timer = setTimeout(() => {
         setIsExiting(true);
         requestAnimationFrame(() => {
@@ -106,16 +106,16 @@ export default function BarterCard({
     : conflictsWithSchedule
       ? 'BENTROK'
       : 'OPEN TRADE';
-  const buttonColor = isOwnOffer 
+  const buttonColor = isOwnOffer
     ? 'bg-red-600 hover:bg-red-700 active:bg-red-800'
     : conflictsWithSchedule
       ? 'bg-yellow-500'
       : 'bg-green-600 hover:bg-green-700 active:bg-green-800';
 
   return (
-    <div 
+    <div
       data-offer-id={offer.id}
-      style={{ 
+      style={{
         height: isExiting ? `${height}px` : 'auto'
       }}
       className="transition-all duration-100 ease-out overflow-hidden"
@@ -127,12 +127,12 @@ export default function BarterCard({
 
             {/* Left Course Name*/}
             <div className="min-w-0 pr-6">
-              <div className="text-gray-900 truncate font-bold text-[12px] md:hidden mb-[-3px]" title={offer.seekingCourseName}>
+              <div className="text-gray-900 truncate font-bold text-[12px] md:hidden" title={offer.seekingCourseName}>
                 {offer.seekingCourseName}
               </div>
-              <div className="font-semibold font-mono text-gray-400 text-[10px] truncate md:hidden">{offer.studentName}</div>
+              <div className="font-semibold font-mono text-gray-400 text-[10px] truncate md:hidden ">{offer.studentName}</div>
 
-              <div className="hidden md:block mb-[-3px] text-gray-900 truncate font-bold text-[12px]" title={offer.seekingCourseName}>
+              <div className="hidden md:block text-gray-900 truncate font-bold text-[12px]" title={offer.seekingCourseName}>
                 {offer.seekingCourseName}
               </div>
               <div className="hidden md:block font-semibold font-sans text-gray-400 text-[10px] truncate">{offer.studentName}</div>

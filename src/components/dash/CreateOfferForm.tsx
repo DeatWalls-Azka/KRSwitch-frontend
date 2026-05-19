@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { getCurrentUser, getEnrollments, getClasses, createOffer } from '../../api';
+import { getEnrollments, getClasses, createOffer } from '../../api';
+import { useAuth } from '../../context/AuthContext';
 import type { ParallelClass, User } from '../../types';
 
 // --- Types ----------------------------------------------------
@@ -38,7 +39,7 @@ function hasScheduleConflict(classA: ScheduleItem, classB: ScheduleItem): boolea
 export default function CreateOfferForm({ onSuccess, onClose }: CreateOfferFormProps) {
   const [myClasses, setMyClasses] = useState<EnrichedClass[]>([]);
   const [allClasses, setAllClasses] = useState<ParallelClass[]>([]);
-  const [, setCurrentUser] = useState<User | null>(null);
+  const { user } = useAuth();
 
   const [selectedMyClass, setSelectedMyClass] = useState('');
   const [selectedTargetClass, setSelectedTargetClass] = useState('');
@@ -61,20 +62,21 @@ export default function CreateOfferForm({ onSuccess, onClose }: CreateOfferFormP
       setLoading(true);
       setError('');
 
-      const [userRes, enrollmentsRes, classesRes] = await Promise.all([
-        getCurrentUser(),
+      if (!user) {
+        throw new Error('Pengguna tidak terautentikasi.');
+      }
+
+      const [enrollmentsRes, classesRes] = await Promise.all([
         getEnrollments(),
         getClasses()
       ]);
 
-      const userData = userRes.data;
       const enrollments = enrollmentsRes.data;
       const classes = classesRes.data;
 
-      setCurrentUser(userData);
       setAllClasses(classes);
 
-      const userEnrollments = enrollments.filter(e => e.nim === userData.nim);
+      const userEnrollments = enrollments.filter(e => e.nim === user.nim);
       const enrichedClasses = userEnrollments.map(enrollment => {
         const classDetails = classes.find(c => c.id === enrollment.parallelClassId);
         if (!classDetails) {

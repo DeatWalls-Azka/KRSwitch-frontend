@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import api, { getCurrentUser } from '../../api';
+import api from '../../api';
+import { useAuth } from '../../context/AuthContext';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import {
   Command,
@@ -57,23 +58,11 @@ const SidebarLink = ({ to, icon: Icon, label, active }: SidebarLinkProps) => (
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    getCurrentUser()
-      .then(res => setUser(res.data))
-      .catch(console.error);
-  }, []);
 
   const handleLogout = async () => {
-    try {
-      await api.post('/auth/logout');
-      navigate('/login');
-    } catch (err) {
-      console.error('Logout failed:', err);
-      navigate('/login');
-    }
+    await logout();
   };
 
   const navItems: NavItem[] = [
