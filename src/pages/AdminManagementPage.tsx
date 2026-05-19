@@ -11,10 +11,13 @@ import {
   Loader2,
   Fingerprint,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Edit2,
+  Trash2
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
+import { Switch } from '../components/ui/switch';
 import type { User } from '../types';
 
 // --- Komponen Utama -------------------------------------------
@@ -243,31 +246,33 @@ export default function AdminManagementPage() {
                         )}
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <button
-                          disabled={isMe}
-                          onClick={() => handleToggleStatus(admin)}
-                          className={`relative inline-flex h-4 w-8 items-center rounded-full transition-colors focus:outline-none border-0 ${isMe ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${admin.isActive ? 'bg-emerald-500' : 'bg-muted-foreground/30'}`}
-                        >
-                          <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${admin.isActive ? 'translate-x-4' : 'translate-x-1'}`} />
-                        </button>
+                        <div className="flex justify-center items-center">
+                          <Switch
+                            checked={admin.isActive}
+                            disabled={isMe}
+                            onCheckedChange={() => handleToggleStatus(admin)}
+                          />
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-right space-x-2">
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-6 w-6"
+                          className="h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10"
                           onClick={() => setEditAdmin(admin)}
+                          title="Edit Admin"
                         >
-                          
+                          <Edit2 size={12} />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-6 w-6 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                          className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                           disabled={isMe}
                           onClick={() => handleDelete(admin)}
+                          title="Delete Admin"
                         >
-                          
+                          <Trash2 size={12} />
                         </Button>
                       </td>
                     </tr>
