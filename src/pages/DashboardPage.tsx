@@ -764,7 +764,7 @@ export default function DashboardPage() {
         {/* Isi drawer */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Filter row */}
-          <div className="flex items-center gap-1 px-4 py-2 bg-gray-50 border-b border-gray-200 shrink-0 overflow-x-auto [&::-webkit-scrollbar]:hidden">
+          <div className="flex items-center justify-end gap-1 px-4 py-2 bg-gray-50 border-b border-gray-200 shrink-0 overflow-x-auto [&::-webkit-scrollbar]:hidden">
             <FilterButton
               label="ALL"
               isActive={!filterByCourse && !filterForYou && !filterByYou}

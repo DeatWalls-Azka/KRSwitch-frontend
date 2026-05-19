@@ -160,7 +160,7 @@ export default function TradeConfirmationModal({
 
   const primaryButtonText = isCancel
     ? (isProcessing ? 'MEMBATALKAN...' : successMessage ? 'DIBATALKAN' : 'BATALKAN')
-    : (isProcessing ? 'MENERIMA...' : successMessage ? 'SELESAI' : 'TERIMA PERTUKARAN');
+    : (isProcessing ? 'MENERIMA...' : successMessage ? 'SELESAI' : 'TERIMA');
 
   return (
     <div
@@ -191,7 +191,7 @@ export default function TradeConfirmationModal({
               <h3 className="text-lg font-bold text-gray-900">
                 {isCancel ? 'Batalkan' : 'Konfirmasi Pertukaran'}
               </h3>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 mt-1 text-wrap-balance" style={{ textWrap: 'balance' }}>
                 {isCancel
                   ? 'Apakah Anda yakin ingin membatalkan penawaran ini?'
                   : 'Apakah Anda yakin ingin menerima pertukaran ini?'}

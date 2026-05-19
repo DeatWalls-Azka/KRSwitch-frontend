@@ -2,6 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { getEnrollments, getClasses, createOffer } from '../../api';
 import { useAuth } from '../../context/AuthContext';
 import type { ParallelClass, User } from '../../types';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
+import { cn } from '../../lib/utils';
 
 // --- Types ----------------------------------------------------
 
@@ -158,7 +166,7 @@ export default function CreateOfferForm({ onSuccess, onClose }: CreateOfferFormP
       onKeyDown={handleKeyDown}
       onClick={handleBackdropClick}
     >
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4 md:px-0">
         <div
           className={`bg-white rounded-lg shadow-2xl relative ${isClosing ? 'animate-popDown' : 'animate-popUp'}`}
           onClick={(e) => e.stopPropagation()}
@@ -182,62 +190,69 @@ export default function CreateOfferForm({ onSuccess, onClose }: CreateOfferFormP
 
             <div className="space-y-4">
               <div>
-                <label className="block text-xs  text-gray-500 font-bold mb-1">
+                <label className="block text-xs text-gray-500 font-bold mb-1">
                   Kelas Saya
                 </label>
-                <select
-                  className="w-full bg-gray-50 text-gray-900 text-sm p-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none disabled:opacity-50"
+                <Select
                   value={selectedMyClass}
-                  onChange={(e) => {
-                    setSelectedMyClass(e.target.value);
+                  onValueChange={(val) => {
+                    setSelectedMyClass(val);
                     setSelectedTargetClass('');
                     setError('');
                   }}
-                  required
                   disabled={loading || myClasses.length === 0}
                 >
-                  <option value="">
-                    {myClasses.length === 0 ? '-- Loading...' : '-- Pilih Kelas --'}
-                  </option>
-                  {myClasses.map(c => (
-                    <option key={c.id} value={c.id}>
-                      {c.courseName} ({c.classCode}) - {c.day}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="w-full bg-gray-50/50">
+                    <SelectValue placeholder={myClasses.length === 0 ? '-- Loading...' : '-- Pilih Kelas --'} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {myClasses.map(c => (
+                      <SelectItem key={c.id} value={c.id.toString()}>
+                        {c.courseName} ({c.classCode}) - {c.day}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
-                <label className="block text-xs  text-gray-500 font-bold mb-1">
+                <label className="block text-xs text-gray-500 font-bold mb-1">
                   Tukar Ke
                 </label>
-                <select
-                  className={`w-full bg-gray-50 text-gray-900 text-sm p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 outline-none disabled:opacity-50 ${
-                    selectedTargetHasConflict ? 'border-red-400 bg-red-50' : 'border-gray-200'
-                  }`}
+                <Select
                   value={selectedTargetClass}
-                  onChange={(e) => {
-                    setSelectedTargetClass(e.target.value);
+                  onValueChange={(val) => {
+                    setSelectedTargetClass(val);
                     setError('');
                   }}
-                  required
                   disabled={!selectedMyClass || loading}
                 >
-                  <option value="">
-                    {!selectedMyClass
-                      ? '-- Pilih kelas sumber dulu --'
-                      : availableTargets.length === 0
-                      ? '-- Tidak ada kelas lain --'
-                      : '-- Pilih Target --'}
-                  </option>
-                  {availableTargets.map(c => (
-                    <option key={c.id} value={c.id}>
-                      {c.conflictWith
-                        ? `<!> ${c.classCode} - ${c.day}, ${c.timeStart} [bentrok dengan ${c.conflictWith.courseCode}-${c.conflictWith.classCode}]`
-                        : `${c.classCode} - ${c.day}, ${c.timeStart} (${c.room})`}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger
+                    className={cn(
+                      "w-full bg-gray-50/50",
+                      selectedTargetHasConflict && "border-red-400 bg-red-50/30 focus:ring-red-500 focus:border-red-500 text-red-900"
+                    )}
+                  >
+                    <SelectValue
+                      placeholder={
+                        !selectedMyClass
+                          ? '-- Pilih kelas sumber dulu --'
+                          : availableTargets.length === 0
+                          ? '-- Tidak ada kelas lain --'
+                          : '-- Pilih Target --'
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableTargets.map(c => (
+                      <SelectItem key={c.id} value={c.id.toString()}>
+                        {c.conflictWith
+                          ? `⚠️ ${c.classCode} - ${c.day}, ${c.timeStart} [bentrok]`
+                          : `${c.classCode} - ${c.day}, ${c.timeStart} (${c.room})`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
                 {selectedTargetHasConflict && (
                   <p className="mt-1.5 text-xs text-red-600 font-bold">
@@ -269,7 +284,7 @@ export default function CreateOfferForm({ onSuccess, onClose }: CreateOfferFormP
               disabled={loading || !selectedTargetClass || !!successMessage}
               className="flex-1 bg-green-600 text-white text-sm font-bold py-3 px-4 rounded hover:bg-green-700 active:bg-green-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              {loading ? 'MENGIRIM...' : successMessage ? 'COMPLETED' : 'KIRIM TAWARAN'}
+              {loading ? 'MENGIRIM...' : successMessage ? 'COMPLETED' : 'POST'}
             </button>
           </div>
         </div>
