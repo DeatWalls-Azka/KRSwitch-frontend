@@ -49,7 +49,10 @@ export default function AdminPage() {
     const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
       transports: ['websocket']
     });
-    getSocketToken().then(res => socket.emit('authenticate', res.data.token)).catch(console.error);
+    
+    socket.on('connect', () => {
+      getSocketToken().then(res => socket.emit('authenticate', res.data.token)).catch(console.error);
+    });
     
     socket.on('online-count', (count: number) => {
       setStats(prev => ({ ...prev, onlineCount: count }));

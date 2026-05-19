@@ -41,14 +41,14 @@ export function useSocket({
   const [onlineCount, setOnlineCount] = useState(0);
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  // Token dikirim terpisah karena currentUser diload async setelah socket connect
+  // Token dikirim terpisah karena currentUser diload async setelah socket connect, dan harus dikirim ulang tiap kali socket reconnect
   useEffect(() => {
-    if (currentUser && socketRef.current) {
+    if (currentUser && isConnected && socketRef.current) {
       getSocketToken()
         .then(res => socketRef.current?.emit('authenticate', res.data.token))
         .catch(console.error);
     }
-  }, [currentUser]);
+  }, [currentUser, isConnected]);
 
   useEffect(() => {
     const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {

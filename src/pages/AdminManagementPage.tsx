@@ -66,7 +66,10 @@ export default function AdminManagementPage() {
     const socket = io((import.meta as any).env.VITE_API_URL || 'http://localhost:5000', {
       transports: ['websocket']
     });
-    getSocketToken().then(res => socket.emit('authenticate', res.data.token)).catch(console.error);
+    
+    socket.on('connect', () => {
+      getSocketToken().then(res => socket.emit('authenticate', res.data.token)).catch(console.error);
+    });
 
     socket.on('superadmin-user-created', fetchAdmins);
     socket.on('superadmin-user-updated', fetchAdmins);
