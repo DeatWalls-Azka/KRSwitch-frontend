@@ -39,7 +39,7 @@ export default function DashboardPage() {
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [selectedSessionType, setSelectedSessionType] = useState('kuliah');
   const [filterByCourse, setFilterByCourse] = useState(false);
-  const [filterForYou, setFilterForYou] = useState(false);
+  const [filterForYou, setFilterForYou] = useState(true);
   const [filterByYou, setFilterByYou] = useState(false);
   const [modalOffer, setModalOffer] = useState<EnrichedOffer | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -47,6 +47,27 @@ export default function DashboardPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
+
+  // Dynamic empty state message depending on active filters
+  const emptyStateText = useMemo(() => {
+    const courseCode = selectedCourse?.code || 'this course';
+    if (filterByYou) {
+      if (filterByCourse) {
+        return `You haven't created any barter offers for course ${courseCode}`;
+      }
+      return "You haven't created any barter offers";
+    }
+    if (filterForYou) {
+      if (filterByCourse) {
+        return `No active barter offers for course ${courseCode} matching your schedule`;
+      }
+      return "No active barter offers matching your schedule";
+    }
+    if (filterByCourse) {
+      return `No active barter offers for course ${courseCode}`;
+    }
+    return "No active barter offers on the trading floor";
+  }, [filterByCourse, filterForYou, filterByYou, selectedCourse?.code]);
 
   // State drawer mobile
   // null berarti ditutup (ada di bawah), number berarti posisi Y dalam pixel dari atas saat di-drag
@@ -477,6 +498,8 @@ export default function DashboardPage() {
     );
   });
 
+
+
   // Konten live barter feed bersama (dipakai di panel desktop & drawer mobile)
   const barterFeedContent = (
     <>
@@ -508,7 +531,7 @@ export default function DashboardPage() {
           );
         })
       ) : (
-        <p className="text-center py-10 px-5 text-gray-500 text-sm">No active offers</p>
+        <p className="text-center py-10 px-5 text-gray-400 text-xs italic font-medium tracking-wide">{emptyStateText}</p>
       )}
     </>
   );
@@ -550,7 +573,7 @@ export default function DashboardPage() {
             selectedSessionType={selectedSessionType}
             onSessionTypeSelect={setSelectedSessionType}
           />
-          <div ref={cardScrollContainerRef} className="flex-1 flex gap-1 overflow-x-auto overflow-y-hidden p-4 bg-gray-50">
+          <div ref={cardScrollContainerRef} className="flex-1 flex gap-1 overflow-x-auto overflow-y-hidden p-2 md:p-4 bg-gray-50">
             {filteredClasses.map((pc, index) => {
               const isUserClass = myEnrollmentMap[`${selectedCourse.code}-${pc.classCode[0]}`] === pc.classCode;
               const card = (
@@ -585,15 +608,38 @@ export default function DashboardPage() {
                 <h2 className="text-xs font-bold text-gray-900">LIVE BARTER FEED PANEL</h2>
                 <h1 className="text-[11px] font-medium text-gray-600">Real Time: {offersToDisplay.length} Offers</h1>
               </div>
-              <button onClick={() => setFilterByCourse(!filterByCourse)} className="bg-transparent border-0 cursor-pointer">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-600">
-                  <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-                </svg>
-              </button>
-              <p className="text-[11px] font-bold text-gray-600">:</p>
-              <FilterButton label={selectedCourse.code} isActive={filterByCourse} onClick={() => setFilterByCourse(!filterByCourse)} />
-              <FilterButton label="FOR YOU" isActive={filterForYou} onClick={() => setFilterForYou(!filterForYou)} />
-              <FilterButton label="BY YOU" isActive={filterByYou} onClick={() => setFilterByYou(!filterByYou)} />
+              <FilterButton
+                label="ALL"
+                isActive={!filterByCourse && !filterForYou && !filterByYou}
+                onClick={() => {
+                  setFilterByCourse(false);
+                  setFilterForYou(false);
+                  setFilterByYou(false);
+                }}
+              />
+              <FilterButton
+                label={selectedCourse?.code || 'MATKUL'}
+                isActive={filterByCourse}
+                onClick={() => setFilterByCourse(!filterByCourse)}
+              />
+              <FilterButton
+                label="BY YOU"
+                isActive={filterByYou}
+                onClick={() => {
+                  const newVal = !filterByYou;
+                  setFilterByYou(newVal);
+                  if (newVal) setFilterForYou(false);
+                }}
+              />
+              <FilterButton
+                label="FOR YOU"
+                isActive={filterForYou}
+                onClick={() => {
+                  const newVal = !filterForYou;
+                  setFilterForYou(newVal);
+                  if (newVal) setFilterByYou(false);
+                }}
+              />
             </div>
           </div>
 
@@ -719,18 +765,38 @@ export default function DashboardPage() {
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Filter row */}
           <div className="flex items-center gap-1 px-4 py-2 bg-gray-50 border-b border-gray-200 shrink-0 overflow-x-auto [&::-webkit-scrollbar]:hidden">
-            <button
+            <FilterButton
+              label="ALL"
+              isActive={!filterByCourse && !filterForYou && !filterByYou}
+              onClick={() => {
+                setFilterByCourse(false);
+                setFilterForYou(false);
+                setFilterByYou(false);
+              }}
+            />
+            <FilterButton
+              label={selectedCourse?.code || 'MATKUL'}
+              isActive={filterByCourse}
               onClick={() => setFilterByCourse(!filterByCourse)}
-              className="shrink-0 bg-transparent border-0 cursor-pointer"
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-600">
-                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-              </svg>
-            </button>
-            <p className="text-[11px] font-bold text-gray-600 shrink-0">:</p>
-            <FilterButton label={selectedCourse.code} isActive={filterByCourse} onClick={() => setFilterByCourse(!filterByCourse)} />
-            <FilterButton label="FOR YOU" isActive={filterForYou} onClick={() => setFilterForYou(!filterForYou)} />
-            <FilterButton label="BY YOU" isActive={filterByYou} onClick={() => setFilterByYou(!filterByYou)} />
+            />
+            <FilterButton
+              label="BY YOU"
+              isActive={filterByYou}
+              onClick={() => {
+                const newVal = !filterByYou;
+                setFilterByYou(newVal);
+                if (newVal) setFilterForYou(false);
+              }}
+            />
+            <FilterButton
+              label="FOR YOU"
+              isActive={filterForYou}
+              onClick={() => {
+                const newVal = !filterForYou;
+                setFilterForYou(newVal);
+                if (newVal) setFilterByYou(false);
+              }}
+            />
           </div>
 
           {/* Offer list */}

@@ -49,13 +49,13 @@ export default function CourseTabs({ courses, selectedCourse, onCourseSelect }: 
   return (
     <div
       ref={containerRef}
-      className="border-b border-gray-200 flex flex-row bg-white flex-shrink-0 px-4 relative overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+      className="border-b border-gray-200 flex flex-row bg-white flex-shrink-0 px-2 md:px-4 relative overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
     >
       {courses.map((course, index) => (
         <button
           key={course.code}
           ref={el => { tabsRef.current[index] = el; }}
-          className={`min-w-[120px] bg-transparent border-0 cursor-pointer px-4 py-2.5 transition-colors duration-150 flex-shrink-0 ${
+          className={`min-w-[120px] bg-transparent border-0 cursor-pointer px-3 py-2.5 md:px-4 md:py-2.5 transition-colors duration-150 flex-shrink-0 ${
             selectedCourse?.code === course.code
               ? 'bg-green-50'
               : 'hover:bg-gray-100 active:bg-gray-100'

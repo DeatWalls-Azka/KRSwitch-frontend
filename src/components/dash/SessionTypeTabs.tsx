@@ -47,12 +47,12 @@ export default function SessionTypeTabs({ courseType, selectedSessionType, onSes
   }, [selectedSessionType, tabs]);
 
   return (
-    <div className="flex bg-gray-50 px-4 border-b border-gray-200 flex-shrink-0 relative overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+    <div className="flex bg-gray-50 px-2 md:px-4 border-b border-gray-200 flex-shrink-0 relative overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       {tabs.map((tab, index) => (
         <button
           key={tab.id}
           ref={el => { tabsRef.current[index] = el; }}
-          className={`min-w-[120px] flex-shrink-0 bg-transparent border-0 cursor-pointer px-4 py-1.5 text-xs font-bold transition-all duration-150 ${
+          className={`min-w-[120px] flex-shrink-0 bg-transparent border-0 cursor-pointer px-3 py-2 md:px-4 md:py-1.5 text-xs font-bold transition-all duration-150 ${
             selectedSessionType === tab.id
               ? 'text-gray-900 bg-green-50'
               : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 active:bg-gray-100'
