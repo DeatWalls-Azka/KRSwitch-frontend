@@ -136,52 +136,75 @@ export default function BarterCard({
         <div className={`border p-2 flex items-center rounded-md shadow-xs transition-all duration-150 ease-out ${
           isUnavailable 
             ? 'border-gray-200/60 bg-gray-50/50 opacity-60 grayscale-[30%] hover:opacity-85 cursor-default' 
-            : `border-gray-200 bg-white ${buttonDisabled ? 'cursor-default' : 'cursor-pointer hover:border-gray-300'}`
+            : `border-gray-200 bg-white ${buttonDisabled ? 'cursor-default' : 'cursor-pointer hover:border-gray-300 hover:shadow-xs'}`
         } ${animationClasses}`}>
-          {/* Grid 3 kolom: 1fr kiri, auto tengah, 1fr kanan, menjamin bagian tengah selalu simetris dengan jarak yang sama */}
-          <div className="grid w-full items-center gap-2" style={{ gridTemplateColumns: '1fr auto 1fr' }}>
+          
+          {/* Grid 3 kolom: 1.2fr kiri (Course), auto tengah (Badge), 1.2fr kanan (Partner Avatar + Info) */}
+          <div className="grid w-full items-center gap-2" style={{ gridTemplateColumns: '1.2fr auto 1.2fr' }}>
 
-            {/* Left Course Name*/}
-            <div className="min-w-0 pr-6">
-              <div className={`truncate font-bold text-[12px] md:hidden ${isUnavailable ? 'text-gray-400 font-medium' : 'text-gray-900'}`} title={offer.seekingCourseName}>
-                {offer.seekingCourseName}
-              </div>
-              <div className={`font-semibold font-mono text-[10px] truncate md:hidden ${isUnavailable ? 'text-gray-300' : 'text-gray-400'}`}>{offer.studentName}</div>
-
-              <div className={`hidden md:block truncate font-bold text-[12px] ${isUnavailable ? 'text-gray-400 font-medium' : 'text-gray-900'}`} title={offer.seekingCourseName}>
-                {offer.seekingCourseName}
-              </div>
-              <div className={`hidden md:block font-semibold font-sans text-[10px] truncate ${isUnavailable ? 'text-gray-300' : 'text-gray-400'}`}>{offer.studentName}</div>
-            </div>
-
-            {/* Middle codes */}
-            <div className="flex flex-col items-center justify-center leading-none mt-[-2px]">
-              <div className="flex items-center justify-center gap-2">
-                <span className={`font-black text-sm ${isUnavailable ? 'text-red-400/70' : 'text-red-600'}`}>{offer.offeringClass}</span>
-                <span className="text-gray-400 font-black text-sm">⇌</span>
-                <span className={`font-black text-sm ${isUnavailable ? 'text-green-400/70' : 'text-green-600'}`}>{offer.seekingClass}</span>
-              </div>
-              <span className={`font-black text-[10px] whitespace-nowrap mt-1 ${isUnavailable ? 'text-gray-300' : 'text-gray-400'}`}>{offer.seekingCourse}</span>
-            </div>
-
-            {/* Right button*/}
-            <div className="flex justify-end min-w-0 items-center">
-              <button
-                onClick={handleButtonClick}
-                disabled={buttonDisabled}
-                title={conflictsWithSchedule ? 'Jadwal bertabrakan dengan kelas lain' : ''}
-                className={`hidden md:block ${buttonColor} text-white text-[11px] font-black pb-1 pt-1.5 my-1 border-0 cursor-pointer transition-colors rounded-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400 w-full max-w-[100px]`}
+            {/* Left Column: Seeking Course Info */}
+            <div className="min-w-0 pr-4 text-left">
+              <div 
+                className={`truncate font-bold text-[12px] leading-tight ${isUnavailable ? 'text-gray-400 font-medium' : 'text-gray-900'}`} 
+                title={offer.seekingCourseName}
               >
-                {buttonText}
-              </button>
-
-              {/* Mobile Chevron (only visible if card is clickable) */}
-              {!buttonDisabled && (
-                <svg className="md:hidden w-4 h-4 text-green-600 animate-pulse mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
-                </svg>
-              )}
+                {offer.seekingCourseName}
+              </div>
+              <div className={`font-semibold font-mono text-[9px] mt-0.5 tracking-wider ${isUnavailable ? 'text-gray-300' : 'text-gray-400'}`}>
+                {offer.seekingCourse}
+              </div>
             </div>
+
+            {/* Middle Column: Swap Badge */}
+            <div className="flex flex-col items-center justify-center leading-none">
+              <div className={`flex items-center justify-center gap-1.5 px-2.5 py-1 rounded border transition-colors ${
+                isUnavailable 
+                  ? 'bg-gray-100/50 border-gray-200/40' 
+                  : 'bg-gray-50 border-gray-100 hover:bg-gray-100'
+              }`}>
+                <span className={`font-black text-[11px] ${isUnavailable ? 'text-red-400/70' : 'text-red-600'}`}>{offer.offeringClass}</span>
+                <span className="text-gray-400 font-bold text-[10px]">⇌</span>
+                <span className={`font-black text-[11px] ${isUnavailable ? 'text-green-400/70' : 'text-green-600'}`}>{offer.seekingClass}</span>
+              </div>
+            </div>
+
+            {/* Right Column: Student Details + Avatar */}
+            <div className="flex items-center justify-end gap-2 min-w-0 pl-4">
+              {/* Partner identity */}
+              <div className="text-right min-w-0">
+                <div 
+                  className={`truncate font-bold text-[11px] leading-tight ${isUnavailable ? 'text-gray-400 font-medium' : 'text-gray-800'}`} 
+                  title={offer.studentName}
+                >
+                  {offer.studentName}
+                </div>
+                <div className={`font-mono text-[9px] mt-0.5 tracking-wider truncate ${isUnavailable ? 'text-gray-300' : 'text-gray-400'}`}>
+                  {offer.nim}
+                </div>
+              </div>
+
+              {/* Avatar Circle */}
+              <div className="shrink-0">
+                {offer.offerer?.picture ? (
+                  <img 
+                    src={offer.offerer.picture} 
+                    alt={offer.studentName} 
+                    className={`w-7 h-7 rounded-full object-cover border transition-opacity ${
+                      isUnavailable ? 'border-gray-200/50 opacity-60' : 'border-gray-200'
+                    }`}
+                  />
+                ) : (
+                  <div className={`w-7 h-7 rounded-full font-bold text-[9px] flex items-center justify-center border transition-all ${
+                    isUnavailable 
+                      ? 'bg-gray-100/50 text-gray-400 border-gray-200/30' 
+                      : 'bg-green-50 text-green-700 border-green-200'
+                  }`}>
+                    {getInitials(offer.studentName)}
+                  </div>
+                )}
+              </div>
+            </div>
+
           </div>
 
         </div>
@@ -189,3 +212,14 @@ export default function BarterCard({
     </div>
   );
 }
+
+// --- Helpers --------------------------------------------------
+
+const getInitials = (name: string) => {
+  if (!name) return '';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+  return parts[0][0].toUpperCase();
+};
