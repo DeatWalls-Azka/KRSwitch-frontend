@@ -5,6 +5,7 @@ import Header from '../components/dash/Header';
 import CourseTabs from '../components/dash/CourseTabs';
 import SessionTypeTabs from '../components/dash/SessionTypeTabs';
 import ClassCard from '../components/dash/ClassCard';
+import CompactClassCard from '../components/dash/CompactClassCard';
 import BarterCard from '../components/dash/BarterCard';
 import TradeConfirmationModal from '../components/dash/TradeConfirmationModal';
 import NotificationModal from '../components/dash/NotificationModal';
@@ -50,24 +51,26 @@ export default function DashboardPage() {
 
   // Dynamic empty state message depending on active filters
   const emptyStateText = useMemo(() => {
-    const courseCode = selectedCourse?.code || 'this course';
+    const isKelasSaya = selectedCourse?.type === -1;
+    const courseText = isKelasSaya ? 'your enrolled courses' : `course ${selectedCourse?.code || 'this course'}`;
+
     if (filterByYou) {
       if (filterByCourse) {
-        return `You haven't created any barter offers for course ${courseCode}`;
+        return `You haven't created any barter offers for ${courseText}`;
       }
       return "You haven't created any barter offers";
     }
     if (filterForYou) {
       if (filterByCourse) {
-        return `No active barter offers for course ${courseCode} matching your schedule`;
+        return `No active barter offers for ${courseText} matching your schedule`;
       }
       return "No active barter offers matching your schedule";
     }
     if (filterByCourse) {
-      return `No active barter offers for course ${courseCode}`;
+      return `No active barter offers for ${courseText}`;
     }
     return "No active barter offers on the trading floor";
-  }, [filterByCourse, filterForYou, filterByYou, selectedCourse?.code]);
+  }, [filterByCourse, filterForYou, filterByYou, selectedCourse?.code, selectedCourse?.type]);
 
   // State drawer mobile
   // null berarti ditutup (ada di bawah), number berarti posisi Y dalam pixel dari atas saat di-drag
@@ -98,6 +101,7 @@ export default function DashboardPage() {
   // Ref buat nengahin kartu di mobile
   const userCardRef = useRef<HTMLDivElement | null>(null);
   const cardScrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const lastRealCourseTypeRef = useRef<number>(0); // frozen type for SessionTypeTabs during Kelas Saya
 
   // --- Data ---------------------------------------------------
   const {
@@ -111,12 +115,13 @@ export default function DashboardPage() {
 
   // --- Derived / Komputasi ------------------------------------
   const courses = useMemo<Course[]>(() => {
-    return [...new Set(parallelClasses.map(pc => pc.courseCode))].map(code => {
+    const defaultCourses = [...new Set(parallelClasses.map(pc => pc.courseCode))].map(code => {
       const group = parallelClasses.filter(pc => pc.courseCode === code);
       const type = group.some(c => c.classCode.startsWith('P')) ? 1
         : group.some(c => c.classCode.startsWith('R')) ? 2 : 0;
       return { code, name: group[0].courseName, type };
     });
+    return [{ code: 'Kelas Saya', name: 'My Enrollments', type: -1 }, ...defaultCourses];
   }, [parallelClasses]);
 
   const enrichedOffers = useMemo(() => {
@@ -145,7 +150,14 @@ export default function DashboardPage() {
   const shouldBeVisibleIds = useMemo(() => {
     return new Set(enrichedOffers.filter(offer => {
       // 1. Filter berdasarkan mata kuliah
-      if (filterByCourse && offer.seekingCourse !== selectedCourse?.code) return false;
+      if (filterByCourse) {
+        if (selectedCourse?.type === -1) {
+          const isEnrolledInCourse = Object.keys(myEnrollmentMap).some(key => key.startsWith(`${offer.seekingCourse}-`));
+          if (!isEnrolledInCourse) return false;
+        } else {
+          if (offer.seekingCourse !== selectedCourse?.code) return false;
+        }
+      }
 
       // 2. Filter bikinan kamu sendiri
       if (filterByYou && offer.nim !== currentUser?.nim) return false;
@@ -172,7 +184,7 @@ export default function DashboardPage() {
 
       return true;
     }).map(o => o.id));
-  }, [enrichedOffers, filterByCourse, filterForYou, filterByYou, selectedCourse?.code, myEnrollmentMap, currentUser?.nim, enrollments, parallelClasses]);
+  }, [enrichedOffers, filterByCourse, filterForYou, filterByYou, selectedCourse?.code, selectedCourse?.type, myEnrollmentMap, currentUser?.nim, enrollments, parallelClasses]);
 
   const unreadCount = useMemo(() => notifications.filter(n => !n.read).length, [notifications]);
 
@@ -198,8 +210,16 @@ export default function DashboardPage() {
   }, [courses, selectedCourse]);
 
   useEffect(() => {
-    setSelectedSessionType('kuliah');
-  }, [selectedCourse?.code]);
+    if (selectedCourse?.type === -1) {
+      // Don't touch selectedSessionType — keep it frozen so SessionTypeTabs doesn't jank
+      setFilterByCourse(false);
+    } else {
+      if (selectedCourse?.type !== undefined) {
+        lastRealCourseTypeRef.current = selectedCourse.type;
+      }
+      setSelectedSessionType('kuliah');
+    }
+  }, [selectedCourse?.code, selectedCourse?.type]);
 
   // --- Tengahkan kartu kelas user di mobile abis animasi kartu beres ---
   useEffect(() => {
@@ -226,6 +246,22 @@ export default function DashboardPage() {
   }, [selectedCourse?.code, selectedSessionType, myEnrollmentMap]);
 
   // --- Handler ------------------------------------------------
+  const handleCompactCardClick = (pc: any) => { // pc is ParallelClass but type might not be imported, use any or just infer
+    const targetCourse = courses.find(c => c.code === pc.courseCode);
+    if (targetCourse) {
+      setSelectedCourse(targetCourse);
+      const prefix = pc.classCode[0].toLowerCase();
+      if (prefix === 'k') setSelectedSessionType('kuliah');
+      else if (prefix === 'p') setSelectedSessionType('praktikum');
+      else if (prefix === 'r') setSelectedSessionType('responsi');
+      
+      setFilterByCourse(true);
+      setFilterForYou(false);
+      setFilterByYou(false);
+      setDrawerY(null); // Close drawer if on mobile
+    }
+  };
+
   const handleExitClick = (offerId: number) => {
     if (animationLockRef.current) return;
     startExitAnimation([offerId]);
@@ -489,6 +525,9 @@ export default function DashboardPage() {
   if (!selectedCourse || !currentUser) return null;
 
   const filteredClasses = parallelClasses.filter(pc => {
+    if (selectedCourse.type === -1) {
+      return enrollments.some(e => e.nim === currentUser?.nim && e.parallelClassId === pc.id);
+    }
     if (pc.courseCode !== selectedCourse.code) return false;
     const prefix = pc.classCode[0].toLowerCase();
     return (
@@ -568,13 +607,39 @@ export default function DashboardPage() {
 
         {/* Kelas paralel */}
         <div className="flex-1 min-w-0 md:border-r border-gray-200 flex flex-col overflow-hidden pb-16 md:pb-0">
-          <SessionTypeTabs
-            courseType={selectedCourse.type}
-            selectedSessionType={selectedSessionType}
-            onSessionTypeSelect={setSelectedSessionType}
-          />
-          <div ref={cardScrollContainerRef} className="flex-1 flex gap-1 overflow-x-auto overflow-y-hidden p-2 md:p-4 bg-gray-50">
+          <div
+            className={`grid transition-[grid-template-rows,border-color] duration-300 ease-in-out shrink-0 border-b ${
+              selectedCourse.type === -1 ? 'grid-rows-[0fr] border-transparent' : 'grid-rows-[1fr] border-gray-200'
+            }`}
+          >
+            <div className="overflow-hidden">
+              <SessionTypeTabs
+                courseType={selectedCourse.type === -1 ? lastRealCourseTypeRef.current : selectedCourse.type}
+                selectedSessionType={selectedSessionType}
+                onSessionTypeSelect={setSelectedSessionType}
+              />
+            </div>
+          </div>
+          <div ref={cardScrollContainerRef} className={`flex-1 overflow-x-auto overflow-y-auto p-2 md:p-4 bg-gray-50 ${selectedCourse.type === -1 ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[2px] md:gap-2 content-start' : 'flex gap-1 overflow-y-hidden'}`}>
             {filteredClasses.map((pc, index) => {
+              if (selectedCourse.type === -1) {
+                return (
+                  <CompactClassCard
+                    key={pc.id}
+                    index={index}
+                    classItem={{
+                      code: pc.classCode,
+                      courseCode: pc.courseCode,
+                      courseName: pc.courseName,
+                      day: pc.day,
+                      time: `${pc.timeStart}-${pc.timeEnd}`,
+                      room: pc.room,
+                    }}
+                    onClick={() => handleCompactCardClick(pc)}
+                  />
+                );
+              }
+
               const isUserClass = myEnrollmentMap[`${selectedCourse.code}-${pc.classCode[0]}`] === pc.classCode;
               const card = (
                 <ClassCard
@@ -617,11 +682,13 @@ export default function DashboardPage() {
                   setFilterByYou(false);
                 }}
               />
-              <FilterButton
-                label={selectedCourse?.code || 'MATKUL'}
-                isActive={filterByCourse}
-                onClick={() => setFilterByCourse(!filterByCourse)}
-              />
+              {selectedCourse?.type !== -1 && (
+                <FilterButton
+                  label={selectedCourse?.code || 'MATKUL'}
+                  isActive={filterByCourse}
+                  onClick={() => setFilterByCourse(!filterByCourse)}
+                />
+              )}
               <FilterButton
                 label="BY YOU"
                 isActive={filterByYou}
@@ -774,11 +841,13 @@ export default function DashboardPage() {
                 setFilterByYou(false);
               }}
             />
-            <FilterButton
-              label={selectedCourse?.code || 'MATKUL'}
-              isActive={filterByCourse}
-              onClick={() => setFilterByCourse(!filterByCourse)}
-            />
+            {selectedCourse?.type !== -1 && (
+              <FilterButton
+                label={selectedCourse?.code || 'MATKUL'}
+                isActive={filterByCourse}
+                onClick={() => setFilterByCourse(!filterByCourse)}
+              />
+            )}
             <FilterButton
               label="BY YOU"
               isActive={filterByYou}

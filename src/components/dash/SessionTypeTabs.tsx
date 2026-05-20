@@ -21,9 +21,11 @@ export default function SessionTypeTabs({ courseType, selectedSessionType, onSes
   const tabsRef = useRef<(HTMLButtonElement | null)[]>([]);
 
   const tabs = useMemo<TabItem[]>(() => [
-    { id: 'kuliah', label: 'KULIAH (K)' },
-    ...(courseType === 1 ? [{ id: 'praktikum', label: 'PRAKTIKUM (P)' }] : []),
-    ...(courseType === 2 ? [{ id: 'responsi',  label: 'RESPONSI (R)'  }] : []),
+    ...(courseType === -1 ? [{ id: 'all', label: 'ALL' }] : [
+      { id: 'kuliah', label: 'KULIAH (K)' },
+      ...(courseType === 1 ? [{ id: 'praktikum', label: 'PRAKTIKUM (P)' }] : []),
+      ...(courseType === 2 ? [{ id: 'responsi',  label: 'RESPONSI (R)'  }] : []),
+    ])
   ], [courseType]);
 
   useEffect(() => {
@@ -47,7 +49,7 @@ export default function SessionTypeTabs({ courseType, selectedSessionType, onSes
   }, [selectedSessionType, tabs]);
 
   return (
-    <div className="flex bg-gray-50 px-2 md:px-4 border-b border-gray-200 flex-shrink-0 relative overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+    <div className="flex bg-gray-50 px-2 md:px-4 flex-shrink-0 relative overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       {tabs.map((tab, index) => (
         <button
           key={tab.id}
