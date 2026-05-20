@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import MarbotBanner from '../assets/MarbotBanner.jpg';
-import NetworkBackground from '../components/NetworkBackground';
+import { useAuth } from '../../context/AuthContext';
+import MarbotBanner from '../../assets/MarbotBanner.jpg';
+import NetworkBackground from '../../components/NetworkBackground';
 
 // --- Types & Constants ----------------------------------------
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { EnrichedOffer } from '../../types';
+import type { EnrichedOffer } from '../../../types';
 
 // --- Types ----------------------------------------------------
 

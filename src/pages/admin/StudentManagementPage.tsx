@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import api, { getSocketToken } from '../api';
+import api, { getSocketToken } from '../../api';
 import { io } from 'socket.io-client';
-import { useTableKeyboardPagination } from '../hooks/useTableKeyboardPagination';
+import { useTableKeyboardPagination } from '../../hooks/useTableKeyboardPagination';
 
 // IMPORT TAB
-import KrsTab from '../components/admin/tabs/KrsTab';
-import BarterTab from '../components/admin/tabs/BarterTab';
-import AkunTab from '../components/admin/tabs/AkunTab';
-import OverrideTab from '../components/admin/tabs/OverrideTab';
+import EnrollmentTab from '../../components/admin/tabs/EnrollmentTab';
+import BarterTab from '../../components/admin/tabs/BarterTab';
+import AccountTab from '../../components/admin/tabs/AccountTab';
+import OverrideTab from '../../components/admin/tabs/OverrideTab';
 
-import AddStudentModal from '../components/admin/modals/AddStudentModal';
-import ExportRecapCard from '../components/admin/ExportRecapCard';
-import AdminModal from '../components/admin/AdminModal';
+import AddStudentModal from '../../components/admin/modals/AddStudentModal';
+import ExportRecapCard from '../../components/admin/ExportRecapCard';
+import AdminModal from '../../components/admin/modals/AdminModal';
 
 import {
   UserPlus,
@@ -22,8 +22,8 @@ import {
   Loader2,
   GraduationCap
 } from 'lucide-react';
-import { Card, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
+import { Card, CardHeader, CardTitle } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
 
 // --- Konstanta ------------------------------------------------
 
@@ -387,7 +387,7 @@ export default function StudentManagementPage() {
             ) : selectedStudent ? (
               <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                 {activeTab === 'KRS' && (
-                  <KrsTab
+                  <EnrollmentTab
                     student={{ ...selectedStudent, courses: selectedStudent.enrollments || [] }}
                     onRefresh={refreshSelectedStudent}
                   />
@@ -404,7 +404,7 @@ export default function StudentManagementPage() {
                   />
                 )}
                 {activeTab === 'Akun' && (
-                  <AkunTab
+                  <AccountTab
                     student={selectedStudent}
                     onRefresh={refreshSelectedStudent}
                   />

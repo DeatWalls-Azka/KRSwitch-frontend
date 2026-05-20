@@ -3,22 +3,18 @@ import api from '../../../api';
 import { User, Mail, Hash, Save, Trash2, Loader2 } from 'lucide-react';
 import { Button } from '../../ui/button';
 
-// --- Types ----------------------------------------------------
-
 interface Student {
   nim: string;
   name: string;
   email: string | null;
 }
 
-interface AkunTabProps {
+interface AccountTabProps {
   student: Student;
   onRefresh?: (updatedNim?: string) => void;
 }
 
-// --- Komponen Utama -------------------------------------------
-
-const AkunTab = ({ student, onRefresh }: AkunTabProps) => {
+export default function AccountTab({ student, onRefresh }: AccountTabProps) {
   const [nim, setNim] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -36,7 +32,7 @@ const AkunTab = ({ student, onRefresh }: AkunTabProps) => {
 
   const handleUpdateProfile = async () => {
     if (!nim || !name) {
-      return alert('NIM dan Nama tidak boleh kosong!');
+      return alert('Student ID (NIM) and Name cannot be empty!');
     }
 
     setIsSaving(true);
@@ -46,11 +42,11 @@ const AkunTab = ({ student, onRefresh }: AkunTabProps) => {
         newName: name,
         newEmail: email
       });
-      alert('Profil mahasiswa berhasil diperbarui!');
+      alert('Student profile successfully updated!');
       if (onRefresh) onRefresh(nim.toUpperCase());
     } catch (error: any) {
-      console.error("Gagal update profil:", error);
-      alert(error.response?.data?.error || "Gagal memperbarui profil.");
+      console.error("Failed to update profile:", error);
+      alert(error.response?.data?.error || "Failed to update profile.");
     } finally {
       setIsSaving(false);
     }
@@ -58,18 +54,18 @@ const AkunTab = ({ student, onRefresh }: AkunTabProps) => {
 
   const handleDelete = async () => {
     const confirmDelete = window.confirm(
-      `PERINGATAN: Anda akan menghapus total mahasiswa ${student.name} (${student.nim}).\n\nSeluruh data KRS dan tawaran barter yang bersangkutan akan hilang selamanya.\n\nLanjutkan?`
+      `WARNING: You are about to completely delete student ${student.name} (${student.nim}).\n\nAll associated enrollment records and active barter offers will be permanently purged.\n\nDo you want to continue?`
     );
 
     if (confirmDelete) {
       setIsDeleting(true);
       try {
         await api.delete(`/api/admin/users/${student.nim}`);
-        alert('Mahasiswa berhasil dihapus dari sistem.');
+        alert('Student successfully purged from system.');
         window.location.reload();
       } catch (error: any) {
-        console.error('Gagal menghapus mahasiswa:', error);
-        alert(error.response?.data?.error || 'Terjadi kesalahan saat menghapus mahasiswa.');
+        console.error('Failed to purge student:', error);
+        alert(error.response?.data?.error || 'An error occurred while deleting the student.');
       } finally {
         setIsDeleting(false);
       }
@@ -80,7 +76,7 @@ const AkunTab = ({ student, onRefresh }: AkunTabProps) => {
 
   return (
     <div className="space-y-6">
-      {/* Info profil mahasiswa */}
+      {/* Student Profile Info */}
       <div className="flex items-center gap-5 p-5 bg-muted/5 border border-border/50 rounded-md shadow-sm">
         <div className="w-12 h-12 rounded bg-background shadow-sm flex items-center justify-center text-xl font-bold text-emerald-600 border border-border/50 shrink-0">
           {student.name?.substring(0, 1).toUpperCase()}
@@ -106,7 +102,7 @@ const AkunTab = ({ student, onRefresh }: AkunTabProps) => {
         </div>
       </div>
 
-      {/* Formulir edit */}
+      {/* Edit Form */}
       <div className="space-y-5">
         <div className="flex items-center gap-2 border-b border-border/40 pb-3">
           <User size={14} className="text-emerald-700" />
@@ -171,9 +167,6 @@ const AkunTab = ({ student, onRefresh }: AkunTabProps) => {
           </Button>
         </div>
       </div>
-
     </div>
   );
-};
-
-export default AkunTab;
+}

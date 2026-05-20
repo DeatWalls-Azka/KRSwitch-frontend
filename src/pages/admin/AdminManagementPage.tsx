@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import api, { getSocketToken } from '../api';
+import api, { getSocketToken } from '../../api';
 import { io } from 'socket.io-client';
-import { useTableKeyboardPagination } from '../hooks/useTableKeyboardPagination';
-import AddAdminModal from '../components/admin/modals/AddAdminModal';
-import EditAdminModal from '../components/admin/modals/EditAdminModal';
+import { useTableKeyboardPagination } from '../../hooks/useTableKeyboardPagination';
+import AddAdminModal from '../../components/admin/modals/AddAdminModal';
+import EditAdminModal from '../../components/admin/modals/EditAdminModal';
 import {
   UserPlus,
   Search,
@@ -15,10 +15,10 @@ import {
   Edit2,
   Trash2
 } from 'lucide-react';
-import { Card, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Switch } from '../components/ui/switch';
-import type { User } from '../types';
+import { Card, CardHeader, CardTitle } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Switch } from '../../components/ui/switch';
+import type { User } from '../../types';
 
 // --- Komponen Utama -------------------------------------------
 

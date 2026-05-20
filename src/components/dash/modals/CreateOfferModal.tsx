@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { getEnrollments, getClasses, createOffer } from '../../api';
-import { useAuth } from '../../context/AuthContext';
-import type { ParallelClass, User } from '../../types';
+import { getEnrollments, getClasses, createOffer } from '../../../api';
+import { useAuth } from '../../../context/AuthContext';
+import type { ParallelClass, User } from '../../../types';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../ui/select';
-import { cn } from '../../lib/utils';
+} from '../../ui/select';
+import { cn } from '../../../utils/styleUtils';
 
 // --- Types ----------------------------------------------------
 

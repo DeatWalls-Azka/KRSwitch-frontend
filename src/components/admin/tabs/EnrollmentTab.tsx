@@ -11,8 +11,6 @@ import {
   SelectValue,
 } from "../../ui/select";
 
-// --- Types ----------------------------------------------------
-
 interface ParallelClass {
   id: number;
   courseCode: string;
@@ -45,14 +43,12 @@ interface SiblingClass {
   timeEnd: string;
 }
 
-interface KrsTabProps {
+interface EnrollmentTabProps {
   student: Student;
   onRefresh?: () => void;
 }
 
-// --- Komponen Utama -------------------------------------------
-
-const KrsTab = ({ student, onRefresh }: KrsTabProps) => {
+export default function EnrollmentTab({ student, onRefresh }: EnrollmentTabProps) {
   const [modifiedClasses, setModifiedClasses] = useState<Record<string, number>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [siblingClasses, setSiblingClasses] = useState<Record<string, SiblingClass[]>>({});
@@ -74,7 +70,7 @@ const KrsTab = ({ student, onRefresh }: KrsTabProps) => {
         });
         setSiblingClasses(map);
       } catch (err) {
-        console.error('Gagal mengambil daftar kelas:', err);
+        console.error('Failed to fetch class list:', err);
       }
     };
 
@@ -104,8 +100,8 @@ const KrsTab = ({ student, onRefresh }: KrsTabProps) => {
       setModifiedClasses({});
       if (onRefresh) onRefresh();
     } catch (error: any) {
-      console.error('Gagal menyimpan perubahan KRS:', error);
-      alert(error.response?.data?.error || 'Terjadi kesalahan saat menyimpan.');
+      console.error('Failed to save enrollment changes:', error);
+      alert(error.response?.data?.error || 'An error occurred while saving.');
     } finally {
       setIsProcessing(false);
     }
@@ -150,7 +146,7 @@ const KrsTab = ({ student, onRefresh }: KrsTabProps) => {
                         </span>
                       )}
                     </div>
-                    <h5 className="text-[11px] font-bold text-foreground leading-tight line-clamp-1 uppercase tracking-tight">{courseName || 'Mata Kuliah'}</h5>
+                    <h5 className="text-[11px] font-bold text-foreground leading-tight line-clamp-1 uppercase tracking-tight">{courseName || 'Course'}</h5>
                   </div>
                 </div>
                 
@@ -213,6 +209,4 @@ const KrsTab = ({ student, onRefresh }: KrsTabProps) => {
       )}
     </div>
   );
-};
-
-export default KrsTab;
+}

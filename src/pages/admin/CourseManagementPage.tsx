@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import api, { getSocketToken } from '../api';
+import api, { getSocketToken } from '../../api';
 import { io } from 'socket.io-client';
-import { useTableKeyboardPagination } from '../hooks/useTableKeyboardPagination';
+import { useTableKeyboardPagination } from '../../hooks/useTableKeyboardPagination';
 
-import AddCourseModal from '../components/admin/modals/AddCourseModal';
-import ExportRecapCard from '../components/admin/ExportRecapCard';
+import AddCourseModal from '../../components/admin/modals/AddCourseModal';
+import ExportRecapCard from '../../components/admin/ExportRecapCard';
 
 import {
   Plus,
@@ -18,9 +18,9 @@ import {
   Trash2,
   Edit2
 } from 'lucide-react';
-import { Card, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { Card, CardHeader, CardTitle } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 
 // --- Konstanta ------------------------------------------------
 

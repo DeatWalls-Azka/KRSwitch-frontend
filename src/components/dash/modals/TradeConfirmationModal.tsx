@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { takeOffer, deleteOffer } from '../../api';
+import { takeOffer, deleteOffer } from '../../../api';
 
 // --- Types ----------------------------------------------------
 

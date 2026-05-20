@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
-import type { Enrollment, ParallelClass, User } from '../../types';
+import type { Enrollment, ParallelClass, User } from '../../../types';
 
 // --- Konstan & Helpers ----------------------------------------
 

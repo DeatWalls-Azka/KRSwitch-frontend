@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import api from '../api';
-import AdminWizardCard from "../components/admin/AdminWizardCard";
-import SystemStatsCard from "../components/admin/SystemStatsCard";
-import AdminLogTable from '../components/admin/AdminLogTable';
+import api from '../../api';
+import AdminWizardCard from "../../components/admin/AdminWizardCard";
+import SystemStatsCard from "../../components/admin/SystemStatsCard";
+import AdminLogTable from '../../components/admin/AdminLogTable';
 import { io } from 'socket.io-client';
-import { getSocketToken } from '../api';
+import { getSocketToken } from '../../api';
 
 // --- Types ----------------------------------------------------
 

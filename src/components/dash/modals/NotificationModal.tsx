@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { ParallelClass } from '../../types';
+import type { ParallelClass } from '../../../types';
 
 // --- Types ----------------------------------------------------
 

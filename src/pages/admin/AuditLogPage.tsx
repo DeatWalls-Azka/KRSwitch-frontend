@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import AdminLogTable from '../components/admin/AdminLogTable';
+import AdminLogTable from '../../components/admin/AdminLogTable';
 
 export default function AuditLogPage() {
   useEffect(() => {
