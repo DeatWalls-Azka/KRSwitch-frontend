@@ -110,8 +110,8 @@ export default function TradingPage() {
 
   if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-gray-600">Loading...</div>
+      <div className="h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
       </div>
     );
   }
@@ -161,13 +161,13 @@ export default function TradingPage() {
           );
         })
       ) : (
-        <p className="text-center py-10 px-5 text-gray-400 text-xs italic font-medium tracking-wide">{emptyStateText}</p>
+        <p className="text-center py-10 px-5 text-gray-400 dark:text-gray-500 text-xs italic font-medium tracking-wide">{emptyStateText}</p>
       )}
     </>
   );
 
   return (
-    <div className="h-[100dvh] flex flex-col bg-gray-50 overflow-hidden">
+    <div className="h-[100dvh] flex flex-col bg-gray-50 dark:bg-gray-950 overflow-hidden">
       <title>Dashboard Barter | KRSwitch</title>
       <meta name="description" content="Ajukan penawaran barter dan pantau live feed jadwal kelas yang aktif." />
       <DashboardHeader

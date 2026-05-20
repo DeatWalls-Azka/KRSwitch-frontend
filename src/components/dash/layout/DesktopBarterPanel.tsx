@@ -29,12 +29,12 @@ export default function DesktopBarterPanel({
   children
 }: DesktopBarterPanelProps) {
   return (
-    <div className="hidden md:flex w-[470px] shrink-0 bg-white flex-col overflow-hidden border-l border-gray-200">
-      <div className="flex flex-col items-left px-4 py-3 bg-gray-50 shrink-0 border-b border-gray-200">
+    <div className="hidden md:flex w-[470px] shrink-0 bg-white dark:bg-gray-900 flex-col overflow-hidden border-l border-gray-200 dark:border-gray-800">
+      <div className="flex flex-col items-left px-4 py-3 bg-gray-50 dark:bg-gray-900 shrink-0 border-b border-gray-200 dark:border-gray-800">
         <div className="flex flex-row gap-1 items-center">
           <div className="mr-auto flex flex-col items-left">
-            <h2 className="text-xs font-bold text-gray-900">LIVE BARTER FEED PANEL</h2>
-            <h1 className="text-[11px] font-medium text-gray-600">Real Time: {offersCount} Offers</h1>
+            <h2 className="text-xs font-bold text-gray-900 dark:text-gray-100">LIVE BARTER FEED PANEL</h2>
+            <h1 className="text-[11px] font-medium text-gray-600 dark:text-gray-400">Real Time: {offersCount} Offers</h1>
           </div>
           <FilterButton
             label="ALL"
@@ -73,11 +73,11 @@ export default function DesktopBarterPanel({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+      <div className="flex-1 overflow-y-auto p-4 bg-gray-50 dark:bg-gray-950">
         {children}
       </div>
 
-      <div className="p-4 bg-gray-50 border-t border-gray-200">
+      <div className="p-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
         <button
           onClick={onOpenCreateOffer}
           className="w-full bg-green-600 text-white text-[11px] font-bold py-2 px-2.5 border-0 cursor-pointer hover:bg-green-700 active:bg-green-800 transition-colors rounded-sm"

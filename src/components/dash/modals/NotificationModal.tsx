@@ -71,31 +71,31 @@ function NotificationRow({ notification, parallelClasses }: NotificationRowProps
     newClassCode = data?.yourNewClass?.classCode || '-';
     const counterpartLabel = type === 'barter_auto_matched' ? 'dengan' : (type === 'barter_matched_as_offerer' ? 'oleh' : 'dari');
     const counterpartName = (type === 'barter_auto_matched' ? data?.counterpartName : (type === 'barter_matched_as_offerer' ? data?.takerName : data?.offererName)) || '-';
-    subText = <span><span className="text-red-500 font-semibold">{oldClassCode}</span>{' ⇌ '}<span className="text-green-600 font-semibold">{newClassCode}</span>{' · '}{counterpartLabel} <span className="text-gray-700 font-semibold">{counterpartName}</span></span>;
+    subText = <span><span className="text-red-500 font-semibold">{oldClassCode}</span>{' ⇌ '}<span className="text-green-600 dark:text-emerald-500 font-semibold">{newClassCode}</span>{' · '}{counterpartLabel} <span className="text-gray-700 dark:text-gray-300 font-semibold">{counterpartName}</span></span>;
     showSwapDetails = true;
   } else if (type === 'barter_cancelled') {
     title = 'Penawaran Dibatalkan';
     oldClassCode = data?.classCode || '-';
-    subText = <span>Dibatalkan oleh Anda · <span className="text-gray-700 font-semibold">{courseCode}</span></span>;
+    subText = <span>Dibatalkan oleh Anda · <span className="text-gray-700 dark:text-gray-300 font-semibold">{courseCode}</span></span>;
   } else if (type === 'admin_barter_cancelled') {
     title = 'Penawaran Dibatalkan';
     oldClassCode = data?.classCode || '-';
-    subText = <span>Dibatalkan oleh <span className="text-blue-600 font-semibold">Admin</span> · <span className="text-gray-700 font-semibold">{courseCode}</span></span>;
+    subText = <span>Dibatalkan oleh <span className="text-blue-600 dark:text-blue-400 font-semibold">Admin</span> · <span className="text-gray-700 dark:text-gray-300 font-semibold">{courseCode}</span></span>;
   } else if (type === 'admin_enrollment_updated') {
     title = 'Jadwal Diubah';
     oldClassCode = data?.oldClassCode || '-';
     newClassCode = data?.newClassCode || '-';
-    subText = <span>Diubah oleh <span className="text-blue-600 font-semibold">Admin</span> · <span className="text-gray-700 font-semibold">{courseCode}</span></span>;
+    subText = <span>Diubah oleh <span className="text-blue-600 dark:text-blue-400 font-semibold">Admin</span> · <span className="text-gray-700 dark:text-gray-300 font-semibold">{courseCode}</span></span>;
     showSwapDetails = true;
   } else if (type === 'admin_enrollment_deleted') {
     title = 'Jadwal Dihapus';
     oldClassCode = data?.classCode || '-';
-    subText = <span>Dihapus oleh <span className="text-blue-600 font-semibold">Admin</span> · <span className="text-gray-700 font-semibold">{courseCode}</span></span>;
+    subText = <span>Dihapus oleh <span className="text-blue-600 dark:text-blue-400 font-semibold">Admin</span> · <span className="text-gray-700 dark:text-gray-300 font-semibold">{courseCode}</span></span>;
   } else if (type === 'admin_override_swap') {
     title = 'Override Swap Berhasil';
     oldClassCode = data?.oldClassCode || '-';
     newClassCode = data?.newClassCode || '-';
-    subText = <span>Di-swap oleh <span className="text-blue-600 font-semibold">Admin</span> dengan <span className="text-gray-700 font-semibold">{data?.counterpartName || '-'}</span></span>;
+    subText = <span>Di-swap oleh <span className="text-blue-600 dark:text-blue-400 font-semibold">Admin</span> dengan <span className="text-gray-700 dark:text-gray-300 font-semibold">{data?.counterpartName || '-'}</span></span>;
     showSwapDetails = true;
   }
 
@@ -108,7 +108,7 @@ function NotificationRow({ notification, parallelClasses }: NotificationRowProps
   };
 
   // Border + ping color
-  const borderColor = read ? 'border-gray-200' : (isAdminAction ? 'border-blue-300' : (isCancelled ? 'border-red-300' : 'border-green-300'));
+  const borderColor = read ? 'border-gray-200 dark:border-gray-800' : (isAdminAction ? 'border-blue-300 dark:border-blue-800' : (isCancelled ? 'border-red-300 dark:border-red-800' : 'border-green-300 dark:border-emerald-800'));
   const pingColor = isAdminAction ? 'bg-blue-500' : (isCancelled ? 'bg-red-500' : 'bg-green-500');
 
   // Format timestamp safely
@@ -117,23 +117,23 @@ function NotificationRow({ notification, parallelClasses }: NotificationRowProps
     : '-';
 
   return (
-    <div className={`border rounded-sm mb-1 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.08)] ${borderColor} bg-white`}>
+    <div className={`border rounded-sm mb-1 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.08)] ${borderColor} bg-white dark:bg-gray-900`}>
 
       {/* Collapsed row */}
       <button
         onClick={handleToggle}
-        className="w-full text-left px-4 py-3.5 flex items-center gap-3 hover:bg-gray-50 transition-colors"
+        className="w-full text-left px-4 py-3.5 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors"
       >
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline justify-between gap-2 mb-1">
             <div className="relative inline-flex shrink min-w-0 items-center gap-1.5">
               {isAdminAction && (
-                <span className="bg-blue-100 text-blue-700 text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0">Admin</span>
+                <span className="bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0">Admin</span>
               )}
               {isCancelled && !isAdminAction && (
-                <span className="bg-red-100 text-red-700 text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0">Batal</span>
+                <span className="bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0">Batal</span>
               )}
-              <span className="text-xs font-bold text-gray-900 truncate block pr-4">
+              <span className="text-xs font-bold text-gray-900 dark:text-gray-100 truncate block pr-4">
                 {title}
               </span>
               {showPing && (
@@ -144,14 +144,14 @@ function NotificationRow({ notification, parallelClasses }: NotificationRowProps
               )}
             </div>
           </div>
-          <p className="text-[11px] text-gray-500 truncate">
+          <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate">
             {subText}
           </p>
         </div>
 
         {/* Timestamp + drop down icon — right aligned, stacked */}
         <div className="flex flex-col items-end justify-center gap-1 shrink-0">
-          <span className="text-[11px] text-gray-400">{timestamp}</span>
+          <span className="text-[11px] text-gray-400 dark:text-gray-500">{timestamp}</span>
           <svg
             width="13"
             height="13"
@@ -161,7 +161,7 @@ function NotificationRow({ notification, parallelClasses }: NotificationRowProps
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className={`text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+            className={`text-gray-400 dark:text-gray-500 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
           >
             <polyline points="6 9 12 15 18 9" />
           </svg>
@@ -177,22 +177,22 @@ function NotificationRow({ notification, parallelClasses }: NotificationRowProps
         }}
       >
         <div style={{ overflow: 'hidden', minHeight: 0 }}>
-          <div className="border-t border-gray-100 bg-white px-4 py-4 space-y-4">
+          <div className="border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-4 space-y-4">
 
             {/* Swap / Action detail */}
-            <div className="border border-gray-100 rounded-sm py-3.5 px-4">
+            <div className="border border-gray-100 dark:border-gray-800 rounded-sm py-3.5 px-4 bg-gray-50 dark:bg-gray-950/20">
               {showSwapDetails ? (
                 <div className="flex items-center justify-center gap-6">
                   <div className="text-center">
-                    <div className="text-[11px] text-gray-400 mb-1">Dilepas</div>
-                    <div className="text-red-600 font-bold text-base">
+                    <div className="text-[11px] text-gray-400 dark:text-gray-500 mb-1">Dilepas</div>
+                    <div className="text-red-600 dark:text-red-500 font-bold text-base">
                       {courseCode}-{oldClassCode}
                     </div>
                   </div>
-                  <div className="text-gray-300 font-bold text-xl">⇌</div>
+                  <div className="text-gray-300 dark:text-gray-600 font-bold text-xl">⇌</div>
                   <div className="text-center">
-                    <div className="text-[11px] text-gray-400 mb-1">Didapat</div>
-                    <div className="text-green-600 font-bold text-base">
+                    <div className="text-[11px] text-gray-400 dark:text-gray-500 mb-1">Didapat</div>
+                    <div className="text-green-600 dark:text-green-500 font-bold text-base">
                       {courseCode}-{newClassCode}
                     </div>
                   </div>
@@ -200,8 +200,8 @@ function NotificationRow({ notification, parallelClasses }: NotificationRowProps
               ) : (
                 <div className="flex items-center justify-center gap-6">
                   <div className="text-center">
-                    <div className="text-[11px] text-gray-400 mb-1">Kelas</div>
-                    <div className="text-gray-800 font-bold text-base">
+                    <div className="text-[11px] text-gray-400 dark:text-gray-500 mb-1">Kelas</div>
+                    <div className="text-gray-800 dark:text-gray-200 font-bold text-base">
                       {courseCode}-{oldClassCode}
                     </div>
                   </div>
@@ -212,7 +212,7 @@ function NotificationRow({ notification, parallelClasses }: NotificationRowProps
             {/* Stale cancelled offers */}
             {data?.staleCancelledOffers && data.staleCancelledOffers.length > 0 && (
               <div className="space-y-2">
-                <div className="text-[11px] text-gray-400 font-bold ">
+                <div className="text-[11px] text-gray-400 dark:text-gray-500 font-bold ">
                   Penawaran Dibatalkan Otomatis
                 </div>
                 {data.staleCancelledOffers.map((stale) => {
@@ -220,10 +220,10 @@ function NotificationRow({ notification, parallelClasses }: NotificationRowProps
                   const wantedClass = parallelClasses.find(pc => pc.id === stale.wantedClassId);
 
                   return (
-                    <div key={stale.offerId} className="flex items-start gap-2 bg-red-50 border border-red-100 rounded-sm px-3 py-2.5">
+                    <div key={stale.offerId} className="flex items-start gap-2 bg-red-50 dark:bg-red-950/10 border border-red-100 dark:border-red-950/30 rounded-sm px-3 py-2.5">
                       <span className="text-red-400 shrink-0 text-xs font-bold">{"<!>"}</span>
-                      <div className="text-[11px] text-gray-600 leading-relaxed">
-                        <span className="font-bold text-gray-800">
+                      <div className="text-[11px] text-gray-600 dark:text-gray-400 leading-relaxed">
+                        <span className="font-bold text-gray-800 dark:text-gray-300">
                           {myClass?.courseCode}-{myClass?.classCode} ⇌ {wantedClass?.classCode}
                         </span>
                         <br />
@@ -273,13 +273,13 @@ export default function NotificationModal({
 
   return (
     <div
-      className={`fixed inset-0 bg-gray-900/60 z-50 flex items-center justify-center p-5 md:p-4 ${isClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`}
+      className={`fixed inset-0 bg-gray-900/60 dark:bg-black/80 z-50 flex items-center justify-center p-5 md:p-4 ${isClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`}
       onClick={handleBackdropClick}
       onKeyDown={handleKeyDown}
     >
       <div className="relative w-[calc(100vw-2.5rem)] md:w-full md:max-w-md">
         <div
-          className={`bg-white rounded-lg shadow-2xl overflow-hidden relative flex flex-col ${isClosing ? 'animate-popDown' : 'animate-popUp'}`}
+          className={`bg-white dark:bg-gray-900 border dark:border-gray-800 rounded-lg shadow-2xl overflow-hidden relative flex flex-col ${isClosing ? 'animate-popDown' : 'animate-popUp'}`}
           style={{ height: '75vh', maxHeight: '680px' }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -287,7 +287,7 @@ export default function NotificationModal({
           <button
             onClick={handleClose}
             aria-label="Tutup notifikasi"
-            className="absolute top-3 right-3 z-20 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
+            className="absolute top-3 right-3 z-20 w-7 h-7 flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="6" x2="6" y2="18" />
@@ -296,10 +296,10 @@ export default function NotificationModal({
           </button>
 
           {/* Panel Header */}
-          <div className="px-5 py-3.5 border-b border-gray-200 flex-shrink-0 pr-12">
+          <div className="px-5 py-3.5 border-b border-gray-200 dark:border-gray-800 flex-shrink-0 pr-12">
             <div className="flex items-center gap-4">
-              <h3 className="text-sm font-bold text-gray-900 shrink-0">History Inbox</h3>
-              <p className="text-[11px] text-gray-500">
+              <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 shrink-0">History Inbox</h3>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400">
                 <span className="hidden md:inline">{notifications.length} total · </span>
                 {unreadCount} belum dibaca
               </p>
@@ -324,8 +324,8 @@ export default function NotificationModal({
           </div>
 
           {/* Panel Footer */}
-          <div className="px-5 py-2.5 border-t border-gray-200 bg-gray-50 flex-shrink-0">
-            <p className="text-[10px] text-gray-400 text-center">
+          <div className="px-5 py-2.5 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/50 flex-shrink-0">
+            <p className="text-[10px] text-gray-400 dark:text-gray-500 text-center">
               Notifikasi ditandai sudah dibaca saat menutup panel ini
             </p>
           </div>

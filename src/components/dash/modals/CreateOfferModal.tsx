@@ -162,20 +162,20 @@ export default function CreateOfferForm({ onSuccess, onClose }: CreateOfferFormP
 
   return (
     <div
-      className={`fixed inset-0 bg-gray-900/60 z-50 p-4 ${isClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`}
+      className={`fixed inset-0 bg-gray-900/60 dark:bg-black/80 z-50 p-4 ${isClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`}
       onKeyDown={handleKeyDown}
       onClick={handleBackdropClick}
     >
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4 md:px-0">
         <div
-          className={`bg-white rounded-lg shadow-2xl relative ${isClosing ? 'animate-popDown' : 'animate-popUp'}`}
+          className={`bg-white dark:bg-gray-900 border dark:border-gray-800 rounded-lg shadow-2xl relative ${isClosing ? 'animate-popDown' : 'animate-popUp'}`}
           onClick={(e) => e.stopPropagation()}
         >
           <button
             onClick={handleClose}
             disabled={loading}
             aria-label="Close modal"
-            className="absolute top-3 right-3 z-10 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="absolute top-3 right-3 z-10 w-7 h-7 flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-250 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="6" x2="6" y2="18" />
@@ -185,12 +185,12 @@ export default function CreateOfferForm({ onSuccess, onClose }: CreateOfferFormP
 
           <div className="space-y-4 mx-8 pt-4">
             <div>
-              <h3 className="text-lg font-bold text-gray-900 text-center">Create New Offer</h3>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 text-center">Create New Offer</h3>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-xs text-gray-500 font-bold mb-1">
+                <label className="block text-xs text-gray-500 dark:text-gray-400 font-bold mb-1">
                   Kelas Saya
                 </label>
                 <Select
@@ -202,7 +202,7 @@ export default function CreateOfferForm({ onSuccess, onClose }: CreateOfferFormP
                   }}
                   disabled={loading || myClasses.length === 0}
                 >
-                  <SelectTrigger className="w-full bg-gray-50/50">
+                  <SelectTrigger className="w-full bg-gray-50/50 dark:bg-gray-950/30 border dark:border-gray-800 dark:text-gray-200">
                     <SelectValue placeholder={myClasses.length === 0 ? '-- Loading...' : '-- Pilih Kelas --'} />
                   </SelectTrigger>
                   <SelectContent>
@@ -216,7 +216,7 @@ export default function CreateOfferForm({ onSuccess, onClose }: CreateOfferFormP
               </div>
 
               <div>
-                <label className="block text-xs text-gray-500 font-bold mb-1">
+                <label className="block text-xs text-gray-500 dark:text-gray-400 font-bold mb-1">
                   Tukar Ke
                 </label>
                 <Select
@@ -229,8 +229,8 @@ export default function CreateOfferForm({ onSuccess, onClose }: CreateOfferFormP
                 >
                   <SelectTrigger
                     className={cn(
-                      "w-full bg-gray-50/50",
-                      selectedTargetHasConflict && "border-red-400 bg-red-50/30 focus:ring-red-500 focus:border-red-500 text-red-900"
+                      "w-full bg-gray-50/50 dark:bg-gray-950/30 border dark:border-gray-800 dark:text-gray-200",
+                      selectedTargetHasConflict && "border-red-400 dark:border-red-500/50 bg-red-50/30 dark:bg-red-950/10 focus:ring-red-500 focus:border-red-500 text-red-900 dark:text-red-400"
                     )}
                   >
                     <SelectValue
@@ -274,7 +274,7 @@ export default function CreateOfferForm({ onSuccess, onClose }: CreateOfferFormP
               type="button"
               onClick={handleClose}
               disabled={loading}
-              className="flex-1 text-sm font-bold py-3 px-4 border border-gray-300 rounded hover:bg-gray-200 transition-colors disabled:opacity-50"
+              className="flex-1 text-sm font-bold py-3 px-4 border border-gray-300 dark:border-gray-700 rounded hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors disabled:opacity-50"
             >
               {successMessage ? 'CLOSE' : 'BATAL'}
             </button>

@@ -1,10 +1,16 @@
+import colors from 'tailwindcss/colors';
+
 export default {
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
+      colors: {
+        gray: colors.neutral,
+      },
       keyframes: {
         'slide-up': {
           'from': {

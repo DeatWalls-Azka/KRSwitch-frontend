@@ -49,7 +49,7 @@ export default function CourseTabs({ courses, selectedCourse, onCourseSelect }: 
   return (
     <div
       ref={containerRef}
-      className="border-b border-gray-200 flex flex-row bg-white flex-shrink-0 px-2 md:px-4 relative overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+      className="border-b border-gray-200 dark:border-gray-800 flex flex-row bg-white dark:bg-gray-900 flex-shrink-0 px-2 md:px-4 relative overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
     >
       {courses.map((course, index) => (
         <button
@@ -57,13 +57,13 @@ export default function CourseTabs({ courses, selectedCourse, onCourseSelect }: 
           ref={el => { tabsRef.current[index] = el; }}
           className={`min-w-[120px] bg-transparent border-0 cursor-pointer px-3 py-2.5 md:px-4 md:py-2.5 transition-colors duration-150 flex-shrink-0 ${
             selectedCourse?.code === course.code
-              ? 'bg-green-50'
-              : 'hover:bg-gray-100 active:bg-gray-100'
+              ? 'bg-green-50 dark:bg-emerald-900/20'
+              : 'hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-100 dark:active:bg-gray-800'
           }`}
           onClick={() => onCourseSelect(course)}
         >
-          <div className="text-xs font-bold text-gray-900">{course.code}</div>
-          <div className="text-[10px] font-semibold text-gray-500 mt-0.5 whitespace-nowrap">{course.name}</div>
+          <div className={`text-xs font-bold ${selectedCourse?.code === course.code ? 'text-gray-900 dark:text-emerald-400' : 'text-gray-900 dark:text-gray-200'}`}>{course.code}</div>
+          <div className={`text-[10px] font-semibold mt-0.5 whitespace-nowrap ${selectedCourse?.code === course.code ? 'text-gray-500 dark:text-emerald-500/70' : 'text-gray-500 dark:text-gray-500'}`}>{course.name}</div>
         </button>
       ))}
 

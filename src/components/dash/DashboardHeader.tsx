@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api';
 import type { User } from '../../types';
+import { useTheme } from '../../context/ThemeContext';
 
 // --- Types ----------------------------------------------------
 
@@ -27,6 +28,8 @@ export default function Header({
   const displayName  = user?.name  || 'Loading...';
   const displayNim   = user?.nim   || '-';
   const displayEmail = user?.email || '';
+
+  const { isDark, toggleTheme } = useTheme();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const fullDropdownRef    = useRef<HTMLDivElement | null>(null);  // full-mode relative wrapper
@@ -75,13 +78,42 @@ export default function Header({
   const dropdownMenuContents = (
     <div style={{ overflow: 'hidden', minHeight: 0 }}>
       {/* Profile info header */}
-      <div className="px-3 py-2.5 border-b border-gray-100">
-        <p className="text-[11px] font-bold text-gray-900 truncate">{displayName}</p>
-        <p className="text-[10px] text-gray-400 truncate mt-0.5">{displayEmail || displayNim}</p>
+      <div className="px-3 py-2.5 border-b border-gray-100 dark:border-gray-800">
+        <p className="text-[11px] font-bold text-gray-900 dark:text-gray-100 truncate">{displayName}</p>
+        <p className="text-[10px] text-gray-400 dark:text-gray-500 truncate mt-0.5">{displayEmail || displayNim}</p>
       </div>
 
       {/* Mobile-only tools (visible only below md screen width) */}
-      <div className="block md:hidden border-b border-gray-100 py-1">
+      <div className="block md:hidden border-b border-gray-100 dark:border-gray-800 py-1">
+        {/* Dark Mode Toggle */}
+        <button
+          role="menuitem"
+          onClick={() => {
+            closeDropdown();
+            toggleTheme();
+          }}
+          className="w-full text-left px-3 py-2 text-[11px] font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors flex items-center gap-2 focus:outline-none focus-visible:bg-gray-50 dark:focus-visible:bg-gray-800 cursor-pointer"
+        >
+          {isDark ? (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/>
+              <line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+              <line x1="18.36" y1="4.22" x2="19.78" y2="5.64"/>
+            </svg>
+          ) : (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          )}
+          THEME
+        </button>
+
         {/* Schedule Option */}
         <button
           role="menuitem"
@@ -89,9 +121,9 @@ export default function Header({
             closeDropdown();
             onOpenSchedule();
           }}
-          className="w-full text-left px-3 py-2 text-[11px] font-bold text-gray-700 hover:bg-gray-50 hover:text-emerald-700 transition-colors flex items-center gap-2 focus:outline-none focus-visible:bg-gray-50 cursor-pointer"
+          className="w-full text-left px-3 py-2 text-[11px] font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors flex items-center gap-2 focus:outline-none focus-visible:bg-gray-50 dark:focus-visible:bg-gray-800 cursor-pointer"
         >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-gray-400 hover:text-emerald-600">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400">
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
             <line x1="16" y1="2" x2="16" y2="6" />
             <line x1="8"  y1="2" x2="8"  y2="6" />
@@ -107,10 +139,10 @@ export default function Header({
             closeDropdown();
             onOpenNotifications();
           }}
-          className="w-full text-left px-3 py-2 text-[11px] font-bold text-gray-700 hover:bg-gray-50 hover:text-emerald-700 transition-colors flex items-center justify-between focus:outline-none focus-visible:bg-gray-50 cursor-pointer"
+          className="w-full text-left px-3 py-2 text-[11px] font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors flex items-center justify-between focus:outline-none focus-visible:bg-gray-50 dark:focus-visible:bg-gray-800 cursor-pointer"
         >
           <div className="flex items-center gap-2 overflow-hidden">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-gray-400 hover:text-emerald-600">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
               <path d="M13.73 21a2 2 0 0 1-3.46 0" />
             </svg>
@@ -129,7 +161,7 @@ export default function Header({
         <button
           role="menuitem"
           onClick={handleLogout}
-          className="w-full text-left px-3 py-2 text-[11px] font-bold text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2 focus:outline-none focus-visible:bg-red-50 cursor-pointer"
+          className="w-full text-left px-3 py-2 text-[11px] font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors flex items-center gap-2 focus:outline-none focus-visible:bg-red-50 dark:focus-visible:bg-red-900/30 cursor-pointer"
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -152,19 +184,19 @@ export default function Header({
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 px-2 py-1.5 md:px-4 md:py-2 flex-shrink-0 flex items-center justify-between">
+    <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-2 py-1.5 md:px-4 md:py-2 flex-shrink-0 flex items-center justify-between">
 
       {/* LEFT — logo + connection status */}
       <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
         <div className="relative inline-flex items-center justify-center">
-          <span className={`relative inline-flex rounded-full w-2 h-2 md:w-2.5 md:h-2.5 ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-300 animate-pulse'}`} />
+          <span className={`relative inline-flex rounded-full w-2 h-2 md:w-2.5 md:h-2.5 ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-300 dark:bg-gray-600 animate-pulse'}`} />
           {isConnected && (
             <span className="animate-ping absolute inline-flex w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-green-400 opacity-75" />
           )}
         </div>
         <div className="flex flex-col">
-          <h1 className="text-base md:text-lg font-bold text-gray-900 leading-tight mb-[-3px]">KRSWITCH</h1>
-          <span className="text-[9px] md:text-[10px] font-semibold text-gray-500 tracking-wide">{onlineCount} Online</span>
+          <h1 className="text-base md:text-lg font-bold text-gray-900 dark:text-white leading-tight mb-[-3px]">KRSWITCH</h1>
+          <span className="text-[9px] md:text-[10px] font-semibold text-gray-500 dark:text-gray-400 tracking-wide">{onlineCount} Online</span>
         </div>
       </div>
 
@@ -173,12 +205,38 @@ export default function Header({
 
         {/* Desktop-only Quick Access Tools (visible only at md and above) */}
         <div className="hidden md:flex items-center gap-2">
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            aria-label="Toggle Dark Mode"
+            title="Toggle Dark Mode"
+            className="relative flex items-center justify-center w-9 h-9 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 dark:focus-visible:ring-gray-600 cursor-pointer"
+          >
+            {isDark ? (
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1" x2="12" y2="3"/>
+                <line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1" y1="12" x2="3" y2="12"/>
+                <line x1="21" y1="12" x2="23" y2="12"/>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                <line x1="18.36" y1="4.22" x2="19.78" y2="5.64"/>
+              </svg>
+            ) : (
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+            )}
+          </button>
+
           {/* Schedule */}
           <button
             onClick={onOpenSchedule}
             aria-label="Lihat jadwal"
             title="Jadwal Kuliah"
-            className="relative flex items-center justify-center w-9 h-9 text-gray-500 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 cursor-pointer"
+            className="relative flex items-center justify-center w-9 h-9 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 dark:focus-visible:ring-gray-600 cursor-pointer"
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -192,7 +250,7 @@ export default function Header({
           <button
             onClick={onOpenNotifications}
             aria-label="Notifications"
-            className="relative flex items-center justify-center w-9 h-9 text-gray-500 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 cursor-pointer"
+            className="relative flex items-center justify-center w-9 h-9 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 dark:focus-visible:ring-gray-600 cursor-pointer"
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
@@ -213,7 +271,7 @@ export default function Header({
             onClick={() => setDropdownOpen(prev => !prev)}
             aria-haspopup="true"
             aria-expanded={dropdownOpen}
-            className="flex items-center justify-between w-full md:w-auto md:min-w-[150px] md:max-w-[200px] px-1.5 md:px-2 h-8 md:h-9 border border-gray-300 rounded-md hover:bg-gray-100 active:bg-gray-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 cursor-pointer overflow-hidden min-w-0"
+            className="flex items-center justify-between w-full md:w-auto md:min-w-[150px] md:max-w-[200px] px-1.5 md:px-2 h-8 md:h-9 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 dark:focus-visible:ring-gray-600 cursor-pointer overflow-hidden min-w-0"
           >
             <div className="flex items-center gap-1.5 md:gap-2 overflow-hidden w-full min-w-0">
               <div className="flex items-center justify-center w-5.5 h-5.5 md:w-6 md:h-6 rounded-[0.35rem] md:rounded-[0.4rem] bg-emerald-600 text-white font-bold text-[9px] md:text-[10px] shrink-0 overflow-hidden">
@@ -224,14 +282,14 @@ export default function Header({
                 )}
               </div>
               <div className="flex flex-col items-start justify-center leading-none overflow-hidden flex-1 pr-1 min-w-0">
-                <span className="text-[10.5px] md:text-[11px] font-bold text-gray-900 block truncate w-full text-left">{displayName}</span>
-                <span className="text-[8.5px] md:text-[9px] text-gray-500 tracking-wide mt-[2.5px] md:mt-[3px] block truncate w-full text-left">{displayNim}</span>
+                <span className="text-[10.5px] md:text-[11px] font-bold text-gray-900 dark:text-gray-100 block truncate w-full text-left">{displayName}</span>
+                <span className="text-[8.5px] md:text-[9px] text-gray-500 dark:text-gray-400 tracking-wide mt-[2.5px] md:mt-[3px] block truncate w-full text-left">{displayNim}</span>
               </div>
             </div>
             <svg
               viewBox="0 0 24 24" fill="none"
               stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-              className={`text-gray-400 shrink-0 w-2 h-2 md:w-2.5 md:h-2.5 transition-transform duration-300 ${dropdownOpen ? 'rotate-180' : ''}`}
+              className={`text-gray-400 dark:text-gray-500 shrink-0 w-2 h-2 md:w-2.5 md:h-2.5 transition-transform duration-300 ${dropdownOpen ? 'rotate-180' : ''}`}
             >
               <polyline points="6 9 12 15 18 9" />
             </svg>
@@ -239,7 +297,7 @@ export default function Header({
 
           {/* Account Dropdown — aligned right so it never overflows compact mobile layouts */}
           <div
-            className="absolute right-0 top-full mt-1.5 w-52 bg-white border border-gray-200 rounded-md shadow-lg z-50 overflow-hidden"
+            className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md shadow-lg z-50 overflow-hidden"
             style={panelStyle}
           >
             {dropdownMenuContents}

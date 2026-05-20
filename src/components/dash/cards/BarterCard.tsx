@@ -136,8 +136,8 @@ export default function BarterCard({
       <div ref={wrapperRef} className="mb-1" onClick={handleCardClick}>
         <div className={`border p-2 flex items-center rounded-md shadow-xs transition-all duration-150 ease-out ${
           isUnavailable 
-            ? 'border-gray-200/40 bg-gray-50/30 opacity-40 grayscale cursor-default' 
-            : `border-gray-200 bg-white ${buttonDisabled ? 'cursor-default' : 'cursor-pointer hover:border-gray-300 hover:shadow-xs'}`
+            ? 'border-gray-200/40 dark:border-gray-800/40 opacity-50 grayscale cursor-default' 
+            : `border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 ${buttonDisabled ? 'cursor-default' : 'cursor-pointer hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-xs'}`
         } ${animationClasses}`}>
           
           {/* Grid 3 kolom: 1.2fr kiri (Course), auto tengah (Badge), 1.2fr kanan (Partner Avatar + Info) */}
@@ -146,12 +146,12 @@ export default function BarterCard({
             {/* Left Column: Seeking Course Info */}
             <div className="min-w-0 pr-4 text-left">
               <div 
-                className={`truncate font-bold text-[12px] leading-tight ${isUnavailable ? 'text-gray-400 font-medium' : 'text-gray-900'}`} 
+                className={`truncate font-bold text-[12px] leading-tight ${isUnavailable ? 'text-gray-400 dark:text-gray-600 font-medium' : 'text-gray-900 dark:text-gray-100'}`} 
                 title={offer.seekingCourseName}
               >
                 {offer.seekingCourseName}
               </div>
-              <div className={`font-semibold font-mono text-[9px] mt-0.5 tracking-wider ${isUnavailable ? 'text-gray-300' : 'text-gray-400'}`}>
+              <div className={`font-semibold font-mono text-[9px] mt-0.5 tracking-wider ${isUnavailable ? 'text-gray-300 dark:text-gray-700' : 'text-gray-400 dark:text-gray-500'}`}>
                 {offer.seekingCourse}
               </div>
             </div>
@@ -160,12 +160,12 @@ export default function BarterCard({
             <div className="flex flex-col items-center justify-center leading-none">
               <div className={`flex items-center justify-center gap-1.5 px-2.5 py-1 rounded border transition-colors ${
                 isUnavailable 
-                  ? 'bg-gray-100/50 border-gray-200/40' 
-                  : 'bg-gray-50 border-gray-100 hover:bg-gray-100'
+                  ? 'bg-gray-100/50 dark:bg-gray-800/30 border-gray-200/40 dark:border-gray-800/40' 
+                  : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'
               }`}>
-                <span className={`font-black text-[11px] ${isUnavailable ? 'text-red-400/70' : 'text-red-600'}`}>{offer.offeringClass}</span>
-                <span className="text-gray-400 font-bold text-[10px]">⇌</span>
-                <span className={`font-black text-[11px] ${isUnavailable ? 'text-green-400/70' : 'text-green-600'}`}>{offer.seekingClass}</span>
+                <span className={`font-black text-[11px] ${isUnavailable ? 'text-red-400/70 dark:text-red-500/50' : 'text-red-600 dark:text-red-500'}`}>{offer.offeringClass}</span>
+                <span className="text-gray-400 dark:text-gray-500 font-bold text-[10px]">⇌</span>
+                <span className={`font-black text-[11px] ${isUnavailable ? 'text-green-400/70 dark:text-green-500/50' : 'text-green-600 dark:text-green-500'}`}>{offer.seekingClass}</span>
               </div>
             </div>
 
@@ -174,12 +174,12 @@ export default function BarterCard({
               {/* Partner identity */}
               <div className="text-right min-w-0">
                 <div 
-                  className={`truncate font-bold text-[11px] leading-tight ${isUnavailable ? 'text-gray-400 font-medium' : 'text-gray-800'}`} 
+                  className={`truncate font-bold text-[11px] leading-tight ${isUnavailable ? 'text-gray-400 dark:text-gray-600 font-medium' : 'text-gray-800 dark:text-gray-200'}`} 
                   title={offer.studentName}
                 >
                   {offer.studentName}
                 </div>
-                <div className={`font-mono text-[9px] mt-0.5 tracking-wider truncate ${isUnavailable ? 'text-gray-300' : 'text-gray-400'}`}>
+                <div className={`font-mono text-[9px] mt-0.5 tracking-wider truncate ${isUnavailable ? 'text-gray-300 dark:text-gray-700' : 'text-gray-400 dark:text-gray-500'}`}>
                   {offer.nim}
                 </div>
               </div>
@@ -192,7 +192,7 @@ export default function BarterCard({
                   picture={offer.offerer?.picture}
                   sizeClassName="w-7 h-7"
                   borderClassName={`border transition-all ${
-                    isUnavailable ? 'border-gray-200/50 opacity-60' : 'border-gray-200 shadow-xs'
+                    isUnavailable ? 'border-gray-200/50 dark:border-gray-800/50 opacity-60' : 'border-gray-200 dark:border-gray-700 shadow-xs'
                   }`}
                 />
               </div>

@@ -53,16 +53,16 @@ export default function ClassCard({
 
   return (
     <div
-      className={`min-w-[300px] max-w-[300px] border rounded-md bg-white flex flex-col h-fit max-h-full flex-shrink-0 transition-all duration-300 ${isCurrentUserInClass
+      className={`min-w-[300px] max-w-[300px] border rounded-md bg-white dark:bg-gray-900 flex flex-col h-fit max-h-full flex-shrink-0 transition-all duration-300 ${isCurrentUserInClass
           ? 'border-2 border-green-600 shadow-md ring-1 ring-green-600/10'
-          : 'border-gray-200 shadow-sm hover:border-gray-300'
+          : 'border-gray-200 dark:border-gray-800 shadow-sm hover:border-gray-300 dark:hover:border-gray-700'
         } ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
         }`}
     >
-      <div className={`p-3 border-b border-gray-200 rounded-t flex-shrink-0 transition-colors duration-300 ${isCurrentUserInClass ? 'bg-green-100' : 'bg-gray-50'
+      <div className={`p-3 border-b border-gray-200 dark:border-gray-800 rounded-t flex-shrink-0 transition-colors duration-300 ${isCurrentUserInClass ? 'bg-green-100 dark:bg-emerald-950/45' : 'bg-gray-50 dark:bg-gray-900/60'
         }`}>
         <div className="flex justify-between items-center">
-          <h3 className={`text-sm font-bold m-0 transition-colors duration-300 ${isCurrentUserInClass ? 'text-green-600' : 'text-gray-800'
+          <h3 className={`text-sm font-bold m-0 transition-colors duration-300 ${isCurrentUserInClass ? 'text-green-600 dark:text-emerald-400' : 'text-gray-800 dark:text-gray-200'
             }`}>{classItem.code}</h3>
           {isCurrentUserInClass && (
             <span className="text-[9px] font-bold text-white bg-green-600 px-2 pt-1 pb-0.5 rounded-sm">
@@ -70,7 +70,7 @@ export default function ClassCard({
             </span>
           )}
         </div>
-        <p className="text-[10px] text-gray-500">{classItem.day} · {classItem.time}{classItem.room ? ` · ${classItem.room}` : ''}</p>
+        <p className="text-[10px] text-gray-500 dark:text-gray-400">{classItem.day} · {classItem.time}{classItem.room ? ` · ${classItem.room}` : ''}</p>
       </div>
 
       <div className="overflow-y-auto flex-1 overscroll-y-contain">
@@ -82,9 +82,9 @@ export default function ClassCard({
           <table className="w-full text-[11px]">
             <thead>
               <tr>
-                <th className="sticky top-0 z-10 bg-white text-gray-400 px-3 py-2 text-left font-semibold border-b border-gray-200 text-[9px] uppercase tracking-wider">#</th>
-                <th className="sticky top-0 z-10 bg-white text-gray-400 px-3 py-2 text-left font-semibold border-b border-gray-200 text-[9px] uppercase tracking-wider">STUDENT</th>
-                <th className="sticky top-0 z-10 bg-white text-gray-400 px-3 py-2 text-left font-semibold border-b border-gray-200 text-[9px] uppercase tracking-wider">NIM</th>
+                <th className="sticky top-0 z-10 bg-white dark:bg-gray-900 text-gray-400 dark:text-gray-500 px-3 py-2 text-left font-semibold border-b border-gray-200 dark:border-gray-800 text-[9px] uppercase tracking-wider">#</th>
+                <th className="sticky top-0 z-10 bg-white dark:bg-gray-900 text-gray-400 dark:text-gray-500 px-3 py-2 text-left font-semibold border-b border-gray-200 dark:border-gray-800 text-[9px] uppercase tracking-wider">STUDENT</th>
+                <th className="sticky top-0 z-10 bg-white dark:bg-gray-900 text-gray-400 dark:text-gray-500 px-3 py-2 text-left font-semibold border-b border-gray-200 dark:border-gray-800 text-[9px] uppercase tracking-wider">NIM</th>
               </tr>
             </thead>
             <tbody>
@@ -96,15 +96,15 @@ export default function ClassCard({
                 return (
                   <tr
                     key={student.nim + idx}
-                    className="hover:bg-gray-50/50 transition-colors duration-150"
+                    className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors duration-150"
                     onMouseEnter={() => hasOffer && onTooltipChange(offer)}
                     onMouseMove={hasOffer ? onMouseMove : undefined}
                     onMouseLeave={() => hasOffer && onTooltipChange(null)}
                   >
-                    <td className={`px-3 py-2 border-t border-gray-100 font-mono text-[11px] ${isCurrentUser ? 'text-gray-900 font-bold' : 'text-gray-400'}`}>
+                    <td className={`px-3 py-2 border-t border-gray-100 dark:border-gray-800 font-mono text-[11px] ${isCurrentUser ? 'text-gray-900 dark:text-gray-100 font-bold' : 'text-gray-400 dark:text-gray-500'}`}>
                       {String(idx + 1).padStart(2, '0')}
                     </td>
-                    <td className="px-3 py-2 border-t border-gray-100 text-[11px]">
+                    <td className="px-3 py-2 border-t border-gray-100 dark:border-gray-800 text-[11px]">
                       <span className="relative flex items-center gap-1">
                         {/* nama - potong jadi ... kalo kepanjangan */}
                         <span
@@ -112,7 +112,7 @@ export default function ClassCard({
                           style={{ maxWidth: '120px' }}
                         >
                           <span
-                            className={`truncate block ${isCurrentUser ? 'font-bold text-gray-900' : 'text-gray-700'}`}
+                            className={`truncate block ${isCurrentUser ? 'font-bold text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'}`}
                             title={student.name}
                           >
                             {student.name}
@@ -126,7 +126,7 @@ export default function ClassCard({
                         </span>
                       </span>
                     </td>
-                    <td className={`px-3 py-2 border-t border-gray-100 font-mono text-[11px] ${isCurrentUser ? 'text-gray-900 font-bold' : 'text-gray-400'}`}>
+                    <td className={`px-3 py-2 border-t border-gray-100 dark:border-gray-800 font-mono text-[11px] ${isCurrentUser ? 'text-gray-900 dark:text-gray-100 font-bold' : 'text-gray-400 dark:text-gray-500'}`}>
                       {student.nim}
                     </td>
                   </tr>

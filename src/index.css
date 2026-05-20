@@ -1,9 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
 @theme {
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   
+  /* Map gray to neutral to remove blue tint */
+  --color-gray-50: var(--color-neutral-50);
+  --color-gray-100: var(--color-neutral-100);
+  --color-gray-200: var(--color-neutral-200);
+  --color-gray-300: var(--color-neutral-300);
+  --color-gray-400: var(--color-neutral-400);
+  --color-gray-500: var(--color-neutral-500);
+  --color-gray-600: var(--color-neutral-600);
+  --color-gray-700: var(--color-neutral-700);
+  --color-gray-800: var(--color-neutral-800);
+  --color-gray-900: var(--color-neutral-900);
+  --color-gray-950: var(--color-neutral-950);
+
   /* Shadcn-like Palette with Emerald Green */
   --color-background: #ffffff;
   --color-foreground: #09090b;
@@ -139,4 +154,8 @@
 }
 .admin-tabs-trigger[data-state='active'] {
   @apply bg-background text-emerald-600 shadow-sm border border-border/20;
+}
+/* Temporarily disable transitions during theme switch to prevent color flashing */
+.theme-switching, .theme-switching * {
+  transition: none !important;
 }

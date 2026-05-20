@@ -288,7 +288,7 @@ export default function MobileBarterDrawer({
 
       <div
         ref={drawerRef}
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white rounded-t-2xl flex flex-col"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-900 rounded-t-2xl flex flex-col"
         style={{
           height: `${windowHeight * 0.88}px`,
           transform: `translateY(${currentY}px)`,
@@ -300,13 +300,12 @@ export default function MobileBarterDrawer({
           <button 
              ref={realButtonRef}
              onClick={(e) => { e.stopPropagation(); setDrawerY(null); }}
-             className="absolute left-1/2 -translate-x-1/2 w-[48px] h-[48px] bg-transparent rounded-full flex items-center justify-center border-0 cursor-pointer pointer-events-auto"
+             className="absolute left-1/2 -translate-x-1/2 w-[48px] h-[48px] bg-transparent rounded-full flex items-center justify-center border-0 cursor-pointer pointer-events-auto text-gray-600 dark:text-gray-400"
              style={{
                 transform: `translateY(${svgY}px)`,
                 transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
                 boxShadow: 'none',
-                pointerEvents: btnProgVal > 0.8 ? 'auto' : 'none',
-                color: '#4b5563'
+                pointerEvents: btnProgVal > 0.8 ? 'auto' : 'none'
              }}
           >
              <svg width="48" height="48" viewBox="-24 -24 48 48" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
@@ -322,10 +321,10 @@ export default function MobileBarterDrawer({
 
         <div className="absolute left-1/2 -translate-x-1/2 top-[-100px] w-[140px] h-[150px] pointer-events-none -z-10">
           <div className="absolute inset-0 pointer-events-none" style={{ filter: 'url(#goo)' }}>
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[80px] h-[30px] bg-white rounded-t-full" />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[80px] h-[30px] bg-white dark:bg-gray-900 rounded-t-full" />
             <div
               ref={liquidDropletRef}
-              className="absolute left-1/2 -translate-x-1/2 w-[40px] h-[40px] bg-white rounded-full"
+              className="absolute left-1/2 -translate-x-1/2 w-[40px] h-[40px] bg-white dark:bg-gray-900 rounded-full"
               style={{
                 transform: `translateY(${dropY}px) scale(${dropScale})`,
                 filter: `blur(${10 * (1 - btnProgVal)}px)`,
@@ -337,13 +336,13 @@ export default function MobileBarterDrawer({
 
         <div
           ref={peekBarRef}
-          className="h-[75px] shrink-0 border-b border-gray-100 flex items-center justify-between px-5 relative z-10 cursor-grab active:cursor-grabbing bg-white rounded-t-2xl pt-2"
+          className="h-[75px] shrink-0 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between px-5 relative z-10 cursor-grab active:cursor-grabbing bg-white dark:bg-gray-900 rounded-t-2xl pt-2"
           onMouseDown={(e) => handleDragStart(e.clientY)}
           onTouchStart={(e) => handleDragStart(e.touches[0].clientY)}
         >
           <div className="flex flex-col items-left">
-            <h2 className="text-xs font-bold text-gray-900 tracking-wide">LIVE BARTER FEED PANEL</h2>
-            <h1 className="text-[11px] font-medium text-gray-600">Real Time: {offersCount} Offers</h1>
+            <h2 className="text-xs font-bold text-gray-900 dark:text-gray-100 tracking-wide">LIVE BARTER FEED PANEL</h2>
+            <h1 className="text-[11px] font-medium text-gray-600 dark:text-gray-400">Real Time: {offersCount} Offers</h1>
           </div>
           <button
             onClick={(e) => {
@@ -356,9 +355,9 @@ export default function MobileBarterDrawer({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto bg-gray-50 relative z-10 overscroll-contain">
+        <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-950 relative z-10 overscroll-contain">
           {/* Row 2: Justified Filters (stretched pills) - Sticky under header when expanded */}
-          <div className="sticky top-0 bg-gray-50 px-4 py-3 z-20 border-b border-gray-200 flex flex-row w-full gap-1 items-center">
+          <div className="sticky top-0 bg-gray-50 dark:bg-gray-950 px-4 py-3 z-20 border-b border-gray-200 dark:border-gray-800 flex flex-row w-full gap-1 items-center">
             <button
               onClick={() => {
                 setFilterByCourse(false);
@@ -367,8 +366,8 @@ export default function MobileBarterDrawer({
               }}
               className={`flex-1 text-center py-1 px-2 text-[11px] font-bold rounded-md border border-solid cursor-pointer transition-colors ${
                 (!filterByCourse && !filterForYou && !filterByYou)
-                  ? 'border-green-600 bg-white text-green-600 hover:bg-green-50 shadow-sm'
-                  : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+                  ? 'border-green-600 bg-white dark:bg-emerald-950/20 text-green-600 dark:text-emerald-400 hover:bg-green-50 dark:hover:bg-emerald-900/10 shadow-sm'
+                  : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'
               }`}
             >
               ALL
@@ -378,8 +377,8 @@ export default function MobileBarterDrawer({
                 onClick={() => setFilterByCourse(!filterByCourse)}
                 className={`flex-1 text-center py-1 px-2 text-[11px] font-bold rounded-md border border-solid cursor-pointer transition-colors ${
                   filterByCourse
-                    ? 'border-green-600 bg-white text-green-600 hover:bg-green-50 shadow-sm'
-                    : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+                    ? 'border-green-600 bg-white dark:bg-emerald-950/20 text-green-600 dark:text-emerald-400 hover:bg-green-50 dark:hover:bg-emerald-900/10 shadow-sm'
+                    : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'
                 }`}
               >
                 {selectedCourseCode || 'MATKUL'}
@@ -393,8 +392,8 @@ export default function MobileBarterDrawer({
               }}
               className={`flex-1 text-center py-1 px-2 text-[11px] font-bold rounded-md border border-solid cursor-pointer transition-colors ${
                 filterByYou
-                  ? 'border-green-600 bg-white text-green-600 hover:bg-green-50 shadow-sm'
-                  : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+                  ? 'border-green-600 bg-white dark:bg-emerald-950/20 text-green-600 dark:text-emerald-400 hover:bg-green-50 dark:hover:bg-emerald-900/10 shadow-sm'
+                  : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'
               }`}
             >
               BY YOU
@@ -407,8 +406,8 @@ export default function MobileBarterDrawer({
               }}
               className={`flex-1 text-center py-1 px-2 text-[11px] font-bold rounded-md border border-solid cursor-pointer transition-colors ${
                 filterForYou
-                  ? 'border-green-600 bg-white text-green-600 hover:bg-green-50 shadow-sm'
-                  : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+                  ? 'border-green-600 bg-white dark:bg-emerald-950/20 text-green-600 dark:text-emerald-400 hover:bg-green-50 dark:hover:bg-emerald-900/10 shadow-sm'
+                  : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'
               }`}
             >
               FOR YOU

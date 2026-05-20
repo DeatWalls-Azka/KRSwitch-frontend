@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import type { Enrollment, ParallelClass, User } from '../../../types';
+import { useTheme } from '../../../context/ThemeContext';
 
 // --- Konstan & Helpers ----------------------------------------
 
@@ -24,8 +25,14 @@ interface ClassTypeStyle {
 }
 
 // K = Kuliah, P = Praktikum, R = Responsi
-function getClassTypeStyle(code: string): ClassTypeStyle {
+function getClassTypeStyle(code: string, isDark: boolean = false): ClassTypeStyle {
   const prefix = code.charAt(0).toUpperCase();
+  if (isDark) {
+    if (prefix === 'K') return { bg: '#1e293b', border: '#60a5fa', text: '#eff6ff', badge: '#3b82f6', label: 'KULIAH' };
+    if (prefix === 'P') return { bg: '#5c4516', border: '#fbbf24', text: '#fffbeb', badge: '#eab308', label: 'PRAKTIKUM' };
+    if (prefix === 'R') return { bg: '#4d2323', border: '#f87171', text: '#fef2f2', badge: '#ef4444', label: 'RESPONSI' };
+    return               { bg: '#27272a', border: '#a1a1aa', text: '#f4f4f5', badge: '#71717a', label: '' };
+  }
   if (prefix === 'K') return { bg: '#DBEAFE', border: '#3B82F6', text: '#1E3A8A', badge: '#3B82F6', label: 'KULIAH' };
   if (prefix === 'P') return { bg: '#FEF08A', border: '#CA8A04', text: '#713F12', badge: '#CA8A04', label: 'PRAKTIKUM' };
   if (prefix === 'R') return { bg: '#FEE2E2', border: '#EF4444', text: '#7F1D1D', badge: '#EF4444', label: 'RESPONSI' };
@@ -195,6 +202,7 @@ export default function ScheduleGraphModal({
   parallelClasses = [], 
   currentUser = null,
 }: ScheduleGraphModalProps) {
+  const { isDark } = useTheme();
   const [isClosing, setIsClosing] = useState(false);
   const [exporting, setExporting] = useState<string | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
@@ -347,21 +355,21 @@ export default function ScheduleGraphModal({
   return (
     <>
       <div
-        className={`fixed inset-0 bg-gray-900/60 z-50 flex items-center justify-center p-5 md:p-4 ${isClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`}
+        className={`fixed inset-0 bg-gray-900/60 dark:bg-black/80 z-50 flex items-center justify-center p-5 md:p-4 ${isClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`}
         onClick={handleClose}
         onMouseMove={e => { mousePos.current = { x: e.clientX, y: e.clientY }; }}
       >
         <div className="relative w-[calc(100vw-2.5rem)] md:w-[60vw]" style={{ height: '80vh' }}>
           <div
             ref={cardRef}
-            className={`bg-white rounded-lg shadow-2xl flex flex-col w-full overflow-hidden h-full ${isClosing ? 'animate-popDown' : 'animate-popUp'}`}
+            className={`bg-white dark:bg-gray-950 rounded-lg shadow-2xl flex flex-col w-full overflow-hidden h-full border dark:border-gray-800 ${isClosing ? 'animate-popDown' : 'animate-popUp'}`}
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center gap-2 px-5 py-2.5 border-b border-gray-200 bg-gray-50 shrink-0">
+            <div className="flex items-center gap-2 px-5 py-2.5 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 shrink-0">
               <div className="min-w-0 flex-1">
-                <h2 className="text-xs font-bold text-gray-900  tracking-wide">JADWAL KULIAH</h2>
-                <p className="text-[11px] text-gray-500 mt-0.5 truncate whitespace-nowrap max-w-full">
+                <h2 className="text-xs font-bold text-gray-900 dark:text-gray-100 tracking-wide">JADWAL KULIAH</h2>
+                <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 truncate whitespace-nowrap max-w-full">
                   {currentUser?.name || '-'} · {mySchedule.length} kelas
                 </p>
               </div>
@@ -372,14 +380,14 @@ export default function ScheduleGraphModal({
                   disabled={!hasSchedule || busy}
                   aria-haspopup="true"
                   aria-expanded={exportOpen}
-                  className="export-btn flex items-center gap-2 px-2.5 h-8 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="export-btn flex items-center gap-2 px-2.5 h-8 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="text-gray-900 dark:text-gray-100" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                     <polyline points="7 10 12 15 17 10" />
                     <line x1="12" y1="15" x2="12" y2="3" />
                   </svg>
-                  <span className="text-[11px] font-bold text-gray-900">EXPORT</span>
+                  <span className="text-[11px] font-bold text-gray-900 dark:text-gray-100">EXPORT</span>
                   <svg
                     width="10"
                     height="10"
@@ -389,7 +397,7 @@ export default function ScheduleGraphModal({
                     strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className={`text-gray-400 transition-transform duration-300 ${exportOpen ? 'rotate-180' : ''}`}
+                    className={`text-gray-400 dark:text-gray-500 transition-transform duration-300 ${exportOpen ? 'rotate-180' : ''}`}
                   >
                     <polyline points="6 9 12 15 18 9" />
                   </svg>
@@ -397,7 +405,7 @@ export default function ScheduleGraphModal({
 
                 <div
                   role="menu"
-                  className="export-panel absolute right-0 top-full mt-1.5 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50 overflow-hidden"
+                  className="export-panel absolute right-0 top-full mt-1.5 w-48 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md shadow-lg z-50 overflow-hidden"
                   style={{
                     display: 'grid',
                     gridTemplateRows: exportOpen ? '1fr' : '0fr',
@@ -407,8 +415,8 @@ export default function ScheduleGraphModal({
                   }}
                 >
                   <div style={{ overflow: 'hidden', minHeight: 0 }}>
-                    <div className="px-3 py-2 border-b border-gray-100">
-                      <p className="text-[10px] font-bold text-gray-400  tracking-wide">Format</p>
+                    <div className="px-3 py-2 border-b border-gray-100 dark:border-gray-800">
+                      <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 tracking-wide">Format</p>
                     </div>
                     <div className="py-1">
                       {exportItems.map(({ key, label, sub, icon, fn }) => (
@@ -417,17 +425,17 @@ export default function ScheduleGraphModal({
                           role="menuitem"
                           onClick={() => { fn(); setExportOpen(false); }}
                           disabled={busy}
-                          className="w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors flex items-center gap-2.5 focus:outline-none focus-visible:bg-gray-50 disabled:opacity-40"
+                          className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2.5 focus:outline-none focus-visible:bg-gray-50 disabled:opacity-40"
                         >
-                          <span className="shrink-0 w-4 flex items-center justify-center text-gray-400">
+                          <span className="shrink-0 w-4 flex items-center justify-center text-gray-400 dark:text-gray-500">
                             {icon}
                           </span>
                           {exporting === key ? (
                             <span className="text-[11px] font-bold text-gray-500">Exporting…</span>
                           ) : (
                             <span className="flex items-baseline gap-1.5">
-                              <span className="text-[11px] font-bold text-gray-800">{label}</span>
-                              <span className="text-[10px] text-gray-400">{sub}</span>
+                              <span className="text-[11px] font-bold text-gray-800 dark:text-gray-200">{label}</span>
+                              <span className="text-[10px] text-gray-400 dark:text-gray-500">{sub}</span>
                             </span>
                           )}
                         </button>
@@ -443,7 +451,7 @@ export default function ScheduleGraphModal({
                 disabled={isClosing}
                 aria-label="Tutup modal"
                 data-export-exclude
-                className="shrink-0 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="shrink-0 w-7 h-7 flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-250 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18" />
@@ -455,7 +463,7 @@ export default function ScheduleGraphModal({
             {/* Grid jadwal */}
             <div className="flex flex-1 min-h-0 overflow-x-auto overflow-y-hidden p-3 pb-4 gap-2 md:overflow-hidden">
               {!hasSchedule ? (
-                <div className="flex flex-1 items-center justify-center text-gray-400 text-sm min-w-0">
+                <div className="flex flex-1 items-center justify-center text-gray-400 dark:text-gray-550 text-sm min-w-0">
                   Tidak ada jadwal.
                 </div>
               ) : (
@@ -470,27 +478,27 @@ export default function ScheduleGraphModal({
                            className="absolute w-full flex justify-end pr-2"
                            style={isFirst ? { top: 0 } : isLast ? { bottom: 0 } : { top: `${pct}%`, transform: 'translateY(-50%)' }}
                         >
-                          <span className="text-[10px] text-gray-400 leading-none whitespace-nowrap">{label}</span>
+                          <span className="text-[10px] text-gray-400 dark:text-gray-500 leading-none whitespace-nowrap">{label}</span>
                         </div>
                       ))}
                     </div>
                   </div>
 
                   {/* Kolom per hari */}
-                  <div className="flex flex-none md:flex-1 min-w-0 w-max md:w-full divide-x divide-gray-200 overflow-hidden border border-gray-200 rounded-sm">
+                  <div className="flex flex-none md:flex-1 min-w-0 w-max md:w-full divide-x divide-gray-200 dark:divide-gray-800 overflow-hidden border border-gray-200 dark:border-gray-800 rounded-sm">
                     {DAYS.map(({ key, label }) => {
                       const dayClasses = scheduleByDay[key] || [];
                       return (
                         <div key={key} className="flex-none w-[110px] sm:w-[128px] md:flex-1 md:min-w-0 flex flex-col overflow-hidden">
-                          <div className="shrink-0 h-9 flex items-center justify-center border-b border-gray-200 bg-gray-50">
-                            <span className={`text-[11px] font-bold   ${dayClasses.length ? 'text-gray-800' : 'text-gray-400'}`}>
+                          <div className="shrink-0 h-9 flex items-center justify-center border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
+                            <span className={`text-[11px] font-bold   ${dayClasses.length ? 'text-gray-800 dark:text-gray-200' : 'text-gray-400 dark:text-gray-600'}`}>
                               {label}
                             </span>
                           </div>
                           <div className="relative flex-1">
                             {/* garis tiap jam */}
                             {HOUR_TICKS.filter(t => !t.isFirst && !t.isLast).map(({ hour, pct }) => (
-                              <div key={hour} className="absolute left-0 right-0 border-t border-gray-100" style={{ top: `${pct}%` }} />
+                              <div key={hour} className="absolute left-0 right-0 border-t border-gray-100 dark:border-gray-800" style={{ top: `${pct}%` }} />
                             ))}
 
                             {/* garis tiap setengah jam, putus-putus */}
@@ -498,12 +506,12 @@ export default function ScheduleGraphModal({
                               <div
                                 key={`${hour}h`}
                                 className="absolute left-0 right-0"
-                                style={{ top: `${toTopPct(hour * 60 + 30)}%`, borderTop: '1px dashed #F0F0F0' }}
+                                style={{ top: `${toTopPct(hour * 60 + 30)}%`, borderTop: isDark ? '1px dashed #27272a' : '1px dashed #F0F0F0' }}
                               />
                             ))}
 
                             {dayClasses.map(pc => {
-                              const s       = getClassTypeStyle(pc.classCode);
+                              const s       = getClassTypeStyle(pc.classCode, isDark);
                               const topPct  = toTopPct(toMinutes(pc.timeStart));
                               const hPct    = toDurationPct(toMinutes(pc.timeEnd) - toMinutes(pc.timeStart));
                               const validHPct = isNaN(hPct) ? 0 : hPct;
@@ -598,9 +606,9 @@ export default function ScheduleGraphModal({
             {/* footer, ga ikut di-export */}
             <div
               data-export-exclude
-              className="px-5 py-2.5 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-3 shrink-0"
+              className="px-5 py-2.5 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 flex items-center justify-between gap-3 shrink-0"
             >
-              <p className="text-[10px] text-gray-400 min-w-0 flex-1">
+              <p className="text-[10px] text-gray-400 dark:text-gray-500 min-w-0 flex-1">
                 Jadwal diperbarui otomatis setelah pertukaran berhasil.
               </p>
 
@@ -610,14 +618,14 @@ export default function ScheduleGraphModal({
                   disabled={!hasSchedule || busy}
                   aria-haspopup="true"
                   aria-expanded={exportOpen}
-                  className="export-btn flex items-center gap-2 px-2.5 h-8 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="export-btn flex items-center gap-2 px-2.5 h-8 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="text-gray-900 dark:text-gray-100" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                     <polyline points="7 10 12 15 17 10" />
                     <line x1="12" y1="15" x2="12" y2="3" />
                   </svg>
-                  <span className="text-[11px] font-bold text-gray-900">EXPORT</span>
+                  <span className="text-[11px] font-bold text-gray-900 dark:text-gray-100">EXPORT</span>
                   <svg
                     width="10"
                     height="10"
@@ -627,7 +635,7 @@ export default function ScheduleGraphModal({
                     strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className={`text-gray-400 transition-transform duration-300 ${exportOpen ? 'rotate-180' : ''}`}
+                    className={`text-gray-400 dark:text-gray-500 transition-transform duration-300 ${exportOpen ? 'rotate-180' : ''}`}
                   >
                     <polyline points="6 9 12 15 18 9" />
                   </svg>
@@ -635,7 +643,7 @@ export default function ScheduleGraphModal({
 
                 <div
                   role="menu"
-                  className="export-panel absolute left-0 bottom-full mb-1.5 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50 overflow-hidden"
+                  className="export-panel absolute left-0 bottom-full mb-1.5 w-48 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md shadow-lg z-50 overflow-hidden"
                   style={{
                     display: 'grid',
                     gridTemplateRows: exportOpen ? '1fr' : '0fr',
@@ -645,8 +653,8 @@ export default function ScheduleGraphModal({
                   }}
                 >
                   <div style={{ overflow: 'hidden', minHeight: 0 }}>
-                    <div className="px-3 py-2 border-b border-gray-100">
-                      <p className="text-[10px] font-bold text-gray-400  tracking-wide">Format</p>
+                    <div className="px-3 py-2 border-b border-gray-100 dark:border-gray-800">
+                      <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 tracking-wide">Format</p>
                     </div>
                     <div className="py-1">
                       {exportItems.map(({ key, label, sub, icon, fn }) => (
@@ -655,17 +663,17 @@ export default function ScheduleGraphModal({
                           role="menuitem"
                           onClick={() => { fn(); setExportOpen(false); }}
                           disabled={busy}
-                          className="w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors flex items-center gap-2.5 focus:outline-none focus-visible:bg-gray-50 disabled:opacity-40"
+                          className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2.5 focus:outline-none focus-visible:bg-gray-50 disabled:opacity-40"
                         >
-                          <span className="shrink-0 w-4 flex items-center justify-center text-gray-400">
+                          <span className="shrink-0 w-4 flex items-center justify-center text-gray-400 dark:text-gray-500">
                             {icon}
                           </span>
                           {exporting === key ? (
                             <span className="text-[11px] font-bold text-gray-500">Exporting…</span>
                           ) : (
                             <span className="flex items-baseline gap-1.5">
-                              <span className="text-[11px] font-bold text-gray-800">{label}</span>
-                              <span className="text-[10px] text-gray-400">{sub}</span>
+                              <span className="text-[11px] font-bold text-gray-800 dark:text-gray-200">{label}</span>
+                              <span className="text-[10px] text-gray-400 dark:text-gray-500">{sub}</span>
                             </span>
                           )}
                         </button>

@@ -64,12 +64,12 @@ export default function MainClassGrid({
   }, [selectedCourse?.code, selectedSessionType, myEnrollmentMap]);
 
   return (
-    <div className="flex-1 min-w-0 md:border-r border-gray-200 flex flex-col overflow-hidden pb-16 md:pb-0">
+    <div className="flex-1 min-w-0 md:border-r border-gray-200 dark:border-gray-800 flex flex-col overflow-hidden pb-16 md:pb-0">
       <div
-        className={`grid transition-[grid-template-rows,border-color] duration-300 ease-in-out shrink-0 border-b ${selectedCourse.type === -1 ? 'grid-rows-[0fr] border-transparent' : 'grid-rows-[1fr] border-gray-200'
+        className={`grid transition-[grid-template-rows,border-color] duration-300 ease-in-out shrink-0 border-b ${selectedCourse.type === -1 ? 'grid-rows-[0fr] border-transparent' : 'grid-rows-[1fr] border-gray-200 dark:border-gray-800'
           }`}
       >
-        <div className="overflow-hidden">
+        <div className="overflow-hidden bg-white dark:bg-gray-900">
           <SessionTypeFilterTabs
             courseType={selectedCourse.type === -1 ? lastRealCourseTypeRef.current : selectedCourse.type}
             selectedSessionType={selectedSessionType}
@@ -79,7 +79,7 @@ export default function MainClassGrid({
       </div>
       <div
         ref={cardScrollContainerRef}
-        className={`flex-1 overflow-x-auto overflow-y-auto p-2 md:p-4 bg-gray-50 ${selectedCourse.type === -1 ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[2px] md:gap-2 content-start' : 'flex gap-1 overflow-y-hidden'}`}
+        className={`flex-1 overflow-x-auto overflow-y-auto p-2 md:p-4 bg-gray-50 dark:bg-gray-950 ${selectedCourse.type === -1 ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[2px] md:gap-2 content-start' : 'flex gap-1 overflow-y-hidden'}`}
       >
         {filteredClasses.map((pc, index) => {
           if (selectedCourse.type === -1) {
