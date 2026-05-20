@@ -22,9 +22,6 @@ import { hasScheduleConflict } from '../utils/offerUtils';
 import type { EnrichedOffer } from '../types';
 
 export default function TradingPage() {
-  useEffect(() => {
-    document.title = 'KRSwitch | Trading Floor';
-  }, []);
 
   // --- Data ---
   const dashboardData = useDashboardData();
@@ -171,6 +168,8 @@ export default function TradingPage() {
 
   return (
     <div className="h-[100dvh] flex flex-col bg-gray-50 overflow-hidden">
+      <title>Dashboard Barter | KRSwitch</title>
+      <meta name="description" content="Ajukan penawaran barter dan pantau live feed jadwal kelas yang aktif." />
       <DashboardHeader
         isConnected={isConnected}
         user={currentUser}

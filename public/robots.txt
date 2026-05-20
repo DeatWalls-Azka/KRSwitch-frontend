@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Allow: /login
+Disallow: /auth/
+Disallow: /admin/
+Disallow: /api/
+
+Sitemap: https://krswitch.gimiaw.web.id/sitemap.xml

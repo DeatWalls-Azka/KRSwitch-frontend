@@ -15,9 +15,6 @@ const ERROR_MESSAGES: Record<string, string> = {
 // --- Komponen Utama -------------------------------------------
 
 export default function LoginPage() {
-  useEffect(() => {
-    document.title = 'KRSwitch | Login';
-  }, []);
   const navigate = useNavigate();
   const { user, loading: authLoading, refetchUser, logout } = useAuth();
   const [error, setError] = useState<string | null>(null);
@@ -104,6 +101,8 @@ export default function LoginPage() {
 
   return (
     <div className="relative overflow-hidden h-screen flex flex-col items-center justify-center bg-gray-50 font-mono">
+      <title>Masuk ke KRSwitch | Platform Barter Kelas IPB</title>
+      <meta name="description" content="Masuk ke KRSwitch menggunakan akun Google IPB Anda untuk menukar jadwal kelas dan praktikum secara real-time." />
       <NetworkBackground />
       <div className="flex flex-col gap-2 w-full max-w-[432px] px-4 sm:px-0">
 
