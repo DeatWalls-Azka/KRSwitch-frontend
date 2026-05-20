@@ -1,16 +1,36 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const PEEK_H = 80;
+const PEEK_H = 135;
 
 interface MobileBarterDrawerProps {
   drawerY: number | null;
   setDrawerY: (y: number | null) => void;
+  offersCount: number;
+  selectedCourseCode?: string;
+  isKelasSaya: boolean;
+  filterByCourse: boolean;
+  setFilterByCourse: (val: boolean) => void;
+  filterForYou: boolean;
+  setFilterForYou: (val: boolean) => void;
+  filterByYou: boolean;
+  setFilterByYou: (val: boolean) => void;
+  onOpenCreateOffer: () => void;
   children: React.ReactNode;
 }
 
 export default function MobileBarterDrawer({
   drawerY,
   setDrawerY,
+  offersCount,
+  selectedCourseCode,
+  isKelasSaya,
+  filterByCourse,
+  setFilterByCourse,
+  filterForYou,
+  setFilterForYou,
+  filterByYou,
+  setFilterByYou,
+  onOpenCreateOffer,
   children
 }: MobileBarterDrawerProps) {
   const [windowHeight, setWindowHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 800);
@@ -316,14 +336,93 @@ export default function MobileBarterDrawer({
 
         <div
           ref={peekBarRef}
-          className="h-[80px] shrink-0 border-b border-gray-100 flex flex-col justify-center px-5 relative z-10 cursor-grab active:cursor-grabbing bg-white rounded-t-2xl"
+          className="h-[135px] shrink-0 border-b border-gray-100 flex flex-col justify-between pb-3 px-5 relative z-10 cursor-grab active:cursor-grabbing bg-white rounded-t-2xl"
           onMouseDown={(e) => handleDragStart(e.clientY)}
           onTouchStart={(e) => handleDragStart(e.touches[0].clientY)}
         >
-          <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-3" />
-          <h2 className="text-sm font-bold text-gray-900 text-center uppercase tracking-wide">
-            Live Barter Feed
-          </h2>
+          {/* Row 0: Handle */}
+          <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mt-3 mb-2 shrink-0" />
+          
+          {/* Row 1: Title & Create Button */}
+          <div className="flex items-center justify-between shrink-0">
+            <div className="flex flex-col items-left">
+              <h2 className="text-xs font-bold text-gray-900 tracking-wide">LIVE BARTER FEED PANEL</h2>
+              <h1 className="text-[11px] font-medium text-gray-600">Real Time: {offersCount} Offers</h1>
+            </div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenCreateOffer();
+              }}
+              className="bg-green-600 text-white text-[10px] font-bold py-1.5 px-3 rounded-sm border-0 cursor-pointer hover:bg-green-700 active:bg-green-800 transition-colors shadow-sm"
+            >
+              CREATE OFFER
+            </button>
+          </div>
+
+          {/* Row 2: Justified Filters (stretched pills) */}
+          <div className="flex flex-row w-full gap-1 items-center shrink-0">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setFilterByCourse(false);
+                setFilterForYou(false);
+                setFilterByYou(false);
+              }}
+              className={`flex-1 text-center py-1.5 text-[9px] font-bold rounded transition-colors ${
+                (!filterByCourse && !filterForYou && !filterByYou)
+                  ? 'bg-[#0f2930] text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              ALL
+            </button>
+            {!isKelasSaya && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setFilterByCourse(!filterByCourse);
+                }}
+                className={`flex-1 text-center py-1.5 text-[9px] font-bold rounded transition-colors ${
+                  filterByCourse
+                    ? 'bg-[#0f2930] text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {selectedCourseCode || 'MATKUL'}
+              </button>
+            )}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                const newVal = !filterByYou;
+                setFilterByYou(newVal);
+                if (newVal) setFilterForYou(false);
+              }}
+              className={`flex-1 text-center py-1.5 text-[9px] font-bold rounded transition-colors ${
+                filterByYou
+                  ? 'bg-[#0f2930] text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              BY YOU
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                const newVal = !filterForYou;
+                setFilterForYou(newVal);
+                if (newVal) setFilterByYou(false);
+              }}
+              className={`flex-1 text-center py-1.5 text-[9px] font-bold rounded transition-colors ${
+                filterForYou
+                  ? 'bg-[#0f2930] text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              FOR YOU
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 pb-24 bg-gray-50 pt-2 relative z-10 overscroll-contain">

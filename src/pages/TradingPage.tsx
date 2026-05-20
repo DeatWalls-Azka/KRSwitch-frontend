@@ -219,7 +219,20 @@ export default function TradingPage() {
         </DesktopBarterPanel>
       </div>
 
-      <MobileBarterDrawer drawerY={drawerY} setDrawerY={setDrawerY}>
+      <MobileBarterDrawer
+        drawerY={drawerY}
+        setDrawerY={setDrawerY}
+        offersCount={offersToDisplay.length}
+        selectedCourseCode={selectedCourse.code}
+        isKelasSaya={selectedCourse.type === -1}
+        filterByCourse={filterByCourse}
+        setFilterByCourse={setFilterByCourse}
+        filterForYou={filterForYou}
+        setFilterForYou={setFilterForYou}
+        filterByYou={filterByYou}
+        setFilterByYou={setFilterByYou}
+        onOpenCreateOffer={() => setIsFormOpen(true)}
+      >
         {barterFeedContent}
       </MobileBarterDrawer>
 
