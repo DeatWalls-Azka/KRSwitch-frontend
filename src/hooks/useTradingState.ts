@@ -28,7 +28,7 @@ export function useTradingState({
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [selectedSessionType, setSelectedSessionType] = useState('kuliah');
   const [filterByCourse, setFilterByCourse] = useState(false);
-  const [filterForYou, setFilterForYou] = useState(true);
+  const [filterForYou, setFilterForYou] = useState(false);
   const [filterByYou, setFilterByYou] = useState(false);
 
   const lastRealCourseTypeRef = useRef<number>(0);

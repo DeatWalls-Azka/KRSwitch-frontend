@@ -170,7 +170,7 @@ export default function TradingPage() {
   );
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
+    <div className="h-[100dvh] flex flex-col bg-gray-50 overflow-hidden">
       <DashboardHeader
         isConnected={isConnected}
         user={currentUser}

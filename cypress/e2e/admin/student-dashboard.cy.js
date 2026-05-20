@@ -124,10 +124,11 @@ describe('Student Dashboard Barter Feed & Filter Hardening', () => {
 
   it('renders all barter offers in the default un-filtered feed', () => {
     // Should show the title and count of all active open offers in the desktop panel
-    cy.get('div.hidden.md\\:flex h2').contains('LIVE BARTER FEED PANEL').should('be.visible');
-    cy.get('div.hidden.md\\:flex h1').contains('Real Time: 4 Offers').should('be.visible');
+    cy.get('div.hidden.md\\:flex').filter(':contains("LIVE BARTER FEED PANEL")').as('desktopPanel');
+    cy.get('@desktopPanel').find('h2').contains('LIVE BARTER FEED PANEL').should('be.visible');
+    cy.get('@desktopPanel').find('h1').contains('Real Time: 4 Offers').should('be.visible');
     
-    cy.get('div.hidden.md\\:flex').within(() => {
+    cy.get('@desktopPanel').within(() => {
       cy.contains('Muh Arifaushan').should('exist');
       cy.contains('Azka Julian').should('exist');
       cy.contains('Indah Lestari').should('exist');
@@ -135,6 +136,9 @@ describe('Student Dashboard Barter Feed & Filter Hardening', () => {
   });
 
   it('correctly maps multi-class parallel sections (both lecture & practice) for highlight', () => {
+    // Click course tab first
+    cy.contains('button', 'KOM120H').click();
+
     // Under course KOM120H, both K2 (lecture) and P2 (practice) should be active user classes.
     // 1. By default, session type is Kuliah. Gilang has K2, so K2 parallel card should render the "YOU" label.
     cy.contains('h3', 'K2').parents('.bg-green-100').should('contain', 'YOU');
@@ -145,13 +149,15 @@ describe('Student Dashboard Barter Feed & Filter Hardening', () => {
   });
 
   it('filters offers for student when FOR YOU filter is activated, removing bentrok and own offers', () => {
+    cy.get('div.hidden.md\\:flex').filter(':contains("LIVE BARTER FEED PANEL")').as('desktopPanel');
+
     // Activate the "FOR YOU" filter in the desktop panel
-    cy.get('div.hidden.md\\:flex').contains('button', 'FOR YOU').click();
+    cy.get('@desktopPanel').contains('button', 'FOR YOU').click();
 
     // 1. Total offers should be filtered down to exactly 2 (Offer 1 & Offer 2)
-    cy.get('div.hidden.md\\:flex h1').contains('Real Time: 2 Offers').should('be.visible');
+    cy.get('@desktopPanel').find('h1').contains('Real Time: 2 Offers').should('be.visible');
 
-    cy.get('div.hidden.md\\:flex').within(() => {
+    cy.get('@desktopPanel').within(() => {
       cy.contains('Muh Arifaushan').should('exist'); // Seeking K2, which student holds (Lecture)
       cy.contains('Azka Julian').should('exist');     // Seeking P2, which student holds (Practice)
 

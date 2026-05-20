@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const PEEK_H = 135;
+const PEEK_H = 75;
 
 interface MobileBarterDrawerProps {
   drawerY: number | null;
@@ -288,8 +288,9 @@ export default function MobileBarterDrawer({
 
       <div
         ref={drawerRef}
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 h-[88vh] bg-white rounded-t-2xl flex flex-col"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white rounded-t-2xl flex flex-col"
         style={{
+          height: `${windowHeight * 0.88}px`,
           transform: `translateY(${currentY}px)`,
           filter: `drop-shadow(0 -6px 24px rgba(0,0,0,${0.25 + 0.25 * drawerProgress}))`,
           transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease',
@@ -336,97 +337,87 @@ export default function MobileBarterDrawer({
 
         <div
           ref={peekBarRef}
-          className="h-[135px] shrink-0 border-b border-gray-100 flex flex-col justify-between pb-3 px-5 relative z-10 cursor-grab active:cursor-grabbing bg-white rounded-t-2xl"
+          className="h-[75px] shrink-0 border-b border-gray-100 flex items-center justify-between px-5 relative z-10 cursor-grab active:cursor-grabbing bg-white rounded-t-2xl pt-2"
           onMouseDown={(e) => handleDragStart(e.clientY)}
           onTouchStart={(e) => handleDragStart(e.touches[0].clientY)}
         >
-          {/* Row 0: Handle */}
-          <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mt-3 mb-2 shrink-0" />
-          
-          {/* Row 1: Title & Create Button */}
-          <div className="flex items-center justify-between shrink-0">
-            <div className="flex flex-col items-left">
-              <h2 className="text-xs font-bold text-gray-900 tracking-wide">LIVE BARTER FEED PANEL</h2>
-              <h1 className="text-[11px] font-medium text-gray-600">Real Time: {offersCount} Offers</h1>
-            </div>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onOpenCreateOffer();
-              }}
-              className="bg-green-600 text-white text-[10px] font-bold py-1.5 px-3 rounded-sm border-0 cursor-pointer hover:bg-green-700 active:bg-green-800 transition-colors shadow-sm"
-            >
-              CREATE OFFER
-            </button>
+          <div className="flex flex-col items-left">
+            <h2 className="text-xs font-bold text-gray-900 tracking-wide">LIVE BARTER FEED PANEL</h2>
+            <h1 className="text-[11px] font-medium text-gray-600">Real Time: {offersCount} Offers</h1>
           </div>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenCreateOffer();
+            }}
+            className="bg-green-600 text-white text-[10px] font-bold py-1.5 px-3 rounded-md border border-solid border-green-600 cursor-pointer hover:bg-green-700 active:bg-green-800 transition-colors shadow-sm"
+          >
+            CREATE OFFER
+          </button>
+        </div>
 
-          {/* Row 2: Justified Filters (stretched pills) */}
-          <div className="flex flex-row w-full gap-1 items-center shrink-0">
+        <div className="flex-1 overflow-y-auto bg-gray-50 relative z-10 overscroll-contain">
+          {/* Row 2: Justified Filters (stretched pills) - Sticky under header when expanded */}
+          <div className="sticky top-0 bg-gray-50 px-4 py-3 z-20 border-b border-gray-200 flex flex-row w-full gap-1 items-center">
             <button
-              onClick={(e) => {
-                e.stopPropagation();
+              onClick={() => {
                 setFilterByCourse(false);
                 setFilterForYou(false);
                 setFilterByYou(false);
               }}
-              className={`flex-1 text-center py-1.5 text-[9px] font-bold rounded transition-colors ${
+              className={`flex-1 text-center py-1 px-2 text-[11px] font-bold rounded-md border border-solid cursor-pointer transition-colors ${
                 (!filterByCourse && !filterForYou && !filterByYou)
-                  ? 'bg-[#0f2930] text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'border-green-600 bg-white text-green-600 hover:bg-green-50 shadow-sm'
+                  : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
               }`}
             >
               ALL
             </button>
             {!isKelasSaya && (
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setFilterByCourse(!filterByCourse);
-                }}
-                className={`flex-1 text-center py-1.5 text-[9px] font-bold rounded transition-colors ${
+                onClick={() => setFilterByCourse(!filterByCourse)}
+                className={`flex-1 text-center py-1 px-2 text-[11px] font-bold rounded-md border border-solid cursor-pointer transition-colors ${
                   filterByCourse
-                    ? 'bg-[#0f2930] text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'border-green-600 bg-white text-green-600 hover:bg-green-50 shadow-sm'
+                    : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
                 }`}
               >
                 {selectedCourseCode || 'MATKUL'}
               </button>
             )}
             <button
-              onClick={(e) => {
-                e.stopPropagation();
+              onClick={() => {
                 const newVal = !filterByYou;
                 setFilterByYou(newVal);
                 if (newVal) setFilterForYou(false);
               }}
-              className={`flex-1 text-center py-1.5 text-[9px] font-bold rounded transition-colors ${
+              className={`flex-1 text-center py-1 px-2 text-[11px] font-bold rounded-md border border-solid cursor-pointer transition-colors ${
                 filterByYou
-                  ? 'bg-[#0f2930] text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'border-green-600 bg-white text-green-600 hover:bg-green-50 shadow-sm'
+                  : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
               }`}
             >
               BY YOU
             </button>
             <button
-              onClick={(e) => {
-                e.stopPropagation();
+              onClick={() => {
                 const newVal = !filterForYou;
                 setFilterForYou(newVal);
                 if (newVal) setFilterByYou(false);
               }}
-              className={`flex-1 text-center py-1.5 text-[9px] font-bold rounded transition-colors ${
+              className={`flex-1 text-center py-1 px-2 text-[11px] font-bold rounded-md border border-solid cursor-pointer transition-colors ${
                 filterForYou
-                  ? 'bg-[#0f2930] text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'border-green-600 bg-white text-green-600 hover:bg-green-50 shadow-sm'
+                  : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
               }`}
             >
               FOR YOU
             </button>
           </div>
-        </div>
 
-        <div className="flex-1 overflow-y-auto px-4 pb-24 bg-gray-50 pt-2 relative z-10 overscroll-contain">
-          {children}
+          <div className="px-4 pb-24 pt-2">
+            {children}
+          </div>
         </div>
       </div>
     </>
