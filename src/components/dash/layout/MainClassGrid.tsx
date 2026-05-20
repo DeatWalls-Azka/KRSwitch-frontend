@@ -95,6 +95,7 @@ export default function MainClassGrid({
                   day: pc.day,
                   time: `${pc.timeStart}-${pc.timeEnd}`,
                   room: pc.room,
+                  students: getStudentsInClass(pc.id, enrollments, users),
                 }}
                 onClick={() => handleCompactCardClick(pc)}
               />

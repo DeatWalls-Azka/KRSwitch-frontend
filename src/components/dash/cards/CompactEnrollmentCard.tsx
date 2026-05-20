@@ -1,4 +1,14 @@
 import { useEffect, useState } from 'react';
+import StudentAvatar from '../../ui/StudentAvatar';
+import { getUniqueAnimalAvatars } from '../../../utils/avatarUtils';
+
+// --- Types ----------------------------------------------------
+
+interface Student {
+  nim: string;
+  name: string;
+  picture?: string;
+}
 
 interface ClassItem {
   code: string;
@@ -7,6 +17,7 @@ interface ClassItem {
   day: string;
   time: string;
   room?: string;
+  students?: Student[];
 }
 
 interface CompactClassCardProps {
@@ -14,6 +25,8 @@ interface CompactClassCardProps {
   index?: number;
   onClick?: () => void;
 }
+
+// --- Komponen Utama -------------------------------------------
 
 export default function CompactClassCard({ classItem, index = 0, onClick }: CompactClassCardProps) {
   const [isVisible, setIsVisible] = useState(false);
@@ -25,6 +38,47 @@ export default function CompactClassCard({ classItem, index = 0, onClick }: Comp
 
     return () => clearTimeout(timer);
   }, [index]);
+
+  const renderAvatars = () => {
+    const list = classItem.students || [];
+
+    if (list.length === 0) return null;
+
+    const maxVisible = 4;
+    const visibleStudents = list.slice(0, maxVisible);
+    const extraCount = list.length - maxVisible;
+
+    // Get unique fallbacks to ensure no duplicate animal images in the card stack
+    const uniqueAnimals = getUniqueAnimalAvatars(visibleStudents);
+
+    return (
+      <div className="flex items-center -space-x-1.5 flex-shrink-0 pb-0.5 isolate pointer-events-none">
+        {visibleStudents.map((student, idx) => {
+          const zIndex = idx + 1; // Rightmost stacks on top of Leftmost
+          return (
+            <StudentAvatar
+              key={student.nim || idx}
+              nim={student.nim}
+              name={student.name}
+              picture={student.picture}
+              fallbackAnimal={uniqueAnimals[idx]}
+              sizeClassName="w-5.5 h-5.5"
+              borderClassName="border-2 border-white shadow-xs"
+              style={{ zIndex }}
+            />
+          );
+        })}
+        {extraCount > 0 && (
+          <div
+            style={{ zIndex: visibleStudents.length + 1 }}
+            className="relative w-5.5 h-5.5 rounded-full bg-blue-600 border-2 border-white text-white flex items-center justify-center text-[8px] font-extrabold tracking-tighter shadow-xs select-none leading-none"
+          >
+            +{extraCount}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div 
@@ -57,9 +111,12 @@ export default function CompactClassCard({ classItem, index = 0, onClick }: Comp
           );
         })()}
       </div>
-      <div className="text-xs text-gray-500 mt-auto flex flex-col gap-0.5">
-        <span>{classItem.day}, {classItem.time}</span>
-        {classItem.room && <span>{classItem.room}</span>}
+      <div className="mt-auto flex justify-between items-end gap-2">
+        <div className="text-xs text-gray-500 flex flex-col gap-0.5 min-w-0">
+          <span className="truncate">{classItem.day}, {classItem.time}</span>
+          {classItem.room && <span className="truncate">{classItem.room}</span>}
+        </div>
+        {renderAvatars()}
       </div>
     </div>
   );

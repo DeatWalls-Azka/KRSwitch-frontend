@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import type { EnrichedOffer } from '../../../types';
+import StudentAvatar from '../../ui/StudentAvatar';
 
 // --- Types ----------------------------------------------------
 
@@ -185,24 +186,15 @@ export default function BarterCard({
 
               {/* Avatar Circle */}
               <div className="shrink-0">
-                {offer.offerer?.picture ? (
-                  <img 
-                    src={offer.offerer.picture} 
-                    alt={offer.studentName} 
-                    className={`w-7 h-7 rounded-full object-cover border transition-opacity ${
-                      isUnavailable ? 'border-gray-200/50 opacity-60' : 'border-gray-200'
-                    }`}
-                  />
-                ) : (() => {
-                  const fallback = getGoogleFallback(offer.studentName);
-                  return (
-                    <div className={`w-7 h-7 rounded-full font-medium text-[11.5px] font-sans flex items-center justify-center text-white border transition-all ${fallback.bg} ${
-                      isUnavailable ? 'opacity-50 border-gray-200/30' : 'border-white/10 shadow-xs'
-                    }`}>
-                      {fallback.char}
-                    </div>
-                  );
-                })()}
+                <StudentAvatar
+                  nim={offer.nim}
+                  name={offer.studentName}
+                  picture={offer.offerer?.picture}
+                  sizeClassName="w-7 h-7"
+                  borderClassName={`border transition-all ${
+                    isUnavailable ? 'border-gray-200/50 opacity-60' : 'border-gray-200 shadow-xs'
+                  }`}
+                />
               </div>
             </div>
 
@@ -213,23 +205,3 @@ export default function BarterCard({
     </div>
   );
 }
-
-// --- Helpers --------------------------------------------------
-
-const getGoogleFallback = (name: string) => {
-  if (!name) return { char: '?', bg: 'bg-[#1a73e8]' };
-  const trimmed = name.trim();
-  const char = trimmed.charAt(0).toUpperCase();
-  
-  // Google's 5 default colors
-  const colors = [
-    'bg-[#1a73e8]', // Google Blue
-    'bg-[#d93025]', // Google Red
-    'bg-[#e37400]', // Google Yellow/Orange
-    'bg-[#1e8e3e]', // Google Green
-    'bg-[#ab47bc]', // Google Purple
-  ];
-  
-  const index = char.charCodeAt(0) % colors.length;
-  return { char, bg: colors[index] };
-};
