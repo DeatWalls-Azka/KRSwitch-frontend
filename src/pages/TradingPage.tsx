@@ -266,19 +266,44 @@ export default function TradingPage() {
       )}
 
       {toasts.length > 0 && (
-        <div className="fixed bottom-20 md:bottom-4 right-4 z-50 flex flex-col gap-2">
+        <div className="fixed bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 md:left-auto md:right-6 md:translate-x-0 w-[calc(100%-2rem)] md:w-80 z-[100] flex flex-col gap-2 pointer-events-none">
           {toasts.map(toast => (
-            <div key={toast.id} className="bg-red-600 text-white text-xs font-bold px-4 py-3 rounded shadow-lg max-w-xs flex items-start gap-2">
-              <span className="shrink-0"></span>
-              <span>{toast.message}</span>
+            <div 
+              key={toast.id} 
+              className={`bg-red-600 text-white text-xs font-bold px-4 py-3 rounded-lg shadow-lg flex items-center justify-between gap-4 select-none pointer-events-auto ${toast.isExiting ? 'toast-exit' : 'toast-enter'}`}
+            >
+              <div className="flex-1 leading-normal break-words">
+                {toast.message}
+              </div>
               <button
-                onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))}
-                className="ml-auto shrink-0 opacity-75 hover:opacity-100 bg-transparent border-0 cursor-pointer text-white"
+                onClick={() => {
+                  setToasts(prev => prev.map(t => t.id === toast.id ? { ...t, isExiting: true } : t));
+                  setTimeout(() => {
+                    setToasts(prev => prev.filter(t => t.id !== toast.id));
+                  }, 250);
+                }}
+                className="shrink-0 px-2 py-0.5 bg-white/20 hover:bg-white/30 active:bg-white/40 rounded text-[10px] font-bold text-white border border-white/20 cursor-pointer transition-colors"
               >
-                ×
+                OK!
               </button>
             </div>
           ))}
+          <style dangerouslySetInnerHTML={{ __html: `
+            @keyframes toastSlideIn {
+              0% { transform: translateY(10px); opacity: 0; }
+              100% { transform: translateY(0); opacity: 1; }
+            }
+            @keyframes toastSlideOut {
+              0% { transform: translateY(0); opacity: 1; }
+              100% { transform: translateY(10px); opacity: 0; }
+            }
+            .toast-enter {
+              animation: toastSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            }
+            .toast-exit {
+              animation: toastSlideOut 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            }
+          ` }} />
         </div>
       )}
 

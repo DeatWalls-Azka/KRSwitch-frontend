@@ -6,7 +6,7 @@ import type { User, ParallelClass, Enrollment, Offer, Notification, EnrichedOffe
 
 // --- Konstanta ------------------------------------------------
 
-const TOAST_TTL_MS = 5000;
+const TOAST_TTL_MS = 4000;
 
 // --- Types ----------------------------------------------------
 
@@ -23,6 +23,7 @@ interface UseSocketProps {
 interface Toast {
   id: number;
   message: string;
+  isExiting?: boolean;
 }
 
 // --- Komponen Utama -------------------------------------------
@@ -108,7 +109,12 @@ export function useSocket({
 
       const toastId = Date.now();
       setToasts(prev => [...prev, { id: toastId, message }]);
-      setTimeout(() => setToasts(prev => prev.filter(t => t.id !== toastId)), TOAST_TTL_MS);
+      setTimeout(() => {
+        setToasts(prev => prev.map(t => t.id === toastId ? { ...t, isExiting: true } : t));
+        setTimeout(() => {
+          setToasts(prev => prev.filter(t => t.id !== toastId));
+        }, 250);
+      }, TOAST_TTL_MS);
     });
 
     socket.on('new-notification', (notification: Notification) => {
