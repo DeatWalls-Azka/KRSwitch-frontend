@@ -81,7 +81,7 @@ export function useSocket({
     socket.on('enrollments-swapped', ({ swaps }: EnrollmentsSwappedPayload) => {
       setEnrollments(prev => prev.map(enrollment => {
         const swap = swaps.find(
-          s => s.nim === enrollment.nim && s.oldClassId === enrollment.parallelClassId
+          s => s.nim === enrollment.nim && s.oldClassId == enrollment.parallelClassId
         );
         return swap ? { ...enrollment, parallelClassId: swap.newClassId } : enrollment;
       }));

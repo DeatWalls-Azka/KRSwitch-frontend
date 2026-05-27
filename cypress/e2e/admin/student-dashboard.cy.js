@@ -168,4 +168,58 @@ describe('Student Dashboard Barter Feed & Filter Hardening', () => {
       cy.contains('Gilang Muhamad Widiagung').should('not.exist');
     });
   });
+  it('filters offers correctly even when parallelClassId is received as a string (type mismatch resilience)', () => {
+    // Override the getEnrollments intercept with string IDs to simulate type mismatch
+    cy.intercept('GET', '/api/enrollments', {
+      statusCode: 200,
+      body: [
+        { nim: 'M0403241117', parallelClassId: '43' }, // KOM120H (K2) - notice the string '43' instead of number 43
+        { nim: 'M0403241117', parallelClassId: '47' }, // KOM120H (P2)
+        { nim: 'M0403241117', parallelClassId: '51' }, // KOM1231 (K2)
+        { nim: 'M0403241117', parallelClassId: '57' }, // KOM1231 (R2)
+        { nim: 'M0403241117', parallelClassId: '22' }, // KOM1221 (K2)
+        { nim: 'M0403241117', parallelClassId: '25' }, // KOM1221 (P3)
+      ]
+    }).as('getEnrollmentsString');
+
+    // Visit dashboard again to trigger the new intercept
+    cy.visit('/');
+    cy.wait(['@getMe', '@getUsers', '@getClasses', '@getEnrollmentsString', '@getOffers']);
+
+    cy.get('div.hidden.md\\:flex').filter(':contains("LIVE BARTER FEED PANEL")').as('desktopPanel');
+
+    // Activate the "FOR YOU" filter
+    cy.get('@desktopPanel').contains('button', 'FOR YOU').click();
+
+    // 1. Should still successfully match classes despite string vs number mismatch
+    cy.get('@desktopPanel').find('h1').contains('Real Time: 2 Offers').should('be.visible');
+
+    cy.get('@desktopPanel').within(() => {
+      // Offer 1 & 2 should exist because myEnrollmentMap and hasScheduleConflict 
+      // successfully parsed the string IDs with loose equality (==).
+      cy.contains('Muh Arifaushan').should('exist');
+      cy.contains('Azka Julian').should('exist');
+      
+      // Offer 3 conflicts and Offer 4 is own offer
+      cy.contains('Indah Lestari').should('not.exist');
+      cy.contains('Gilang Muhamad Widiagung').should('not.exist');
+    });
+  });
+
+  it('passes real-time enrollments to CreateOfferModal instead of fetching stale data', () => {
+    cy.get('div.hidden.md\\:flex').filter(':contains("LIVE BARTER FEED PANEL")').as('desktopPanel');
+
+    // Open the create offer modal
+    // Open the create offer modal
+    cy.get('@desktopPanel').contains('button', 'CREATE BARTER OFFER').click();
+
+    // The modal should appear
+    cy.contains('h3', 'Create New Offer').should('be.visible');
+
+    // It should NOT display Loading state
+    cy.contains('label', 'Kelas Saya').parent().find('button').should('not.contain', '-- Loading...');
+
+    // Close the modal
+    cy.get('button[aria-label="Close modal"]').click();
+  });
 });

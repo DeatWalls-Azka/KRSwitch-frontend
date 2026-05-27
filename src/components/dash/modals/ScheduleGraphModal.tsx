@@ -270,9 +270,9 @@ export default function ScheduleGraphModal({
   const mySchedule = useMemo(() => {
     if (!currentUser) return [];
     const enrolled = new Set(
-      enrollments.filter(e => e.nim === currentUser.nim).map(e => e.parallelClassId)
+      enrollments.filter(e => e.nim === currentUser.nim).map(e => Number(e.parallelClassId))
     );
-    return parallelClasses.filter(pc => enrolled.has(pc.id));
+    return parallelClasses.filter(pc => enrolled.has(Number(pc.id)));
   }, [enrollments, parallelClasses, currentUser]);
 
   const scheduleByDay = useMemo(() => {

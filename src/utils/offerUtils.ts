@@ -38,7 +38,7 @@ export function getStudentsInClass(
   users: User[]
 ): User[] {
   return enrollments
-    .filter(e => e.parallelClassId === parallelClassId)
+    .filter(e => e.parallelClassId == parallelClassId)
     .map(e => users.find(u => u.nim === e.nim))
     .filter((u): u is User => !!u);
 }
@@ -67,7 +67,7 @@ export function hasScheduleConflict(
   enrollments: Enrollment[],
   parallelClasses: ParallelClass[]
 ): boolean {
-  const incoming = parallelClasses.find(pc => pc.id === incomingClassId);
+  const incoming = parallelClasses.find(pc => pc.id == incomingClassId);
   if (!incoming) return false;
 
   const userEnrolledIds = enrollments
@@ -75,9 +75,9 @@ export function hasScheduleConflict(
     .map(e => e.parallelClassId);
 
   return userEnrolledIds.some(id => {
-    if (id === incomingClassId) return false; // kelas yang sama yang mau dibarter, abaikan
+    if (id == incomingClassId) return false; // kelas yang sama yang mau dibarter, abaikan
 
-    const enrolled = parallelClasses.find(pc => pc.id === id);
+    const enrolled = parallelClasses.find(pc => pc.id == id);
     if (!enrolled) return false;
 
     // Kalo kelas yang terdaftar punya matkul dan jenis kelas (K/P/R) yang sama,

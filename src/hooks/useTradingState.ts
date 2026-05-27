@@ -56,7 +56,7 @@ export function useTradingState({
     enrollments
       .filter(e => e.nim === currentUser.nim)
       .forEach(e => {
-        const pc = parallelClasses.find(c => c.id === e.parallelClassId);
+        const pc = parallelClasses.find(c => c.id == e.parallelClassId);
         if (pc) {
           const type = pc.classCode[0];
           const key = `${pc.courseCode}-${type}`;

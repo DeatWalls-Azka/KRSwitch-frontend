@@ -27,6 +27,8 @@ interface EnrichedClass {
 interface CreateOfferFormProps {
   onSuccess?: () => void;
   onClose: () => void;
+  enrollments?: import('../../../types').Enrollment[];
+  parallelClasses?: import('../../../types').ParallelClass[];
 }
 
 interface ScheduleItem {
@@ -44,7 +46,7 @@ function hasScheduleConflict(classA: ScheduleItem, classB: ScheduleItem): boolea
 
 // --- Komponen Utama -------------------------------------------
 
-export default function CreateOfferForm({ onSuccess, onClose }: CreateOfferFormProps) {
+export default function CreateOfferForm({ onSuccess, onClose, enrollments: initialEnrollments, parallelClasses: initialClasses }: CreateOfferFormProps) {
   const [myClasses, setMyClasses] = useState<EnrichedClass[]>([]);
   const [allClasses, setAllClasses] = useState<ParallelClass[]>([]);
   const { user } = useAuth();
@@ -74,19 +76,23 @@ export default function CreateOfferForm({ onSuccess, onClose }: CreateOfferFormP
         throw new Error('Pengguna tidak terautentikasi.');
       }
 
-      const [enrollmentsRes, classesRes] = await Promise.all([
-        getEnrollments(),
-        getClasses()
-      ]);
+      let enrollments = initialEnrollments;
+      let classes = initialClasses;
 
-      const enrollments = enrollmentsRes.data;
-      const classes = classesRes.data;
+      if (!enrollments || !classes) {
+        const [enrollmentsRes, classesRes] = await Promise.all([
+          getEnrollments(),
+          getClasses()
+        ]);
+        enrollments = enrollmentsRes.data;
+        classes = classesRes.data;
+      }
 
       setAllClasses(classes);
 
       const userEnrollments = enrollments.filter(e => e.nim === user.nim);
       const enrichedClasses = userEnrollments.map(enrollment => {
-        const classDetails = classes.find(c => c.id === enrollment.parallelClassId);
+        const classDetails = classes.find(c => c.id == enrollment.parallelClassId);
         if (!classDetails) {
           throw new Error(`Detail kelas untuk ID ${enrollment.parallelClassId} tidak ditemukan.`);
         }

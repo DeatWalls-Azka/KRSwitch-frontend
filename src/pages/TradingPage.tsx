@@ -120,7 +120,7 @@ export default function TradingPage() {
 
   const filteredClasses = parallelClasses.filter(pc => {
     if (selectedCourse.type === -1) {
-      return enrollments.some(e => e.nim === currentUser?.nim && e.parallelClassId === pc.id);
+      return enrollments.some(e => e.nim === currentUser?.nim && e.parallelClassId == pc.id);
     }
     if (pc.courseCode !== selectedCourse.code) return false;
     const prefix = pc.classCode[0].toLowerCase();
@@ -262,7 +262,7 @@ export default function TradingPage() {
       />
 
       {isFormOpen && (
-        <CreateOfferModal onSuccess={() => { }} onClose={() => setIsFormOpen(false)} />
+        <CreateOfferModal onSuccess={() => { }} onClose={() => setIsFormOpen(false)} enrollments={enrollments} parallelClasses={parallelClasses} />
       )}
 
       {toasts.length > 0 && (
