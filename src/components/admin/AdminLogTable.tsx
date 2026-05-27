@@ -86,15 +86,19 @@ const AdminLogTable = () => {
         const updatePageSize = () => {
             if (!tableContainerRef.current) return;
             const rect = tableContainerRef.current.getBoundingClientRect();
-            // Tinggi sisa di viewport dikurangi pagination (sekitar 120px padding/footer)
-            const availableHeight = window.innerHeight - rect.top - 120;
+            // Tinggi sisa di viewport dikurangi pagination (sekitar 60px padding/footer)
+            const availableHeight = window.innerHeight - rect.top - 60;
             const calculatedRows = Math.floor(availableHeight / 48); // Disesuaikan sama tinggi baris asli
             setPageSize(Math.max(2, calculatedRows)); // Dihapus batas minimal 5 biar muat pas
         };
 
         updatePageSize();
+        const timeout = setTimeout(updatePageSize, 300);
         window.addEventListener('resize', updatePageSize);
-        return () => window.removeEventListener('resize', updatePageSize);
+        return () => {
+            clearTimeout(timeout);
+            window.removeEventListener('resize', updatePageSize);
+        };
     }, []);
 
     const filteredLogs = useMemo(() => {

@@ -98,7 +98,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 flex font-sans text-foreground">
+    <div className="h-screen bg-slate-50 flex font-sans text-foreground">
       {/* MENU SAMPING */}
       <aside
         className={`fixed inset-y-0 left-0 z-50 w-56 bg-background border-r border-border transition-transform duration-300 lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen shrink-0 ${

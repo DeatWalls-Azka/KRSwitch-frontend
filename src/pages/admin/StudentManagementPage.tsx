@@ -134,14 +134,18 @@ export default function StudentManagementPage() {
     const updatePageSize = () => {
       if (!tableContainerRef.current) return;
       const rect = tableContainerRef.current.getBoundingClientRect();
-      const availableHeight = window.innerHeight - rect.top - 120;
+      const availableHeight = window.innerHeight - rect.top - 60;
       const calculatedRows = Math.floor(availableHeight / 43);
       setPageSize(Math.max(5, calculatedRows));
     };
 
     updatePageSize();
+    const timeout = setTimeout(updatePageSize, 300);
     window.addEventListener('resize', updatePageSize);
-    return () => window.removeEventListener('resize', updatePageSize);
+    return () => {
+      clearTimeout(timeout);
+      window.removeEventListener('resize', updatePageSize);
+    };
   }, []);
 
   const filteredStudents = useMemo(() => {
@@ -246,7 +250,7 @@ export default function StudentManagementPage() {
           </div>
         </div>
 
-        <div className="overflow-x-auto" ref={tableContainerRef}>
+        <div className="overflow-x-auto min-h-[300px]" ref={tableContainerRef}>
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-muted/5 border-b">
