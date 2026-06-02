@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
-import io, { type Socket } from 'socket.io-client';
-import { getSocketToken } from '../api';
+import { type Socket } from 'socket.io-client';
+import { useSocketContext } from '../context/SocketContext';
 import { enrichOffer } from '../utils/offerUtils';
 import type { User, ParallelClass, Enrollment, Offer, Notification, EnrichedOffer, EnrollmentsSwappedPayload, OfferAutoCancelledPayload } from '../types';
 
@@ -37,36 +37,22 @@ export function useSocket({
   setNotifications,
   exitingOffersCache,
 }: UseSocketProps) {
+  const { socket, isConnected, onlineCount } = useSocketContext();
   const socketRef = useRef<Socket | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [onlineCount, setOnlineCount] = useState(0);
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  // Token dikirim terpisah karena currentUser diload async setelah socket connect, dan harus dikirim ulang tiap kali socket reconnect
   useEffect(() => {
-    if (currentUser && isConnected && socketRef.current) {
-      getSocketToken()
-        .then(res => socketRef.current?.emit('authenticate', res.data.token))
-        .catch(console.error);
-    }
-  }, [currentUser, isConnected]);
-
-  useEffect(() => {
-    const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
-      transports: ['websocket']
-    });
     socketRef.current = socket;
+  }, [socket]);
 
-    socket.on('connect', () => setIsConnected(true));
-    socket.on('disconnect', () => setIsConnected(false));
-    socket.on('connect_error', () => setIsConnected(false));
-    socket.on('online-count', (count: number) => setOnlineCount(count));
+  useEffect(() => {
+    if (!socket) return;
 
-    socket.on('new-offer', (offer: Offer) => {
+    const handleNewOffer = (offer: Offer) => {
       setApiOffers(prev => [offer, ...prev]);
-    });
+    };
 
-    socket.on('offer-taken', ({ offerId }: { offerId: number }) => {
+    const handleOfferTaken = ({ offerId }: { offerId: number }) => {
       setApiOffers(prev => {
         const offer = prev.find(o => o.id === offerId);
         if (offer) {
@@ -76,26 +62,26 @@ export function useSocket({
         }
         return prev.filter(o => o.id !== offerId);
       });
-    });
+    };
 
-    socket.on('enrollments-swapped', ({ swaps }: EnrollmentsSwappedPayload) => {
+    const handleEnrollmentsSwapped = ({ swaps }: EnrollmentsSwappedPayload) => {
       setEnrollments(prev => prev.map(enrollment => {
         const swap = swaps.find(
           s => s.nim === enrollment.nim && s.oldClassId == enrollment.parallelClassId
         );
         return swap ? { ...enrollment, parallelClassId: swap.newClassId } : enrollment;
       }));
-    });
+    };
 
-    socket.on('enrollment-updated', (updated: Enrollment) => {
+    const handleEnrollmentUpdated = (updated: Enrollment) => {
       setEnrollments(prev => prev.map(e => e.id === updated.id ? updated : e));
-    });
+    };
 
-    socket.on('enrollment-deleted', ({ id }: { id: number }) => {
+    const handleEnrollmentDeleted = ({ id }: { id: number }) => {
       setEnrollments(prev => prev.filter(e => e.id !== id));
-    });
+    };
 
-    socket.on('offer-auto-cancelled', ({ offerId, reason, conflictingClass }: OfferAutoCancelledPayload) => {
+    const handleOfferAutoCancelled = ({ offerId, reason, conflictingClass }: OfferAutoCancelledPayload) => {
       let message = '';
       if (reason === 'no_longer_enrolled') {
         message = `Penawaran #${offerId} dibatalkan otomatis, kelas yang ditawarkan sudah tidak kamu miliki.`;
@@ -115,16 +101,30 @@ export function useSocket({
           setToasts(prev => prev.filter(t => t.id !== toastId));
         }, 250);
       }, TOAST_TTL_MS);
-    });
+    };
 
-    socket.on('new-notification', (notification: Notification) => {
+    const handleNewNotification = (notification: Notification) => {
       setNotifications(prev => [notification, ...prev]);
-    });
+    };
+
+    socket.on('new-offer', handleNewOffer);
+    socket.on('offer-taken', handleOfferTaken);
+    socket.on('enrollments-swapped', handleEnrollmentsSwapped);
+    socket.on('enrollment-updated', handleEnrollmentUpdated);
+    socket.on('enrollment-deleted', handleEnrollmentDeleted);
+    socket.on('offer-auto-cancelled', handleOfferAutoCancelled);
+    socket.on('new-notification', handleNewNotification);
 
     return () => {
-      socket.disconnect();
+      socket.off('new-offer', handleNewOffer);
+      socket.off('offer-taken', handleOfferTaken);
+      socket.off('enrollments-swapped', handleEnrollmentsSwapped);
+      socket.off('enrollment-updated', handleEnrollmentUpdated);
+      socket.off('enrollment-deleted', handleEnrollmentDeleted);
+      socket.off('offer-auto-cancelled', handleOfferAutoCancelled);
+      socket.off('new-notification', handleNewNotification);
     };
-  }, [exitingOffersCache, parallelClassesRef, setApiOffers, setEnrollments, setNotifications, usersRef]);
+  }, [socket, exitingOffersCache, parallelClassesRef, setApiOffers, setEnrollments, setNotifications, usersRef]);
 
   return { socketRef, isConnected, onlineCount, toasts, setToasts };
 }

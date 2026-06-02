@@ -45,11 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.clear();
       sessionStorage.clear();
       
-      // Make logout requests
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      try {
-        await fetch(`${baseUrl}/auth/logout`, { method: 'POST', credentials: 'include' });
-      } catch {}
+      // Make logout request
       try {
         await fetch('/auth/logout', { method: 'POST', credentials: 'include' });
       } catch {}

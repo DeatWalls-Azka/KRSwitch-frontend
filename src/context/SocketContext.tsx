@@ -19,7 +19,10 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // 1. Inisialisasi koneksi socket tunggal secara persisten
   useEffect(() => {
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    if (baseUrl === '/') {
+      baseUrl = window.location.origin;
+    }
     const socketInstance = io(baseUrl, {
       transports: ['websocket'],
       autoConnect: true,

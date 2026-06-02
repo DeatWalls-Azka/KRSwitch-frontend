@@ -3,8 +3,7 @@ import api from '../../api';
 import AdminWizardCard from "../../components/admin/AdminWizardCard";
 import SystemStatsCard from "../../components/admin/SystemStatsCard";
 import AdminLogTable from '../../components/admin/AdminLogTable';
-import { io } from 'socket.io-client';
-import { getSocketToken } from '../../api';
+import { useSocketContext } from '../../context/SocketContext';
 
 // --- Types ----------------------------------------------------
 
@@ -34,6 +33,8 @@ export default function AdminPage() {
     totalOffers: 0
   });
 
+  const { socket } = useSocketContext();
+
   const fetchStats = async () => {
     try {
       const res = await api.get('/api/admin/stats');
@@ -45,18 +46,16 @@ export default function AdminPage() {
 
   useEffect(() => {
     fetchStats();
+  }, []);
 
-    const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
-      transports: ['websocket']
-    });
-    
-    socket.on('connect', () => {
-      getSocketToken().then(res => socket.emit('authenticate', res.data.token)).catch(console.error);
-    });
-    
-    socket.on('online-count', (count: number) => {
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleOnlineCount = (count: number) => {
       setStats(prev => ({ ...prev, onlineCount: count }));
-    });
+    };
+
+    socket.on('online-count', handleOnlineCount);
 
     const refreshEvents = [
       'admin-schedule-updated',
@@ -76,9 +75,12 @@ export default function AdminPage() {
     });
 
     return () => {
-      socket.disconnect();
+      socket.off('online-count', handleOnlineCount);
+      refreshEvents.forEach(event => {
+        socket.off(event, fetchStats);
+      });
     };
-  }, []);
+  }, [socket]);
 
   return (
     <div className="space-y-4 pb-8">

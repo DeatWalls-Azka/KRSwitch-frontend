@@ -45,11 +45,7 @@ export default function RedirectLoopGuard({ children }: GuardProps) {
     localStorage.clear();
     sessionStorage.clear();
     
-    // Cabut state cookie di semua konfigurasi backend standar
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-    try {
-      await fetch(`${baseUrl}/auth/logout`, { method: 'POST', credentials: 'include' });
-    } catch {}
+    // Cabut state cookie di backend
     try {
       await fetch('/auth/logout', { method: 'POST', credentials: 'include' });
     } catch {}

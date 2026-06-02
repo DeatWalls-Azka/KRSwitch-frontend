@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import api, { getSocketToken } from '../../api';
-import { io } from 'socket.io-client';
+import api from '../../api';
+import { useSocketContext } from '../../context/SocketContext';
 import { useTableKeyboardPagination } from '../../hooks/useTableKeyboardPagination';
 
 // IMPORT TAB
@@ -64,6 +64,9 @@ export default function StudentManagementPage() {
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
+  const { socket } = useSocketContext();
+  const selectedStudentRef = useRef(selectedStudent);
+
   const fetchStudents = async () => {
     setIsLoading(true);
     try {
@@ -88,47 +91,61 @@ export default function StudentManagementPage() {
   };
 
   useEffect(() => {
+    selectedStudentRef.current = selectedStudent;
+  }, [selectedStudent]);
+
+  useEffect(() => {
     fetchStudents();
+  }, []);
 
-    const socket = io((import.meta as any).env.VITE_API_URL || 'http://localhost:5000', {
-      transports: ['websocket']
-    });
-    
-    socket.on('connect', () => {
-      getSocketToken().then(res => socket.emit('authenticate', res.data.token)).catch(console.error);
-    });
+  useEffect(() => {
+    if (!socket) return;
 
-    socket.on('admin-user-created', fetchStudents);
-    socket.on('admin-user-updated', fetchStudents);
-    socket.on('admin-user-deleted', (payload: { nim: string }) => {
+    const handleUserCreated = () => fetchStudents();
+    const handleUserUpdated = () => fetchStudents();
+    const handleUserDeleted = (payload: { nim: string }) => {
       fetchStudents();
-      if (selectedStudent?.nim === payload.nim) {
+      if (selectedStudentRef.current?.nim === payload.nim) {
         setIsDrawerOpen(false);
         setSelectedStudent(null);
       }
-    });
+    };
 
-    socket.on('admin-enrollment-updated', (updated: { nim: string }) => {
-      if (selectedStudent?.nim === updated.nim) refreshSelectedStudent();
-    });
+    const handleEnrollmentUpdated = (updated: { nim: string }) => {
+      if (selectedStudentRef.current?.nim === updated.nim) refreshSelectedStudent();
+    };
 
-    socket.on('admin-enrollment-deleted', (payload: { nim: string }) => {
-      if (selectedStudent?.nim === payload.nim) refreshSelectedStudent();
-    });
+    const handleEnrollmentDeleted = (payload: { nim: string }) => {
+      if (selectedStudentRef.current?.nim === payload.nim) refreshSelectedStudent();
+    };
 
-    socket.on('admin-enrollment-created', (payload: { nim: string }) => {
-      if (selectedStudent?.nim === payload.nim) refreshSelectedStudent();
-    });
+    const handleEnrollmentCreated = (payload: { nim: string }) => {
+      if (selectedStudentRef.current?.nim === payload.nim) refreshSelectedStudent();
+    };
 
-    socket.on('enrollments-swapped', (payload: { swaps: Array<{ nim: string }> }) => {
-      const isTarget = payload.swaps.some(s => s.nim === selectedStudent?.nim);
+    const handleEnrollmentsSwapped = (payload: { swaps: Array<{ nim: string }> }) => {
+      const isTarget = payload.swaps.some(s => s.nim === selectedStudentRef.current?.nim);
       if (isTarget) refreshSelectedStudent();
-    });
+    };
+
+    socket.on('admin-user-created', handleUserCreated);
+    socket.on('admin-user-updated', handleUserUpdated);
+    socket.on('admin-user-deleted', handleUserDeleted);
+    socket.on('admin-enrollment-updated', handleEnrollmentUpdated);
+    socket.on('admin-enrollment-deleted', handleEnrollmentDeleted);
+    socket.on('admin-enrollment-created', handleEnrollmentCreated);
+    socket.on('enrollments-swapped', handleEnrollmentsSwapped);
 
     return () => {
-      socket.disconnect();
+      socket.off('admin-user-created', handleUserCreated);
+      socket.off('admin-user-updated', handleUserUpdated);
+      socket.off('admin-user-deleted', handleUserDeleted);
+      socket.off('admin-enrollment-updated', handleEnrollmentUpdated);
+      socket.off('admin-enrollment-deleted', handleEnrollmentDeleted);
+      socket.off('admin-enrollment-created', handleEnrollmentCreated);
+      socket.off('enrollments-swapped', handleEnrollmentsSwapped);
     };
-  }, [selectedStudent?.nim]);
+  }, [socket]);
 
   useEffect(() => {
     const updatePageSize = () => {

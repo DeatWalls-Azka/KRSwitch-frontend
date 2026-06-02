@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import api, { getSocketToken } from '../../api';
-import io from 'socket.io-client';
+import api, { getTemplateDownloadUrl } from '../../api';
+import { useSocketContext } from '../../context/SocketContext';
 import {
   Check,
   Users,
@@ -54,6 +54,8 @@ export default function AdminWizardCard({ stats, onRefresh }: AdminWizardCardPro
   const [validatedCounts, setValidatedCounts] = useState<ValidatedCounts>({ students: 0, classes: 0 });
   const [masterFiles, setMasterFiles] = useState<MasterFiles>({ students: false, classes: false });
 
+  const { socket } = useSocketContext();
+
   const fetchMasterFiles = async () => {
     try {
       const res = await api.get<MasterFiles>('/api/admin/master-files');
@@ -70,35 +72,37 @@ export default function AdminWizardCard({ stats, onRefresh }: AdminWizardCardPro
 
   useEffect(() => {
     fetchMasterFiles();
+  }, []);
 
-    // sinkronisasi realtime via websocket
-    const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
-      transports: ['websocket']
-    });
-    socket.on('connect', () => {
-      getSocketToken()
-        .then(res => socket.emit('authenticate', res.data.token))
-        .catch(console.error);
-    });
+  useEffect(() => {
+    if (!socket) return;
 
-    socket.on('admin-master-files-updated', () => {
+    const handleMasterFilesUpdated = () => {
       fetchMasterFiles();
-      onRefreshRef.current(); // Biar stats ikut update aman tanpa re-trigger connection
-    });
-    
-    socket.on('admin-system-reset', () => {
+      onRefreshRef.current();
+    };
+
+    const handleSystemReset = () => {
       fetchMasterFiles();
       onRefreshRef.current();
       setActiveStep(0);
-    });
-    
-    socket.on('admin-process-start', () => setIsProcessing(true));
-    socket.on('admin-process-end', () => setIsProcessing(false));
+    };
+
+    const handleProcessStart = () => setIsProcessing(true);
+    const handleProcessEnd = () => setIsProcessing(false);
+
+    socket.on('admin-master-files-updated', handleMasterFilesUpdated);
+    socket.on('admin-system-reset', handleSystemReset);
+    socket.on('admin-process-start', handleProcessStart);
+    socket.on('admin-process-end', handleProcessEnd);
 
     return () => {
-      socket.disconnect();
+      socket.off('admin-master-files-updated', handleMasterFilesUpdated);
+      socket.off('admin-system-reset', handleSystemReset);
+      socket.off('admin-process-start', handleProcessStart);
+      socket.off('admin-process-end', handleProcessEnd);
     };
-  }, []);
+  }, [socket]);
 
   useEffect(() => {
     if (stats) {
@@ -106,7 +110,7 @@ export default function AdminWizardCard({ stats, onRefresh }: AdminWizardCardPro
       if (hasEnrollments) setActiveStep(1);
       else setActiveStep(0);
     }
-  }, [stats?.totalStudents === 0 && stats?.totalClasses === 0]);
+  }, [stats?.totalEnrollments, stats?.totalStudents, stats?.totalClasses]);
 
   const handleFileValidate = async (type: 'students' | 'classes', file: File | undefined) => {
     if (!file) return;
@@ -135,8 +139,16 @@ export default function AdminWizardCard({ stats, onRefresh }: AdminWizardCardPro
       setValidatedCounts(prev => ({ ...prev, [type]: 0 }));
       return;
     }
-    // Cuma lepas lock UI biar dropzone bisa muncul lagi
-    setMasterFiles(prev => ({ ...prev, [type]: false }));
+    setIsProcessing(true);
+    setError(null);
+    try {
+      await api.delete(`/api/admin/master-files/${type}`);
+      await fetchMasterFiles();
+    } catch (err) {
+      setError('Gagal menghapus file master.');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleCommitAndRandomize = async () => {
@@ -290,7 +302,7 @@ export default function AdminWizardCard({ stats, onRefresh }: AdminWizardCardPro
                   </div>
                   <div className="text-center">
                     <button
-                      onClick={() => window.open(`${api.defaults.baseURL}/api/admin/template/${type}`, '_blank')}
+                      onClick={() => window.open(getTemplateDownloadUrl(type), '_blank')}
                       className="text-[9px] text-muted-foreground hover:text-primary underline underline-offset-2 transition-colors"
                     >
                       Download Template

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import api, { getSocketToken } from '../../api';
+import api from '../../api';
 import { useTableKeyboardPagination } from '../../hooks/useTableKeyboardPagination';
 import {
     ShieldAlert,
@@ -10,7 +10,7 @@ import {
     ChevronLeft,
     ChevronRight
 } from 'lucide-react';
-import io from 'socket.io-client';
+import { useSocketContext } from '../../context/SocketContext';
 import { Card, CardHeader, CardContent, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 
@@ -44,6 +44,8 @@ const AdminLogTable = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
 
+    const { socket } = useSocketContext();
+
     const fetchLogs = async () => {
         try {
             const response = await api.get<AdminLog[]>('/api/admin/logs');
@@ -58,29 +60,28 @@ const AdminLogTable = () => {
 
     useEffect(() => {
         fetchLogs();
-        const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
-            transports: ['websocket']
-        });
-        socket.on('connect', () => {
-            getSocketToken()
-                .then(res => socket.emit('authenticate', res.data.token))
-                .catch(console.error);
-        });
+    }, []);
 
-        // Dengerin event websocket buat reload tabel log
-        socket.on('admin-log-created', (newLog: AdminLog) => {
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleLogCreated = (newLog: AdminLog) => {
             setLogs(prev => [newLog, ...prev]);
-        });
+        };
 
-        socket.on('admin-system-reset', () => {
+        const handleSystemReset = () => {
             fetchLogs();
             setCurrentPage(1);
-        });
+        };
+
+        socket.on('admin-log-created', handleLogCreated);
+        socket.on('admin-system-reset', handleSystemReset);
 
         return () => {
-            socket.disconnect();
+            socket.off('admin-log-created', handleLogCreated);
+            socket.off('admin-system-reset', handleSystemReset);
         };
-    }, []);
+    }, [socket]);
 
     useEffect(() => {
         const updatePageSize = () => {

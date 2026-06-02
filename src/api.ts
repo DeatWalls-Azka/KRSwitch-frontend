@@ -23,8 +23,7 @@ api.interceptors.response.use(
       
       // Notify backend logout
       try {
-        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-        await fetch(`${baseUrl}/auth/logout`, { method: 'POST', credentials: 'include' }).catch(() => {});
+        await fetch('/auth/logout', { method: 'POST', credentials: 'include' }).catch(() => {});
       } catch {}
 
       window.location.href = '/login';
@@ -95,6 +94,17 @@ export const updateAdminEnrollment = (enrollmentId: number, data: { parallelClas
 // Manajemen Barter & Override
 export const deleteAdminOffer = (offerId: number) => 
   api.delete(`/api/admin/offers/${offerId}`);
+export const getTemplateDownloadUrl = (type: string) => {
+  const base = api.defaults.baseURL || '';
+  if (base === '/') {
+    return `/api/admin/template/${type}`;
+  }
+  if (base.startsWith('http://') || base.startsWith('https://')) {
+    return `${base.replace(/\/$/, '')}/api/admin/template/${type}`;
+  }
+  return `/api/admin/template/${type}`;
+};
+
 export const overrideSwap = (swapData: {
   nim1: string;
   classId1: number;

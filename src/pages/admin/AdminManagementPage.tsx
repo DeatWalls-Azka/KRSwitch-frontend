@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import api, { getSocketToken } from '../../api';
-import { io } from 'socket.io-client';
+import api from '../../api';
+import { useSocketContext } from '../../context/SocketContext';
 import { useTableKeyboardPagination } from '../../hooks/useTableKeyboardPagination';
 import AddAdminModal from '../../components/admin/modals/AddAdminModal';
 import EditAdminModal from '../../components/admin/modals/EditAdminModal';
+
 import {
   UserPlus,
   Search,
@@ -38,6 +39,8 @@ export default function AdminManagementPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editAdmin, setEditAdmin] = useState<User | null>(null);
 
+  const { socket } = useSocketContext();
+
   const fetchAdmins = async () => {
     setIsLoading(true);
     try {
@@ -62,23 +65,25 @@ export default function AdminManagementPage() {
   useEffect(() => {
     fetchAdmins();
     fetchCurrentUser();
+  }, []);
 
-    const socket = io((import.meta as any).env.VITE_API_URL || 'http://localhost:5000', {
-      transports: ['websocket']
-    });
-    
-    socket.on('connect', () => {
-      getSocketToken().then(res => socket.emit('authenticate', res.data.token)).catch(console.error);
-    });
+  useEffect(() => {
+    if (!socket) return;
 
-    socket.on('superadmin-user-created', fetchAdmins);
-    socket.on('superadmin-user-updated', fetchAdmins);
-    socket.on('superadmin-user-deleted', fetchAdmins);
+    const handleUserCreated = () => fetchAdmins();
+    const handleUserUpdated = () => fetchAdmins();
+    const handleUserDeleted = () => fetchAdmins();
+
+    socket.on('superadmin-user-created', handleUserCreated);
+    socket.on('superadmin-user-updated', handleUserUpdated);
+    socket.on('superadmin-user-deleted', handleUserDeleted);
 
     return () => {
-      socket.disconnect();
+      socket.off('superadmin-user-created', handleUserCreated);
+      socket.off('superadmin-user-updated', handleUserUpdated);
+      socket.off('superadmin-user-deleted', handleUserDeleted);
     };
-  }, []);
+  }, [socket]);
 
   useEffect(() => {
     const updatePageSize = () => {

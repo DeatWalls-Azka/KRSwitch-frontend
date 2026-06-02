@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import api, { getSocketToken } from '../../api';
-import { io } from 'socket.io-client';
+import api from '../../api';
+import { useSocketContext } from '../../context/SocketContext';
 import { useTableKeyboardPagination } from '../../hooks/useTableKeyboardPagination';
-
 import AddCourseModal from '../../components/admin/modals/AddCourseModal';
 import ExportRecapCard from '../../components/admin/ExportRecapCard';
 
@@ -92,24 +91,23 @@ export default function CourseManagementPage() {
       setIsLoading(false);
     }
   };
+  const { socket } = useSocketContext();
 
   useEffect(() => {
     fetchClasses();
+  }, []);
 
-    const socket = io((import.meta as any).env.VITE_API_URL || 'http://localhost:5000', {
-      transports: ['websocket']
-    });
-    
-    socket.on('connect', () => {
-      getSocketToken().then(res => socket.emit('authenticate', res.data.token)).catch(console.error);
-    });
+  useEffect(() => {
+    if (!socket) return;
 
-    socket.on('admin-schedule-updated', fetchClasses);
+    const handleScheduleUpdated = () => fetchClasses();
+
+    socket.on('admin-schedule-updated', handleScheduleUpdated);
 
     return () => {
-      socket.disconnect();
+      socket.off('admin-schedule-updated', handleScheduleUpdated);
     };
-  }, []);
+  }, [socket]);
 
   useEffect(() => {
     const updatePageSize = () => {
