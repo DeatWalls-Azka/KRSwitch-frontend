@@ -65,12 +65,30 @@ export function useSocket({
     };
 
     const handleEnrollmentsSwapped = ({ swaps }: EnrollmentsSwappedPayload) => {
-      setEnrollments(prev => prev.map(enrollment => {
-        const swap = swaps.find(
-          s => s.nim === enrollment.nim && s.oldClassId == enrollment.parallelClassId
-        );
-        return swap ? { ...enrollment, parallelClassId: swap.newClassId } : enrollment;
-      }));
+      setEnrollments(prev => {
+        let updated = [...prev];
+        for (const swap of swaps) {
+          if (swap.newClassId === 0) {
+            // Drop class: remove enrollment
+            updated = updated.filter(e => !(e.nim === swap.nim && e.parallelClassId == swap.oldClassId));
+          } else if (swap.oldClassId === 0) {
+            // Pick class: add new enrollment
+            updated.push({
+              id: Date.now() + Math.floor(Math.random() * 1000),
+              nim: swap.nim,
+              parallelClassId: Number(swap.newClassId)
+            });
+          } else {
+            // Standard swap: update class id
+            updated = updated.map(e => 
+              (e.nim === swap.nim && e.parallelClassId == swap.oldClassId)
+                ? { ...e, parallelClassId: Number(swap.newClassId) }
+                : e
+            );
+          }
+        }
+        return updated;
+      });
     };
 
     const handleEnrollmentUpdated = (updated: Enrollment) => {
