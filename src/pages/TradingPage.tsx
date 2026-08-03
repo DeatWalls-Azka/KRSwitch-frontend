@@ -152,7 +152,10 @@ export default function TradingPage() {
 
           if (offer.nim !== currentUser?.nim) {
             if (isPickDrop) {
-              const isEnrolledInCourse = enrollments.some(e => e.parallelClass.courseCode === offer.seekingCourse);
+              const isEnrolledInCourse = enrollments.some(e => {
+                const pc = parallelClasses.find(p => p.id === e.parallelClassId);
+                return pc && pc.courseCode === offer.seekingCourse;
+              });
               canAccept = !isEnrolledInCourse;
               
               if (offer.reservedForNim && offer.reservedForNim !== currentUser?.nim) {
