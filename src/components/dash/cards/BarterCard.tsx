@@ -13,6 +13,7 @@ interface BarterCardProps {
   canAccept?: boolean;
   conflictsWithSchedule?: boolean;
   isOwnOffer?: boolean;
+  tooltipText?: string;
   onAnimationComplete?: (id: number) => void;
   onExitClick?: (id: number) => void;
   onOpenModal?: (offer: EnrichedOffer, mode: 'accept' | 'cancel') => void;
@@ -29,6 +30,7 @@ export default function BarterCard({
   canAccept = true,
   conflictsWithSchedule = false,
   isOwnOffer = false,
+  tooltipText,
   onAnimationComplete,
   onOpenModal
 }: BarterCardProps) {
@@ -124,7 +126,12 @@ export default function BarterCard({
       }}
       className="transition-all duration-100 ease-out overflow-hidden"
     >
-      <div ref={wrapperRef} className="mb-1" onClick={handleCardClick}>
+      <div 
+        ref={wrapperRef} 
+        className="mb-1" 
+        onClick={handleCardClick}
+        title={buttonDisabled && !isOwnOffer && tooltipText ? tooltipText : undefined}
+      >
         <div className={`border p-2 flex items-center rounded-md shadow-xs transition-all duration-150 ease-out ${
           isUnavailable 
             ? 'border-gray-200/40 dark:border-gray-800/40 opacity-50 grayscale cursor-default' 

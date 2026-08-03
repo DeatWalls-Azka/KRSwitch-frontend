@@ -140,9 +140,38 @@ export default function TradingPage() {
           const incomingClass = parallelClasses.find(
             pc => pc.courseCode === offer.seekingCourse && pc.classCode === offer.offeringClass
           );
-          const conflictsWithSchedule = offer.nim !== currentUser?.nim && incomingClass
-            ? hasScheduleConflict(incomingClass.id, currentUser?.nim || '', enrollments, parallelClasses)
-            : false;
+          
+          let conflictsWithSchedule = false;
+          if (offer.nim !== currentUser?.nim && incomingClass) {
+            conflictsWithSchedule = hasScheduleConflict(incomingClass.id, currentUser?.nim || '', enrollments, parallelClasses);
+          }
+
+          let canAccept = false;
+          let tooltipText = '';
+          const isPickDrop = offer.type === 'pick_drop';
+
+          if (offer.nim !== currentUser?.nim) {
+            if (isPickDrop) {
+              const isEnrolledInCourse = enrollments.some(e => e.parallelClass.courseCode === offer.seekingCourse);
+              canAccept = !isEnrolledInCourse;
+              
+              if (offer.reservedForNim && offer.reservedForNim !== currentUser?.nim) {
+                canAccept = false;
+                tooltipText = 'Penawaran ini dikhususkan untuk mahasiswa lain.';
+              } else if (conflictsWithSchedule) {
+                tooltipText = 'Jadwal kelas ini bertabrakan dengan jadwalmu.';
+              } else if (isEnrolledInCourse) {
+                tooltipText = 'Kamu sudah terdaftar di mata kuliah ini.';
+              }
+            } else {
+              canAccept = myEnrollmentMap[`${offer.seekingCourse}-${offer.seekingClass[0]}`] === offer.seekingClass;
+              if (conflictsWithSchedule) {
+                tooltipText = 'Jadwal kelas ini bertabrakan dengan jadwalmu.';
+              } else if (!canAccept) {
+                tooltipText = 'Kamu tidak memiliki kelas yang diminta oleh penawar (atau sudah berada di kelas tersebut).';
+              }
+            }
+          }
 
           return (
             <BarterCard
@@ -152,9 +181,10 @@ export default function TradingPage() {
               exitIndex={isExiting ? exitingOfferIds.get(offer.id) : 0}
               shouldExit={isExiting}
               shouldEnter={isEntering}
-              canAccept={myEnrollmentMap[`${offer.seekingCourse}-${offer.seekingClass[0]}`] === offer.seekingClass}
+              canAccept={canAccept}
               conflictsWithSchedule={conflictsWithSchedule}
               isOwnOffer={offer.nim === currentUser?.nim}
+              tooltipText={tooltipText}
               onAnimationComplete={() => { }}
               onOpenModal={handleOpenModal}
             />
