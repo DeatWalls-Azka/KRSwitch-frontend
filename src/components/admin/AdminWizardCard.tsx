@@ -203,7 +203,7 @@ export default function AdminWizardCard({ stats, onRefresh }: AdminWizardCardPro
                     <Upload size={18} className="text-muted-foreground group-hover:text-primary transition-colors" />
                   )}
                   <p className={`text-[11px] font-bold ${pendingFiles.classes ? 'text-emerald-700' : 'text-foreground/70'}`}>
-                    {pendingFiles.classes ? pendingFiles.classes.name : 'Drop Schedule CSV'}
+                    {pendingFiles.classes ? pendingFiles.classes.name : ((stats?.totalClasses || 0) > 0 ? 'Replace Schedule CSV' : 'Drop Schedule CSV')}
                   </p>
                   <input 
                     type="file" 
@@ -214,7 +214,7 @@ export default function AdminWizardCard({ stats, onRefresh }: AdminWizardCardPro
                   />
                 </div>
                 <div className="text-[9px] text-muted-foreground text-center mt-1">
-                  Upload first to ensure proper Day/Time/Room data.
+                  {(stats?.totalClasses || 0) > 0 ? 'Schedules currently loaded. Drop file to replace.' : 'Upload first to ensure proper Day/Time/Room data.'}
                 </div>
               </div>
 
@@ -253,7 +253,7 @@ export default function AdminWizardCard({ stats, onRefresh }: AdminWizardCardPro
                     <Upload size={18} className="text-muted-foreground group-hover:text-primary transition-colors" />
                   )}
                   <p className={`text-[11px] font-bold ${pendingFiles.enrollments ? 'text-emerald-700' : 'text-foreground/70'}`}>
-                    {pendingFiles.enrollments ? pendingFiles.enrollments.name : 'Drop Phase 1 CSV'}
+                    {pendingFiles.enrollments ? pendingFiles.enrollments.name : ((stats?.totalEnrollments || 0) > 0 ? 'Replace Phase 1 CSV' : 'Drop Phase 1 CSV')}
                   </p>
                   <input 
                     type="file" 
@@ -264,7 +264,7 @@ export default function AdminWizardCard({ stats, onRefresh }: AdminWizardCardPro
                   />
                 </div>
                 <div className="text-[9px] text-muted-foreground text-center mt-1 text-destructive/80 font-medium">
-                  Mengimpor ini akan MENGHAPUS semua data enrollments/barter lama!
+                  {(stats?.totalEnrollments || 0) > 0 ? 'System populated. Mengimpor ulang akan MENGHAPUS semua data!' : 'Mengimpor ini akan MENGHAPUS semua data enrollments/barter lama!'}
                 </div>
               </div>
 
