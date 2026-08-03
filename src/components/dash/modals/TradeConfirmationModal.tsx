@@ -1,17 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { takeOffer, deleteOffer } from '../../../api';
-
-// --- Types ----------------------------------------------------
-
-interface EnrichedOffer {
-  id: number;
-  nim: string;
-  studentName: string;
-  seekingCourse: string;
-  seekingCourseName: string;
-  offeringClass: string;
-  seekingClass: string;
-}
+import { takeOffer, claimPickDropOffer, deleteOffer } from '../../../api';
+import type { EnrichedOffer } from '../../../types';
 
 interface User {
   id: number;
@@ -96,10 +85,17 @@ export default function TradeConfirmationModal({
     setShowMessage(false);
 
     try {
-      await takeOffer(offer.id, currentUser.nim);
-      onAccept(offer.id);
-      setIsAvailable(false);
-      setSuccessMessage('Pertukaran berhasil diselesaikan!');
+      if (offer.type === 'pick_drop') {
+        await claimPickDropOffer(offer.id, currentUser.nim);
+        onAccept(offer.id);
+        setIsAvailable(false);
+        setSuccessMessage('Seat berhasil diklaim!');
+      } else {
+        await takeOffer(offer.id, currentUser.nim);
+        onAccept(offer.id);
+        setIsAvailable(false);
+        setSuccessMessage('Pertukaran berhasil diselesaikan!');
+      }
     } catch (err: any) {
       setIsAvailable(false);
       setErrorMessage(err.response?.data?.error || err.message);
@@ -154,13 +150,19 @@ export default function TradeConfirmationModal({
 
   if (!isOpen) return null;
 
+  const isPickDrop = offer?.type === 'pick_drop';
+
   const primaryButtonColor = isCancel
     ? 'bg-red-600 hover:bg-red-700 active:bg-red-800'
-    : 'bg-green-600 hover:bg-green-700 active:bg-green-800';
+    : isPickDrop
+      ? 'bg-red-600 hover:bg-red-700 active:bg-red-800'
+      : 'bg-green-600 hover:bg-green-700 active:bg-green-800';
 
   const primaryButtonText = isCancel
     ? (isProcessing ? 'MEMBATALKAN...' : successMessage ? 'DIBATALKAN' : 'BATALKAN')
-    : (isProcessing ? 'MENERIMA...' : successMessage ? 'SELESAI' : 'TERIMA');
+    : isPickDrop
+      ? (isProcessing ? 'MENGKLAIM...' : successMessage ? 'SELESAI' : 'KLAIM SEAT')
+      : (isProcessing ? 'MENERIMA...' : successMessage ? 'SELESAI' : 'TERIMA');
 
   return (
     <div
@@ -189,12 +191,16 @@ export default function TradeConfirmationModal({
           <div className="space-y-4 mx-4 md:mx-8 pt-5">
             <div className="text-center pb-2">
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                {isCancel ? 'Batalkan' : 'Konfirmasi Pertukaran'}
+                {isCancel
+                  ? (isPickDrop ? 'Batalkan Drop Seat' : 'Batalkan Penawaran')
+                  : (isPickDrop ? 'Konfirmasi Klaim Seat' : 'Konfirmasi Pertukaran')}
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-wrap-balance" style={{ textWrap: 'balance' }}>
                 {isCancel
                   ? 'Apakah Anda yakin ingin membatalkan penawaran ini?'
-                  : 'Apakah Anda yakin ingin menerima pertukaran ini?'}
+                  : isPickDrop
+                    ? 'Apakah Anda yakin ingin mengklaim seat yang dilepas ini?'
+                    : 'Apakah Anda yakin ingin menerima pertukaran ini?'}
               </p>
             </div>
 
@@ -210,20 +216,36 @@ export default function TradeConfirmationModal({
               </div>
             </div>
 
-            <div className="py-2 border-y border-gray-100 dark:border-gray-800">
-              <div className="flex items-center gap-2 md:gap-4">
-                <div className="flex-1 text-center">
-                  <div className="text-[10px] md:text-xs text-gray-500 dark:text-gray-400">{isCancel ? 'Menawarkan' : 'Melepas'}</div>
-                  <div className="text-red-600 dark:text-red-500 font-bold text-base md:text-lg">{isCancel ? offer?.offeringClass : offer?.seekingClass || ''}</div>
+            <div className="py-3 border-y border-gray-100 dark:border-gray-800">
+              {isPickDrop ? (
+                <div className="flex items-center justify-between px-2">
+                  <div className="flex-1 text-center">
+                    <div className="text-[10px] md:text-xs text-gray-500 dark:text-gray-400 font-medium">
+                      {isCancel ? 'Kursi Dilepas' : 'Kursi Diambil'}
+                    </div>
+                    <div className="text-red-600 dark:text-red-400 font-black text-lg md:text-xl">
+                      {offer?.seekingCourse}
+                    </div>
+                  </div>
+                  <div className="px-3 py-1 rounded bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-[11px] font-extrabold text-red-700 dark:text-red-300 uppercase tracking-wider">
+                    {offer?.reservedForNim ? `Target: ${offer.reservedForNim}` : 'Open Drop'}
+                  </div>
                 </div>
+              ) : (
+                <div className="flex items-center gap-2 md:gap-4">
+                  <div className="flex-1 text-center">
+                    <div className="text-[10px] md:text-xs text-gray-500 dark:text-gray-400">{isCancel ? 'Menawarkan' : 'Melepas'}</div>
+                    <div className="text-red-600 dark:text-red-500 font-bold text-base md:text-lg">{isCancel ? offer?.offeringClass : offer?.seekingClass || ''}</div>
+                  </div>
 
-                <div className="text-gray-400 dark:text-gray-600 text-xl md:text-2xl font-bold select-none">⇌</div>
+                  <div className="text-gray-400 dark:text-gray-600 text-xl md:text-2xl font-bold select-none">⇌</div>
 
-                <div className="flex-1 text-center">
-                  <div className="text-[10px] md:text-xs text-gray-500 dark:text-gray-400">{isCancel ? 'Mencari' : 'Mendapat'}</div>
-                  <div className="text-green-600 dark:text-green-500 font-bold text-base md:text-lg">{isCancel ? offer?.seekingClass : offer?.offeringClass || ''}</div>
+                  <div className="flex-1 text-center">
+                    <div className="text-[10px] md:text-xs text-gray-500 dark:text-gray-400">{isCancel ? 'Mencari' : 'Mendapat'}</div>
+                    <div className="text-green-600 dark:text-green-500 font-bold text-base md:text-lg">{isCancel ? offer?.seekingClass : offer?.offeringClass || ''}</div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 

@@ -10,20 +10,25 @@ export function enrichOffer(
   parallelClasses: ParallelClass[]
 ): EnrichedOffer | null {
   const myClass = offer.myClass || parallelClasses.find(pc => pc.id === offer.myClassId);
-  const wantedClass = offer.wantedClass || parallelClasses.find(pc => pc.id === offer.wantedClassId);
+  const wantedClass = offer.wantedClass || (offer.wantedClassId ? parallelClasses.find(pc => pc.id === offer.wantedClassId) : undefined);
   const offerer = offer.offerer || users.find(u => u.nim === offer.offererNim);
 
-  if (!myClass || !wantedClass || !offerer) return null;
+  if (!myClass || !offerer) return null;
+
+  const isPickDrop = offer.type === 'pick_drop';
+  if (!isPickDrop && !wantedClass) return null;
+
+  const reservedLabel = offer.reservedForNim ? `🔒 ${offer.reservedForNim}` : 'DROP';
 
   return {
     ...offer,
     myClass,
     wantedClass,
     offerer,
-    seekingCourse: wantedClass.courseCode,
-    seekingCourseName: wantedClass.courseName,
+    seekingCourse: isPickDrop ? myClass.courseCode : wantedClass!.courseCode,
+    seekingCourseName: isPickDrop ? myClass.courseName : wantedClass!.courseName,
     offeringClass: myClass.classCode,
-    seekingClass: wantedClass.classCode,
+    seekingClass: isPickDrop ? reservedLabel : wantedClass!.classCode,
     studentName: offerer.name,
     nim: offerer.nim,
     timestamp: new Date(offer.createdAt)

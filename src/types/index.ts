@@ -38,7 +38,10 @@ export interface Offer {
   id: number;
   offererNim: string;
   myClassId: number;
-  wantedClassId: number;
+  wantedClassId: number | null;
+  type: 'swap' | 'pick_drop';
+  reservedForNim?: string | null;
+  reservedFor?: { nim: string; name: string } | null;
   isAutoMatched: boolean;
   isOverride: boolean;
   status: 'pending' | 'taken' | 'cancelled';
@@ -51,7 +54,7 @@ export interface Offer {
 
 export interface EnrichedOffer extends Offer {
   myClass: ParallelClass;
-  wantedClass: ParallelClass;
+  wantedClass?: ParallelClass;
   offerer: User;
   seekingCourse: string;
   seekingCourseName: string;

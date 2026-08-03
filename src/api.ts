@@ -41,10 +41,14 @@ export const getEnrollments = () => api.get<Enrollment[]>('/api/enrollments');
 export const getOffers = () => api.get<Offer[]>('/api/offers');
 export const createOffer = (data: { myClassId: number; wantedClassId: number }) => 
   api.post<Offer>('/api/offers', data);
+export const createPickDropOffer = (data: { myClassId: number; reservedForNim?: string }) =>
+  api.post<Offer>('/api/offers/pick-drop', data);
 export const deleteOffer = (offerId: number) => 
   api.delete(`/api/offers/${offerId}`);
 export const takeOffer = (offerId: number, takerNim: string) => 
   api.post<{ success: boolean }>(`/api/offers/${offerId}/take`, { takerNim });
+export const claimPickDropOffer = (offerId: number, claimerNim: string) =>
+  api.post<{ success: boolean }>(`/api/offers/${offerId}/claim`, { claimerNim });
 export const getNotifications = () => 
   api.get<Notification[]>('/api/notifications');
 export const markAllNotificationsRead = () => 

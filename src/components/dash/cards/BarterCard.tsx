@@ -97,6 +97,8 @@ export default function BarterCard({
     }
   };
 
+  const isPickDrop = offer.type === 'pick_drop';
+
   const isUnavailable = !isOwnOffer && (!canAccept || conflictsWithSchedule);
 
   const animationClasses = (isVisible && !isExiting)
@@ -104,19 +106,8 @@ export default function BarterCard({
     : 'opacity-0 translate-x-8 scale-y-0';
 
   const buttonDisabled = shouldExit || (!isOwnOffer && (!canAccept || conflictsWithSchedule));
-  const buttonText = isOwnOffer
-    ? 'CANCEL TRD'
-    : conflictsWithSchedule
-      ? 'BENTROK'
-      : 'OPEN TRADE';
-  const buttonColor = isOwnOffer
-    ? 'bg-red-600 hover:bg-red-700 active:bg-red-800'
-    : conflictsWithSchedule
-      ? 'bg-yellow-500'
-      : 'bg-green-600 hover:bg-green-700 active:bg-green-800';
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // If the click is on a button or button child, let the button handle it
     if (e.target instanceof HTMLButtonElement || (e.target as HTMLElement).closest('button')) {
       return;
     }
@@ -151,21 +142,40 @@ export default function BarterCard({
               >
                 {offer.seekingCourseName}
               </div>
-              <div className={`font-semibold font-mono text-[10px] mt-0.5 tracking-wider ${isUnavailable ? 'text-gray-300 dark:text-gray-700' : 'text-gray-400 dark:text-gray-500'}`}>
-                {offer.seekingCourse}
+              <div className="flex items-center gap-1 mt-0.5">
+                <span className={`font-semibold font-mono text-[10px] tracking-wider ${isUnavailable ? 'text-gray-300 dark:text-gray-700' : 'text-gray-400 dark:text-gray-500'}`}>
+                  {offer.seekingCourse}
+                </span>
+                {isPickDrop && (
+                  <span className={`text-[9px] font-extrabold px-1 rounded ${
+                    offer.reservedForNim ? 'bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300' : 'bg-red-100 text-red-900 dark:bg-red-950/60 dark:text-red-300'
+                  }`}>
+                    {offer.reservedForNim ? 'TARGET' : 'DROP'}
+                  </span>
+                )}
               </div>
             </div>
 
-            {/* Middle Column: Swap Badge */}
+            {/* Middle Column: Swap or Drop Badge */}
             <div className="flex flex-col items-center justify-center leading-none">
               <div className={`flex items-center justify-center gap-1.5 px-2.5 py-1 rounded border transition-colors ${
                 isUnavailable 
                   ? 'bg-gray-100/50 dark:bg-gray-800/30 border-gray-200/40 dark:border-gray-800/40' 
-                  : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  : isPickDrop
+                    ? 'bg-red-50/60 dark:bg-red-950/20 border-red-200/60 dark:border-red-900/40 hover:bg-red-100/60'
+                    : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'
               }`}>
-                <span className={`font-black text-[11px] ${isUnavailable ? 'text-red-400/70 dark:text-red-500/50' : 'text-red-600 dark:text-red-500'}`}>{offer.offeringClass}</span>
-                <span className="text-gray-400 dark:text-gray-500 font-bold text-[10px]">⇌</span>
-                <span className={`font-black text-[11px] ${isUnavailable ? 'text-green-400/70 dark:text-green-500/50' : 'text-green-600 dark:text-green-500'}`}>{offer.seekingClass}</span>
+                {isPickDrop ? (
+                  <span className={`font-black text-[11px] uppercase ${isUnavailable ? 'text-red-400/70 dark:text-red-500/50' : 'text-red-600 dark:text-red-500'}`}>
+                    {offer.seekingCourse}
+                  </span>
+                ) : (
+                  <>
+                    <span className={`font-black text-[11px] ${isUnavailable ? 'text-red-400/70 dark:text-red-500/50' : 'text-red-600 dark:text-red-500'}`}>{offer.offeringClass}</span>
+                    <span className="text-gray-400 dark:text-gray-500 font-bold text-[10px]">⇌</span>
+                    <span className={`font-black text-[11px] ${isUnavailable ? 'text-green-400/70 dark:text-green-500/50' : 'text-green-600 dark:text-green-500'}`}>{offer.seekingClass}</span>
+                  </>
+                )}
               </div>
             </div>
 

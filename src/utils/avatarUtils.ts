@@ -46,7 +46,7 @@ const FALLBACK_CONFIGS = [
   { bg: 'bg-rose-500', icon: Heart, name: 'Heart' },
   { bg: 'bg-lime-600', icon: Rabbit, name: 'Rabbit' },
   { bg: 'bg-purple-600', icon: Sparkles, name: 'Sparkles' },
-  { bg: 'bg-orange-600', icon: Flame, name: 'Fox' },
+  { bg: 'bg-amber-600', icon: Flame, name: 'Fox' },
   { bg: 'bg-teal-600', icon: Bird, name: 'Bird' },
   { bg: 'bg-indigo-600', icon: Star, name: 'Star' },
   { bg: 'bg-pink-600', icon: Crown, name: 'Crown' },

@@ -132,9 +132,9 @@ const AdminLogTable = () => {
         if (a === 'SYSTEM_RESET') return { badge: 'bg-red-500/10 text-red-500 border-red-500/30', dot: 'bg-red-500' };
         if (a === 'DELETE_STUDENT') return { badge: 'bg-red-400/10 text-red-400 border-red-400/30', dot: 'bg-red-400' };
         if (a === 'DELETE_MASTER') return { badge: 'bg-red-400/10 text-red-400 border-red-400/30', dot: 'bg-red-400' };
-        if (a === 'PURGE_OFFERS') return { badge: 'bg-orange-500/10 text-orange-500 border-orange-500/30', dot: 'bg-orange-500' };
-        if (a === 'CANCEL_BARTER') return { badge: 'bg-orange-400/10 text-orange-400 border-orange-400/30', dot: 'bg-orange-400' };
-        if (a === 'BARTER_CANCELLED') return { badge: 'bg-orange-400/10 text-orange-400 border-orange-400/30', dot: 'bg-orange-400' };
+        if (a === 'PURGE_OFFERS') return { badge: 'bg-amber-500/10 text-amber-500 border-amber-500/30', dot: 'bg-amber-500' };
+        if (a === 'CANCEL_BARTER') return { badge: 'bg-amber-400/10 text-amber-400 border-amber-400/30', dot: 'bg-amber-400' };
+        if (a === 'BARTER_CANCELLED') return { badge: 'bg-amber-400/10 text-amber-400 border-amber-400/30', dot: 'bg-amber-400' };
 
         // 🟢 Pembuatan & Impor: data baru masuk
         if (a === 'IMPORT_STUDENTS') return { badge: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30', dot: 'bg-emerald-500' };
