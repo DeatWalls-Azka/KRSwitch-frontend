@@ -530,7 +530,6 @@ export default function ScheduleGraphModal({
                                     right: '4px',
                                     minHeight: '5px',
                                     backgroundColor: s.bg,
-                                    borderLeft: `3px solid ${s.border}`,
                                     color: s.text,
                                     zIndex: tooltipData?.id === pc.id ? 20 : 10,
                                   }}

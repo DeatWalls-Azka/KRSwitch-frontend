@@ -90,10 +90,10 @@ export default function AdminWizardCard({ stats, onRefresh }: AdminWizardCardPro
       setError('Harap masukkan kedua file CSV (Jadwal Kelas dan Data Phase 1) untuk diimpor.');
       return;
     }
-    
+
     setIsProcessing(true);
     setError(null);
-    
+
     try {
       // 1. Always import classes first so schedules are in place
       if (pendingFiles.classes) {
@@ -108,7 +108,7 @@ export default function AdminWizardCard({ stats, onRefresh }: AdminWizardCardPro
         formData.append('file', pendingFiles.enrollments);
         await api.post('/api/admin/import-phase2', formData);
       }
-      
+
       onRefresh();
       setPendingFiles({ classes: null, enrollments: null });
       setActiveStep(1);
@@ -137,12 +137,11 @@ export default function AdminWizardCard({ stats, onRefresh }: AdminWizardCardPro
           <div className="flex items-center gap-1.5">
             {[0, 1].map((step) => (
               <div key={step} className="flex items-center gap-1.5">
-                <button 
+                <button
                   onClick={() => !isProcessing && setActiveStep(step)}
                   disabled={isProcessing}
-                  className={`text-[9px] font-bold uppercase tracking-tight transition-all hover:opacity-80 ${
-                    activeStep === step ? 'text-emerald-600' : 'text-muted-foreground/50 hover:text-muted-foreground'
-                  }`}
+                  className={`text-[9px] font-bold uppercase tracking-tight transition-all hover:opacity-80 ${activeStep === step ? 'text-emerald-600' : 'text-muted-foreground/50 hover:text-muted-foreground'
+                    }`}
                 >
                   Step {step + 1}
                 </button>
@@ -167,7 +166,7 @@ export default function AdminWizardCard({ stats, onRefresh }: AdminWizardCardPro
         <div className="w-full max-w-2xl mx-auto h-[170px] overflow-hidden">
           {activeStep === 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in duration-300">
-              
+
               {/* Dropzone 1: Classes */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between px-1">
@@ -175,25 +174,24 @@ export default function AdminWizardCard({ stats, onRefresh }: AdminWizardCardPro
                     <Calendar size={12} /> Course Schedules (CSV)
                   </div>
                   {pendingFiles.classes && (
-                    <button 
-                      onClick={() => setPendingFiles(prev => ({ ...prev, classes: null }))} 
+                    <button
+                      onClick={() => setPendingFiles(prev => ({ ...prev, classes: null }))}
                       className="text-destructive/50 hover:text-destructive transition-colors"
                     >
                       <Trash2 size={12} />
                     </button>
                   )}
                 </div>
-                <div 
-                  onDragOver={(e) => { e.preventDefault(); setDraggingType('classes'); }} 
-                  onDragLeave={() => setDraggingType(null)} 
+                <div
+                  onDragOver={(e) => { e.preventDefault(); setDraggingType('classes'); }}
+                  onDragLeave={() => setDraggingType(null)}
                   onDrop={(e) => handleDrop(e, 'classes')}
-                  className={`group relative py-7 border-2 rounded-md transition-all flex flex-col items-center justify-center space-y-1 ${
-                    draggingType === 'classes'
-                      ? 'border-primary bg-primary/5' 
+                  className={`group relative py-7 border-2 rounded-md transition-all flex flex-col items-center justify-center space-y-1 ${draggingType === 'classes'
+                      ? 'border-primary bg-primary/5'
                       : pendingFiles.classes
-                        ? 'border-emerald-500/30 bg-emerald-500/5 border-solid' 
+                        ? 'border-emerald-500/30 bg-emerald-500/5 border-solid'
                         : 'border-dashed border-border bg-muted/10 hover:bg-muted/20'
-                  }`}
+                    }`}
                 >
                   {pendingFiles.classes ? (
                     <div className="h-8 w-8 bg-emerald-500/10 rounded-full flex items-center justify-center">
@@ -205,12 +203,12 @@ export default function AdminWizardCard({ stats, onRefresh }: AdminWizardCardPro
                   <p className={`text-[11px] font-bold ${pendingFiles.classes ? 'text-emerald-700' : 'text-foreground/70'}`}>
                     {pendingFiles.classes ? pendingFiles.classes.name : ((stats?.totalClasses || 0) > 0 ? 'Replace Schedule CSV' : 'Drop Schedule CSV')}
                   </p>
-                  <input 
-                    type="file" 
-                    className="absolute inset-0 opacity-0 cursor-pointer" 
-                    accept=".csv" 
-                    onChange={(e) => handleFileSelect('classes', e.target.files?.[0])} 
-                    disabled={isProcessing} 
+                  <input
+                    type="file"
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                    accept=".csv"
+                    onChange={(e) => handleFileSelect('classes', e.target.files?.[0])}
+                    disabled={isProcessing}
                   />
                 </div>
                 <div className="text-[9px] text-muted-foreground text-center mt-1">
@@ -225,25 +223,24 @@ export default function AdminWizardCard({ stats, onRefresh }: AdminWizardCardPro
                     <Users size={12} /> Phase 1 Export (CSV)
                   </div>
                   {pendingFiles.enrollments && (
-                    <button 
-                      onClick={() => setPendingFiles(prev => ({ ...prev, enrollments: null }))} 
+                    <button
+                      onClick={() => setPendingFiles(prev => ({ ...prev, enrollments: null }))}
                       className="text-destructive/50 hover:text-destructive transition-colors"
                     >
                       <Trash2 size={12} />
                     </button>
                   )}
                 </div>
-                <div 
-                  onDragOver={(e) => { e.preventDefault(); setDraggingType('enrollments'); }} 
-                  onDragLeave={() => setDraggingType(null)} 
+                <div
+                  onDragOver={(e) => { e.preventDefault(); setDraggingType('enrollments'); }}
+                  onDragLeave={() => setDraggingType(null)}
                   onDrop={(e) => handleDrop(e, 'enrollments')}
-                  className={`group relative py-7 border-2 rounded-md transition-all flex flex-col items-center justify-center space-y-1 ${
-                    draggingType === 'enrollments'
-                      ? 'border-primary bg-primary/5' 
+                  className={`group relative py-7 border-2 rounded-md transition-all flex flex-col items-center justify-center space-y-1 ${draggingType === 'enrollments'
+                      ? 'border-primary bg-primary/5'
                       : pendingFiles.enrollments
-                        ? 'border-emerald-500/30 bg-emerald-500/5 border-solid' 
+                        ? 'border-emerald-500/30 bg-emerald-500/5 border-solid'
                         : 'border-dashed border-border bg-muted/10 hover:bg-muted/20'
-                  }`}
+                    }`}
                 >
                   {pendingFiles.enrollments ? (
                     <div className="h-8 w-8 bg-emerald-500/10 rounded-full flex items-center justify-center">
@@ -255,12 +252,12 @@ export default function AdminWizardCard({ stats, onRefresh }: AdminWizardCardPro
                   <p className={`text-[11px] font-bold ${pendingFiles.enrollments ? 'text-emerald-700' : 'text-foreground/70'}`}>
                     {pendingFiles.enrollments ? pendingFiles.enrollments.name : ((stats?.totalEnrollments || 0) > 0 ? 'Replace Phase 1 CSV' : 'Drop Phase 1 CSV')}
                   </p>
-                  <input 
-                    type="file" 
-                    className="absolute inset-0 opacity-0 cursor-pointer" 
-                    accept=".csv" 
-                    onChange={(e) => handleFileSelect('enrollments', e.target.files?.[0])} 
-                    disabled={isProcessing} 
+                  <input
+                    type="file"
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                    accept=".csv"
+                    onChange={(e) => handleFileSelect('enrollments', e.target.files?.[0])}
+                    disabled={isProcessing}
                   />
                 </div>
                 <div className="text-[9px] text-muted-foreground text-center mt-1 text-destructive/80 font-medium">
@@ -288,24 +285,24 @@ export default function AdminWizardCard({ stats, onRefresh }: AdminWizardCardPro
 
         {/* Footer */}
         <div className="flex items-center justify-between mt-auto pt-2">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            disabled={activeStep === 0 || isProcessing} 
-            onClick={() => setActiveStep(prev => prev - 1)} 
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={activeStep === 0 || isProcessing}
+            onClick={() => setActiveStep(prev => prev - 1)}
             className="h-8 text-[11px] font-bold px-3"
           >
             <ChevronLeft size={14} className="mr-1" /> Back
           </Button>
           {activeStep === 0 && (
-            <Button 
-              variant="admin" 
-              size="sm" 
-              disabled={(!pendingFiles.classes || !pendingFiles.enrollments) || isProcessing} 
-              onClick={handleCommit} 
+            <Button
+              variant="admin"
+              size="sm"
+              disabled={(!pendingFiles.classes || !pendingFiles.enrollments) || isProcessing}
+              onClick={handleCommit}
               className="h-8 text-[11px] font-bold px-6"
             >
-              {isProcessing ? <Loader2 className="animate-spin" size={14} /> : 'Commit Phase 2 Data'}
+              {isProcessing ? <Loader2 className="animate-spin" size={14} /> : 'Commit'}
               <ChevronRight size={14} className="ml-1" />
             </Button>
           )}
