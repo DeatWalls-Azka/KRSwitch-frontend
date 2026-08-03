@@ -151,7 +151,7 @@ export default function BarterCard({
               >
                 {offer.seekingCourseName}
               </div>
-              <div className={`font-semibold font-mono text-[9px] mt-0.5 tracking-wider ${isUnavailable ? 'text-gray-300 dark:text-gray-700' : 'text-gray-400 dark:text-gray-500'}`}>
+              <div className={`font-semibold font-mono text-[10px] mt-0.5 tracking-wider ${isUnavailable ? 'text-gray-300 dark:text-gray-700' : 'text-gray-400 dark:text-gray-500'}`}>
                 {offer.seekingCourse}
               </div>
             </div>
@@ -179,7 +179,7 @@ export default function BarterCard({
                 >
                   {offer.studentName}
                 </div>
-                <div className={`font-mono text-[9px] mt-0.5 tracking-wider truncate ${isUnavailable ? 'text-gray-300 dark:text-gray-700' : 'text-gray-400 dark:text-gray-500'}`}>
+                <div className={`font-mono text-[10px] mt-0.5 tracking-wider truncate ${isUnavailable ? 'text-gray-300 dark:text-gray-700' : 'text-gray-400 dark:text-gray-500'}`}>
                   {offer.nim}
                 </div>
               </div>

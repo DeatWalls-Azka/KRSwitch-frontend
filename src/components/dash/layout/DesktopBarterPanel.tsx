@@ -33,11 +33,11 @@ export default function DesktopBarterPanel({
       <div className="flex flex-col items-left px-4 py-3 bg-gray-50 dark:bg-gray-900 shrink-0 border-b border-gray-200 dark:border-gray-800">
         <div className="flex flex-row gap-1 items-center">
           <div className="mr-auto flex flex-col items-left">
-            <h2 className="text-xs font-bold text-gray-900 dark:text-gray-100">LIVE BARTER FEED PANEL</h2>
-            <h1 className="text-[11px] font-medium text-gray-600 dark:text-gray-400">Real Time: {offersCount} Offers</h1>
+            <h2 className="text-xs font-bold text-gray-900 dark:text-gray-100">PANEL BARTER LIVE</h2>
+            <h1 className="text-[11px] font-medium text-gray-600 dark:text-gray-400">Real Time: {offersCount} Penawaran</h1>
           </div>
           <FilterButton
-            label="ALL"
+            label="SEMUA"
             isActive={!filterByCourse && !filterForYou && !filterByYou}
             onClick={() => {
               setFilterByCourse(false);
@@ -53,7 +53,7 @@ export default function DesktopBarterPanel({
             />
           )}
           <FilterButton
-            label="BY YOU"
+            label="MILIKMU"
             isActive={filterByYou}
             onClick={() => {
               const newVal = !filterByYou;
@@ -62,7 +62,7 @@ export default function DesktopBarterPanel({
             }}
           />
           <FilterButton
-            label="FOR YOU"
+            label="UNTUKMU"
             isActive={filterForYou}
             onClick={() => {
               const newVal = !filterForYou;
@@ -82,7 +82,7 @@ export default function DesktopBarterPanel({
           onClick={onOpenCreateOffer}
           className="w-full bg-green-600 text-white text-[11px] font-bold py-2 px-2.5 border-0 cursor-pointer hover:bg-green-700 active:bg-green-800 transition-colors rounded-sm"
         >
-          CREATE BARTER OFFER
+          BUAT PENAWARAN BARTER
         </button>
       </div>
     </div>

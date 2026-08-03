@@ -40,7 +40,7 @@ export function useTradingState({
         : group.some(c => c.classCode.startsWith('R')) ? 2 : 0;
       return { code, name: group[0].courseName, type };
     });
-    return [{ code: 'Kelas Saya', name: 'My Enrollments', type: -1 }, ...defaultCourses];
+    return [{ code: 'Kelas Saya', name: 'Jadwal Saya', type: -1 }, ...defaultCourses];
   }, [parallelClasses]);
 
   const enrichedOffers = useMemo(() => {
@@ -103,24 +103,24 @@ export function useTradingState({
 
   const emptyStateText = useMemo(() => {
     const isKelasSaya = selectedCourse?.type === -1;
-    const courseText = isKelasSaya ? 'your enrolled courses' : `course ${selectedCourse?.code || 'this course'}`;
+    const courseText = isKelasSaya ? 'kelasmu' : `matkul ${selectedCourse?.code || 'ini'}`;
 
     if (filterByYou) {
       if (filterByCourse) {
-        return `You haven't created any barter offers for ${courseText}`;
+        return `Kamu belum membuat penawaran barter untuk ${courseText}`;
       }
-      return "You haven't created any barter offers";
+      return "Kamu belum membuat penawaran barter satupun";
     }
     if (filterForYou) {
       if (filterByCourse) {
-        return `No active barter offers for ${courseText} matching your schedule`;
+        return `Belum ada penawaran aktif untuk ${courseText} yang cocok dengan jadwalmu`;
       }
-      return "No active barter offers matching your schedule";
+      return "Belum ada penawaran barter aktif yang cocok dengan jadwalmu";
     }
     if (filterByCourse) {
-      return `No active barter offers for ${courseText}`;
+      return `Belum ada penawaran barter aktif untuk ${courseText}`;
     }
-    return "No active barter offers on the trading floor";
+    return "Belum ada penawaran barter di bursa";
   }, [filterByCourse, filterForYou, filterByYou, selectedCourse?.code, selectedCourse?.type]);
 
   useEffect(() => {

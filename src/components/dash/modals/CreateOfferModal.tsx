@@ -146,7 +146,7 @@ export default function CreateOfferForm({ onSuccess, onClose, enrollments: initi
       if (onSuccess) onSuccess();
       setSuccessMessage(res.data.isAutoMatched
         ? 'Auto-match! Pertukaran otomatis oleh sistem.'
-        : 'Offer created successfully!'
+        : 'Penawaran berhasil dibuat!'
       );
     } catch (err: any) {
       setError(err.response?.data?.error || err.message);
@@ -191,7 +191,7 @@ export default function CreateOfferForm({ onSuccess, onClose, enrollments: initi
 
           <div className="space-y-4 mx-8 pt-4">
             <div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 text-center">Create New Offer</h3>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 text-center">Buat Penawaran Baru</h3>
             </div>
 
             <div className="space-y-4">
@@ -209,7 +209,7 @@ export default function CreateOfferForm({ onSuccess, onClose, enrollments: initi
                   disabled={loading || myClasses.length === 0}
                 >
                   <SelectTrigger className="w-full bg-gray-50/50 dark:bg-gray-950/30 border dark:border-gray-800 dark:text-gray-200">
-                    <SelectValue placeholder={myClasses.length === 0 ? '-- Loading...' : '-- Pilih Kelas --'} />
+                    <SelectValue placeholder={myClasses.length === 0 ? '-- Memuat...' : '-- Pilih Kelas --'} />
                   </SelectTrigger>
                   <SelectContent>
                     {myClasses.map(c => (
@@ -251,9 +251,9 @@ export default function CreateOfferForm({ onSuccess, onClose, enrollments: initi
                   </SelectTrigger>
                   <SelectContent>
                     {availableTargets.map(c => (
-                      <SelectItem key={c.id} value={c.id.toString()}>
+                      <SelectItem key={c.id} value={c.id.toString()} disabled={!!c.conflictWith}>
                         {c.conflictWith
-                          ? `⚠️ ${c.classCode} - ${c.day}, ${c.timeStart} [bentrok]`
+                          ? `${c.classCode} - ${c.day}, ${c.timeStart} [bentrok]`
                           : `${c.classCode} - ${c.day}, ${c.timeStart} (${c.room})`}
                       </SelectItem>
                     ))}
@@ -262,7 +262,7 @@ export default function CreateOfferForm({ onSuccess, onClose, enrollments: initi
 
                 {selectedTargetHasConflict && (
                   <p className="mt-1.5 text-xs text-red-600 font-bold">
-                    &lt;!&gt; Kelas ini bentrok dengan {selectedTargetHasConflict.courseCode}-{selectedTargetHasConflict.classCode} ({selectedTargetHasConflict.day} {selectedTargetHasConflict.timeStart} - {selectedTargetHasConflict.timeEnd}). Penawaran akan ditolak server.
+                    Kelas ini bentrok dengan {selectedTargetHasConflict.courseCode}-{selectedTargetHasConflict.classCode} ({selectedTargetHasConflict.day} {selectedTargetHasConflict.timeStart} - {selectedTargetHasConflict.timeEnd}). Penawaran akan ditolak server.
                   </p>
                 )}
 
@@ -282,7 +282,7 @@ export default function CreateOfferForm({ onSuccess, onClose, enrollments: initi
               disabled={loading}
               className="flex-1 text-sm font-bold py-3 px-4 border border-gray-300 dark:border-gray-700 rounded hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors disabled:opacity-50"
             >
-              {successMessage ? 'CLOSE' : 'BATAL'}
+              {successMessage ? 'TUTUP' : 'BATAL'}
             </button>
             <button
               type="button"
@@ -290,7 +290,7 @@ export default function CreateOfferForm({ onSuccess, onClose, enrollments: initi
               disabled={loading || !selectedTargetClass || !!successMessage}
               className="flex-1 bg-green-600 text-white text-sm font-bold py-3 px-4 rounded hover:bg-green-700 active:bg-green-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              {loading ? 'MENGIRIM...' : successMessage ? 'COMPLETED' : 'POST'}
+              {loading ? 'MENGIRIM...' : successMessage ? 'SELESAI' : 'KIRIM'}
             </button>
           </div>
         </div>
@@ -300,7 +300,7 @@ export default function CreateOfferForm({ onSuccess, onClose, enrollments: initi
             <div
               className="bg-red-600 text-white text-xs font-bold px-4 py-2 rounded shadow-lg animate-shake"
             >
-              &lt;!&gt; {error} &lt;!&gt;
+              {error}
             </div>
           )}
           {successMessage && (
@@ -308,7 +308,7 @@ export default function CreateOfferForm({ onSuccess, onClose, enrollments: initi
               className="bg-green-600 text-white text-xs font-bold px-4 py-2 rounded shadow-lg"
               style={showMessage ? { animation: 'shake 0.25s ease-in-out' } : {}}
             >
-              &lt;✔&gt; {successMessage} &lt;✔&gt;
+              {successMessage}
             </div>
           )}
         </div>

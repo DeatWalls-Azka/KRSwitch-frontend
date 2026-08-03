@@ -250,7 +250,7 @@ export default function TradeConfirmationModal({
             <div
               className="bg-red-600 text-white text-xs font-bold px-4 py-2 rounded shadow-lg animate-shake"
             >
-              &lt;!&gt; {errorMessage} &lt;!&gt;
+              {errorMessage}
             </div>
           )}
           {successMessage && (
@@ -258,7 +258,7 @@ export default function TradeConfirmationModal({
               className="bg-green-600 text-white text-xs font-bold px-4 py-2 rounded shadow-lg animate-shake"
               style={showMessage ? { animation: 'shake 0.25s ease-in-out' } : {}}
             >
-              &lt;✔&gt; {successMessage} &lt;✔&gt;
+              {successMessage}
             </div>
           )}
         </div>

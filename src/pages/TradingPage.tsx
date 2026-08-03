@@ -111,7 +111,7 @@ export default function TradingPage() {
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
-        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+        <div className="text-gray-600 dark:text-gray-400">Memuat...</div>
       </div>
     );
   }

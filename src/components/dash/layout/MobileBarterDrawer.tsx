@@ -341,8 +341,8 @@ export default function MobileBarterDrawer({
           onTouchStart={(e) => handleDragStart(e.touches[0].clientY)}
         >
           <div className="flex flex-col items-left">
-            <h2 className="text-xs font-bold text-gray-900 dark:text-gray-100 tracking-wide">LIVE BARTER FEED PANEL</h2>
-            <h1 className="text-[11px] font-medium text-gray-600 dark:text-gray-400">Real Time: {offersCount} Offers</h1>
+            <h2 className="text-xs font-bold text-gray-900 dark:text-gray-100 tracking-wide">PANEL BARTER LIVE</h2>
+            <h1 className="text-[11px] font-medium text-gray-600 dark:text-gray-400">Real Time: {offersCount} Penawaran</h1>
           </div>
           <button
             onClick={(e) => {
@@ -351,7 +351,7 @@ export default function MobileBarterDrawer({
             }}
             className="bg-green-600 text-white text-[10px] font-bold py-1.5 px-3 rounded-md border border-solid border-green-600 cursor-pointer hover:bg-green-700 active:bg-green-800 transition-colors shadow-sm"
           >
-            CREATE OFFER
+            BUAT PENAWARAN
           </button>
         </div>
 
@@ -370,7 +370,7 @@ export default function MobileBarterDrawer({
                   : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'
               }`}
             >
-              ALL
+              SEMUA
             </button>
             {!isKelasSaya && (
               <button
@@ -396,7 +396,7 @@ export default function MobileBarterDrawer({
                   : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'
               }`}
             >
-              BY YOU
+              MILIKMU
             </button>
             <button
               onClick={() => {
@@ -410,7 +410,7 @@ export default function MobileBarterDrawer({
                   : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'
               }`}
             >
-              FOR YOU
+              UNTUKMU
             </button>
           </div>
 
