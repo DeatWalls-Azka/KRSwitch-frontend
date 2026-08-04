@@ -563,7 +563,7 @@ export default function CreateOfferForm({
             style={{ height: bodyHeight !== undefined ? `${bodyHeight}px` : 'auto' }}
           >
             <div ref={contentRef}>
-              <div key={offerMode} className="px-4 md:px-8 pt-2 pb-1 space-y-2">
+              <div key={offerMode} className="px-4 md:px-8 pt-3.5 pb-2 space-y-3">
                 {offerMode === 'swap' ? (
                   <>
                     {swapType === 'single' ? (

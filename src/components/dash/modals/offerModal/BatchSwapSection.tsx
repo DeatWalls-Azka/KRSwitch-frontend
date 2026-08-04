@@ -64,7 +64,7 @@ export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
   getClassCodeColor,
 }) => {
   return (
-    <div key={swapType} className="space-y-2">
+    <div key={swapType} className="space-y-3">
       {/* Inline Selector Row 1: Tipe Selector */}
       <div className="flex items-center gap-2 text-[11px] sm:text-xs animate-tab-content opacity-0 stagger-1">
         <span className="text-gray-500 dark:text-gray-400 font-bold">Tipe:</span>
