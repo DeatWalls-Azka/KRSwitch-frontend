@@ -55,6 +55,8 @@ export const markAllNotificationsRead = () =>
   api.patch('/api/notifications/read-all');
 export const getSocketToken = () => 
   api.get<{ token: string }>('/api/socket-token');
+export const getBarterStatus = () =>
+  api.get<{ enabled: boolean }>('/api/barter-status');
 
 // --- API Admin ------------------------------------------------
 
@@ -115,5 +117,10 @@ export const overrideSwap = (swapData: {
   nim2: string;
   classId2: number;
 }) => api.post<{ success: boolean }>('/api/admin/override-swap', swapData);
+
+export const getAdminBarterStatus = () =>
+  api.get<{ enabled: boolean }>('/api/admin/barter-status');
+export const toggleBarterStatus = (enabled: boolean) =>
+  api.post<{ message: string; enabled: boolean }>('/api/admin/barter-toggle', { enabled });
 
 export default api;

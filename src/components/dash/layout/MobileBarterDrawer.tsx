@@ -15,6 +15,7 @@ interface MobileBarterDrawerProps {
   filterByYou: boolean;
   setFilterByYou: (val: boolean) => void;
   onOpenCreateOffer: () => void;
+  isBarterEnabled?: boolean;
   children: React.ReactNode;
 }
 
@@ -31,6 +32,7 @@ export default function MobileBarterDrawer({
   filterByYou,
   setFilterByYou,
   onOpenCreateOffer,
+  isBarterEnabled = true,
   children
 }: MobileBarterDrawerProps) {
   const [windowHeight, setWindowHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 800);
@@ -347,11 +349,16 @@ export default function MobileBarterDrawer({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onOpenCreateOffer();
+              if (isBarterEnabled) onOpenCreateOffer();
             }}
-            className="bg-green-600 text-white text-[10px] font-bold py-1.5 px-3 rounded-md border border-solid border-green-600 cursor-pointer hover:bg-green-700 active:bg-green-800 transition-colors shadow-sm"
+            disabled={!isBarterEnabled}
+            className={`text-white text-[10px] font-bold py-1.5 px-3 rounded-md border border-solid transition-colors shadow-sm ${
+              isBarterEnabled
+                ? 'bg-green-600 border-green-600 cursor-pointer hover:bg-green-700 active:bg-green-800'
+                : 'bg-gray-400 border-gray-400 dark:bg-gray-700 cursor-not-allowed opacity-75'
+            }`}
           >
-            BUAT PENAWARAN
+            {isBarterEnabled ? 'BUAT PENAWARAN' : 'BARTER DITUTUP'}
           </button>
         </div>
 

@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { markAllNotificationsRead } from '../api';
+import React, { useEffect, useState } from 'react';
+import { markAllNotificationsRead, getBarterStatus } from '../api';
 
 import DashboardHeader from '../components/dash/DashboardHeader';
 import CourseFilterTabs from '../components/dash/tabs/CourseFilterTabs';
@@ -52,6 +52,15 @@ export default function TradingPage() {
   const [showScheduleModal, setShowScheduleModal] = React.useState(false);
   const [drawerY, setDrawerY] = React.useState<number | null>(null);
 
+  // --- Barter Enabled State ---
+  const [barterEnabled, setBarterEnabled] = useState<boolean>(true);
+
+  useEffect(() => {
+    getBarterStatus()
+      .then(res => setBarterEnabled(res.data.enabled))
+      .catch(() => {});
+  }, []);
+
   // --- Animasi ---
   const {
     exitingOfferIds, enteringOfferIds, offersToDisplay,
@@ -64,6 +73,20 @@ export default function TradingPage() {
     setApiOffers, setEnrollments, setNotifications,
     exitingOffersCache,
   });
+
+  useEffect(() => {
+    const socket = socketRef.current;
+    if (!socket) return;
+
+    const handleBarterStatusChanged = (data: { enabled: boolean }) => {
+      setBarterEnabled(data.enabled);
+    };
+
+    socket.on('barter-status-changed', handleBarterStatusChanged);
+    return () => {
+      socket.off('barter-status-changed', handleBarterStatusChanged);
+    };
+  }, [socketRef.current]);
 
   // --- Tooltip ---
   const { tooltipContent, setTooltipContent, tooltipVisible, tooltipPos, handleMouseMove } = useTooltip();
@@ -151,7 +174,10 @@ export default function TradingPage() {
           const isPickDrop = offer.type === 'pick_drop';
 
           if (offer.nim !== currentUser?.nim) {
-            if (isPickDrop) {
+            if (!barterEnabled) {
+              canAccept = false;
+              tooltipText = 'Sistem barter sedang ditutup oleh admin.';
+            } else if (isPickDrop) {
               const isEnrolledInCourse = Object.keys(myEnrollmentMap).some(key => key.startsWith(`${offer.seekingCourse}-`));
               canAccept = !isEnrolledInCourse;
               
@@ -245,6 +271,7 @@ export default function TradingPage() {
           filterByYou={filterByYou}
           setFilterByYou={setFilterByYou}
           onOpenCreateOffer={() => setIsFormOpen(true)}
+          isBarterEnabled={barterEnabled}
         >
           {barterFeedContent}
         </DesktopBarterPanel>
@@ -263,6 +290,7 @@ export default function TradingPage() {
         filterByYou={filterByYou}
         setFilterByYou={setFilterByYou}
         onOpenCreateOffer={() => setIsFormOpen(true)}
+        isBarterEnabled={barterEnabled}
       >
         {barterFeedContent}
       </MobileBarterDrawer>
