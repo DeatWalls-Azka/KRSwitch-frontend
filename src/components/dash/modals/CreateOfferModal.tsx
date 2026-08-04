@@ -47,7 +47,7 @@ function hasScheduleConflict(classA: ScheduleItem, classB: ScheduleItem): boolea
   return classA.timeStart < classB.timeEnd && classB.timeStart < classA.timeEnd;
 }
 
-function generatePresetRows(
+export function generatePresetRows(
   presetId: string,
   myClasses: EnrichedClass[],
   allClasses: ParallelClass[]

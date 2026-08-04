@@ -10,6 +10,7 @@ import {
 import { cn } from '../../../../utils/styleUtils';
 import { Plus, ArrowRight, Trash2 } from 'lucide-react';
 import type { ParallelClass } from '../../../../types';
+import { generatePresetRows } from '../CreateOfferModal';
 
 interface EnrichedClass {
   id: number;
@@ -115,20 +116,28 @@ export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
             >
               Custom
             </button>
-            {PACKAGE_PRESETS.map((preset) => (
-              <button
-                key={preset.id}
-                type="button"
-                onClick={() => handleSelectPreset(preset.id)}
-                className={`transition-colors cursor-pointer ${
-                  selectedPreset === preset.id
-                    ? 'font-bold text-gray-900 dark:text-gray-100'
-                    : 'text-gray-400 dark:text-gray-500 font-semibold hover:text-gray-700 dark:hover:text-gray-300'
-                }`}
-              >
-                {preset.name}
-              </button>
-            ))}
+            {PACKAGE_PRESETS.map((preset) => {
+              const isZeroOffer =
+                myClasses.length > 0 &&
+                generatePresetRows(preset.id, myClasses, allClasses).length === 0;
+
+              return (
+                <button
+                  key={preset.id}
+                  type="button"
+                  disabled={isZeroOffer}
+                  title={isZeroOffer ? 'Anda sudah berada di paket ini' : undefined}
+                  onClick={() => handleSelectPreset(preset.id)}
+                  className={`transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
+                    selectedPreset === preset.id
+                      ? 'font-bold text-gray-900 dark:text-gray-100'
+                      : 'text-gray-400 dark:text-gray-500 font-semibold hover:text-gray-700 dark:hover:text-gray-300'
+                  }`}
+                >
+                  {preset.name}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
