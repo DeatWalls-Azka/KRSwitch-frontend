@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { getEnrollments, getClasses, createOffer, createBatchOffers, createPickDropOffer, getUsers, getOffers } from '../../../api';
 import { useAuth } from '../../../context/AuthContext';
 import type { ParallelClass, User } from '../../../types';
@@ -508,6 +508,23 @@ export default function CreateOfferForm({
     }
   };
 
+  const modalInnerRef = useRef<HTMLDivElement>(null);
+  const [modalHeight, setModalHeight] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    if (!modalInnerRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const newHeight = entry.borderBoxSize?.[0]?.blockSize || entry.contentRect.height;
+        if (newHeight > 0) {
+          setModalHeight(newHeight);
+        }
+      }
+    });
+    observer.observe(modalInnerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   const handleClose = () => {
     setIsClosing(true);
     setTimeout(() => onClose(), 150);
@@ -520,20 +537,6 @@ export default function CreateOfferForm({
     if (e.key === 'Escape' && !loading) handleClose();
   };
 
-  const contentRef = React.useRef<HTMLDivElement>(null);
-  const [contentHeight, setContentHeight] = useState<number | undefined>(undefined);
-
-  useEffect(() => {
-    if (!contentRef.current) return;
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        setContentHeight(entry.contentRect.height);
-      }
-    });
-    observer.observe(contentRef.current);
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <div
       className={`fixed inset-0 bg-gray-900/60 dark:bg-black/80 z-50 p-3 sm:p-4 overflow-y-auto flex items-center justify-center ${
@@ -544,98 +547,96 @@ export default function CreateOfferForm({
     >
       <div className="w-full max-w-lg my-auto relative">
         <div
-          className={`bg-white dark:bg-gray-900 border dark:border-gray-800 rounded-lg shadow-2xl relative ${
+          className={`bg-white dark:bg-gray-900 border dark:border-gray-800 rounded-lg shadow-2xl relative transition-[height] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
             isClosing ? 'animate-popDown' : 'animate-popUp'
           }`}
+          style={modalHeight ? { height: `${modalHeight}px` } : undefined}
           onClick={(e) => e.stopPropagation()}
         >
-          <OfferModalHeader
-            offerMode={offerMode}
-            setOfferMode={setOfferMode}
-            onClose={handleClose}
-            loading={loading}
-            clearError={() => setError('')}
-          />
+          <div ref={modalInnerRef}>
+            <OfferModalHeader
+              offerMode={offerMode}
+              setOfferMode={setOfferMode}
+              onClose={handleClose}
+              loading={loading}
+              clearError={() => setError('')}
+            />
 
-          {/* Body Content with Smooth Height Transition */}
-          <div
-            className="overflow-hidden transition-[height] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
-            style={{ height: contentHeight ? `${contentHeight}px` : 'auto' }}
-          >
-            <div ref={contentRef} key={offerMode} className="px-4 md:px-8 pt-3.5 pb-2 space-y-3">
+            {/* Body Content */}
+            <div key={offerMode} className="px-4 md:px-8 pt-3.5 pb-2 space-y-3">
               {offerMode === 'swap' ? (
-              <>
-                {swapType === 'single' ? (
-                  <SingleSwapSection
-                    swapType={swapType}
-                    setSwapType={setSwapType}
-                    selectedMyClass={selectedMyClass}
-                    setSelectedMyClass={setSelectedMyClass}
-                    selectedTargetClass={selectedTargetClass}
-                    setSelectedTargetClass={setSelectedTargetClass}
-                    myClasses={myClasses}
-                    displayedMyClasses={displayedMyClasses}
-                    availableTargets={availableTargets}
-                    activeOfferClassIds={activeOfferClassIds}
-                    loading={loading}
-                    clearError={() => setError('')}
-                    getClassCodeColor={getClassCodeColor}
-                  />
-                ) : (
-                  <BatchSwapSection
-                    swapType={swapType}
-                    setSwapType={setSwapType}
-                    selectedPreset={selectedPreset}
-                    handleSelectPreset={handleSelectPreset}
-                    batchRows={batchRows}
-                    handleBatchRowChange={handleBatchRowChange}
-                    handleAddBatchRow={handleAddBatchRow}
-                    handleRemoveBatchRow={handleRemoveBatchRow}
-                    rowConflictDetails={rowConflictDetails}
-                    bentrokCount={bentrokCount}
-                    myClasses={myClasses}
-                    allClasses={allClasses}
-                    activeOfferClassIds={activeOfferClassIds}
-                    clearError={() => setError('')}
-                    getClassCodeColor={getClassCodeColor}
-                  />
-                )}
-              </>
-            ) : (
-              <DropSeatSection
-                selectedMyClass={selectedMyClass}
-                setSelectedMyClass={setSelectedMyClass}
-                myClasses={myClasses}
-                displayedMyClasses={displayedMyClasses}
-                dropType={dropType}
-                setDropType={setDropType}
-                targetNim={targetNim}
-                setTargetNim={setTargetNim}
-                isDropdownOpen={isDropdownOpen}
-                setIsDropdownOpen={setIsDropdownOpen}
-                users={users}
-                currentUserNim={user?.nim}
-                activeOfferClassIds={activeOfferClassIds}
-                loading={loading}
-                clearError={() => setError('')}
-              />
-            )}
-          </div>
-        </div>
+                <>
+                  {swapType === 'single' ? (
+                    <SingleSwapSection
+                      swapType={swapType}
+                      setSwapType={setSwapType}
+                      selectedMyClass={selectedMyClass}
+                      setSelectedMyClass={setSelectedMyClass}
+                      selectedTargetClass={selectedTargetClass}
+                      setSelectedTargetClass={setSelectedTargetClass}
+                      myClasses={myClasses}
+                      displayedMyClasses={displayedMyClasses}
+                      availableTargets={availableTargets}
+                      activeOfferClassIds={activeOfferClassIds}
+                      loading={loading}
+                      clearError={() => setError('')}
+                      getClassCodeColor={getClassCodeColor}
+                    />
+                  ) : (
+                    <BatchSwapSection
+                      swapType={swapType}
+                      setSwapType={setSwapType}
+                      selectedPreset={selectedPreset}
+                      handleSelectPreset={handleSelectPreset}
+                      batchRows={batchRows}
+                      handleBatchRowChange={handleBatchRowChange}
+                      handleAddBatchRow={handleAddBatchRow}
+                      handleRemoveBatchRow={handleRemoveBatchRow}
+                      rowConflictDetails={rowConflictDetails}
+                      bentrokCount={bentrokCount}
+                      myClasses={myClasses}
+                      allClasses={allClasses}
+                      activeOfferClassIds={activeOfferClassIds}
+                      clearError={() => setError('')}
+                      getClassCodeColor={getClassCodeColor}
+                    />
+                  )}
+                </>
+              ) : (
+                <DropSeatSection
+                  selectedMyClass={selectedMyClass}
+                  setSelectedMyClass={setSelectedMyClass}
+                  myClasses={myClasses}
+                  displayedMyClasses={displayedMyClasses}
+                  dropType={dropType}
+                  setDropType={setDropType}
+                  targetNim={targetNim}
+                  setTargetNim={setTargetNim}
+                  isDropdownOpen={isDropdownOpen}
+                  setIsDropdownOpen={setIsDropdownOpen}
+                  users={users}
+                  currentUserNim={user?.nim}
+                  activeOfferClassIds={activeOfferClassIds}
+                  loading={loading}
+                  clearError={() => setError('')}
+                />
+              )}
+            </div>
 
-        <OfferModalFooter
-            submitDisabledReason={submitDisabledReason}
-            isSubmitDisabled={isSubmitDisabled}
-            error={error}
-            successMessage={successMessage}
-            showMessage={showMessage}
-            loading={loading}
-            offerMode={offerMode}
-            swapType={swapType}
-            batchRowCount={batchRows.length}
-            handleClose={handleClose}
-            handleSubmit={handleSubmit}
-          />
+            <OfferModalFooter
+              submitDisabledReason={submitDisabledReason}
+              isSubmitDisabled={isSubmitDisabled}
+              error={error}
+              successMessage={successMessage}
+              showMessage={showMessage}
+              loading={loading}
+              offerMode={offerMode}
+              swapType={swapType}
+              batchRowCount={batchRows.length}
+              handleClose={handleClose}
+              handleSubmit={handleSubmit}
+            />
+          </div>
         </div>
 
         {/* Floating Feedback Banner Below Modal Card */}
