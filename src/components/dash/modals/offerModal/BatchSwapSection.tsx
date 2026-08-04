@@ -64,7 +64,7 @@ export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
   getClassCodeColor,
 }) => {
   return (
-    <div key={swapType} className="space-y-3">
+    <div key={swapType} className="space-y-2">
       {/* Inline Selector Row 1: Tipe Selector */}
       <div className="flex items-center gap-2 text-[11px] sm:text-xs animate-tab-content opacity-0 stagger-1">
         <span className="text-gray-500 dark:text-gray-400 font-bold">Tipe:</span>
@@ -144,9 +144,9 @@ export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
 
       {/* BATCH ROWS TABLE */}
       {swapType === 'batch' && (
-        <div className="space-y-1 pt-1 animate-tab-content opacity-0 stagger-3">
+        <div className="space-y-0.5 pt-0.5 animate-tab-content opacity-0 stagger-3">
           {/* Header Row: count · conflicts + Tambah kelas button */}
-          <div className="flex items-center justify-between pb-0">
+          <div className="flex items-center justify-between pb-0.5">
             <div className="text-[11px] sm:text-xs font-semibold text-gray-600 dark:text-gray-400">
               <span>{batchRows.length} penawaran</span>
               {bentrokCount > 0 ? (
@@ -190,7 +190,7 @@ export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
               return (
                 <div
                   key={idx}
-                  className="group py-1.5 px-2 -mx-2 rounded-lg hover:bg-gray-100/70 dark:hover:bg-gray-800/40 flex items-center justify-between gap-1.5 text-xs sm:text-sm transition-all"
+                  className="group py-0.5 px-1.5 -mx-1.5 rounded-lg hover:bg-gray-100/70 dark:hover:bg-gray-800/40 flex items-center justify-between gap-1.5 text-xs transition-all"
                 >
                   <div className="flex items-center gap-1.5 flex-1 min-w-0">
                     {/* Source Class Select */}
@@ -201,7 +201,7 @@ export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
                       >
                         <SelectTrigger
                           chevronClassName="opacity-0 group-hover:opacity-40 transition-opacity"
-                          className="w-full h-7 text-xs bg-transparent border border-transparent shadow-none hover:bg-white dark:hover:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-xs focus:bg-white dark:focus:bg-gray-900 focus:border-gray-400 dark:focus:border-gray-600 px-1.5 transition-all group-hover:border-gray-200 dark:group-hover:border-gray-800"
+                          className="w-full h-6.5 text-[11px] bg-transparent border border-transparent shadow-none hover:bg-white dark:hover:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-xs focus:bg-white dark:focus:bg-gray-900 focus:border-gray-400 dark:focus:border-gray-600 px-1.5 transition-all group-hover:border-gray-200 dark:group-hover:border-gray-800"
                         >
                           <SelectValue placeholder="Pilih Kelas" />
                         </SelectTrigger>
@@ -236,7 +236,7 @@ export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
                       >
                         <SelectTrigger
                           chevronClassName="opacity-0 group-hover:opacity-40 transition-opacity ml-0.5"
-                          className="h-7 text-xs bg-transparent border border-transparent shadow-none hover:bg-white dark:hover:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-xs focus:bg-white dark:focus:bg-gray-900 focus:border-gray-400 dark:focus:border-gray-600 px-1 transition-all group-hover:border-gray-200 dark:group-hover:border-gray-800"
+                          className="h-6.5 text-[11px] bg-transparent border border-transparent shadow-none hover:bg-white dark:hover:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-xs focus:bg-white dark:focus:bg-gray-900 focus:border-gray-400 dark:focus:border-gray-600 px-1 transition-all group-hover:border-gray-200 dark:group-hover:border-gray-800"
                         >
                           <SelectValue placeholder="Target" />
                         </SelectTrigger>
@@ -256,18 +256,18 @@ export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
                     <div className="flex-1 min-w-0 pl-0 truncate">
                       {conflictMsg ? (
                         <span
-                          className="text-red-600 dark:text-red-400 font-bold text-xs truncate block"
+                          className="text-red-600 dark:text-red-400 font-bold text-[11px] sm:text-xs truncate block"
                           title={conflictMsg}
                         >
                           {targetClassObj ? `${targetClassObj.day}: ` : ''}
                           {conflictMsg}
                         </span>
                       ) : targetClassObj ? (
-                        <span className="text-gray-700 dark:text-gray-300 font-semibold text-xs truncate block">
+                        <span className="text-gray-700 dark:text-gray-300 font-semibold text-[11px] sm:text-xs truncate block">
                           {targetClassObj.day}
                         </span>
                       ) : (
-                        <span className="text-gray-400 dark:text-gray-500 text-xs italic block">pilih target</span>
+                        <span className="text-gray-400 dark:text-gray-500 text-[11px] italic block">pilih target</span>
                       )}
                     </div>
                   </div>
@@ -276,7 +276,7 @@ export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
                   <button
                     type="button"
                     onClick={() => handleRemoveBatchRow(idx)}
-                    className="text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded p-1 shrink-0 opacity-40 group-hover:opacity-100 transition-all"
+                    className="text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded p-0.5 shrink-0 opacity-40 group-hover:opacity-100 transition-all"
                     title="Hapus baris"
                   >
                     <Trash2 className="w-4 h-4" />
