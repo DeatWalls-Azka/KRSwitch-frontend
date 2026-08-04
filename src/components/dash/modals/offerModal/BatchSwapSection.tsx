@@ -163,7 +163,7 @@ export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
           </div>
 
           {/* Batch Items List */}
-          <div className="divide-y divide-gray-200/60 dark:divide-gray-800/60 border-t border-b border-gray-200 dark:border-gray-800">
+          <div className="divide-y divide-gray-200/60 dark:divide-gray-800/60 border-t border-b border-gray-200 dark:border-gray-800 max-h-[260px] sm:max-h-[300px] overflow-y-auto pr-1">
             {batchRows.map((row, idx) => {
               const currentMyClass = myClasses.find((m) => m.id === parseInt(row.myClassId));
               const availableRowTargets = currentMyClass

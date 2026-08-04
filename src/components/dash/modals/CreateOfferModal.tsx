@@ -536,15 +536,15 @@ export default function CreateOfferForm({
 
   return (
     <div
-      className={`fixed inset-0 bg-gray-900/60 dark:bg-black/80 z-50 p-3 sm:p-4 overflow-y-auto flex items-center justify-center ${
+      className={`fixed inset-0 bg-gray-900/60 dark:bg-black/80 z-50 p-3 sm:p-4 flex items-center justify-center ${
         isClosing ? 'animate-fadeOut' : 'animate-fadeIn'
       }`}
       onKeyDown={handleKeyDown}
       onClick={handleBackdropClick}
     >
-      <div className="w-full max-w-lg my-auto relative">
+      <div className="w-full max-w-lg my-auto relative max-h-[90vh] flex flex-col">
         <div
-          className={`bg-white dark:bg-gray-900 border dark:border-gray-800 rounded-lg shadow-2xl relative transition-all duration-300 ease-out ${
+          className={`bg-white dark:bg-gray-900 border dark:border-gray-800 rounded-lg shadow-2xl relative flex flex-col max-h-[90vh] overflow-hidden transition-all duration-300 ease-out ${
             isClosing ? 'animate-popDown' : 'animate-popUp'
           }`}
           onClick={(e) => e.stopPropagation()}
@@ -559,7 +559,7 @@ export default function CreateOfferForm({
 
           {/* Animated Body Content Container */}
           <div
-            className="transition-[height] duration-300 ease-out overflow-hidden"
+            className="flex-1 min-h-0 overflow-y-auto transition-[height] duration-300 ease-out"
             style={{ height: bodyHeight !== undefined ? `${bodyHeight}px` : 'auto' }}
           >
             <div ref={contentRef}>
