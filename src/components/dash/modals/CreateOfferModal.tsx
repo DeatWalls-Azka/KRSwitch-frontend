@@ -520,6 +520,20 @@ export default function CreateOfferForm({
     if (e.key === 'Escape' && !loading) handleClose();
   };
 
+  const contentRef = React.useRef<HTMLDivElement>(null);
+  const [contentHeight, setContentHeight] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    if (!contentRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setContentHeight(entry.contentRect.height);
+      }
+    });
+    observer.observe(contentRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div
       className={`fixed inset-0 bg-gray-900/60 dark:bg-black/80 z-50 p-3 sm:p-4 overflow-y-auto flex items-center justify-center ${
@@ -543,9 +557,13 @@ export default function CreateOfferForm({
             clearError={() => setError('')}
           />
 
-          {/* Body Content */}
-          <div key={offerMode} className="px-4 md:px-8 pt-3.5 pb-2 space-y-3">
-            {offerMode === 'swap' ? (
+          {/* Body Content with Smooth Height Transition */}
+          <div
+            className="overflow-hidden transition-[height] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+            style={{ height: contentHeight ? `${contentHeight}px` : 'auto' }}
+          >
+            <div ref={contentRef} key={offerMode} className="px-4 md:px-8 pt-3.5 pb-2 space-y-3">
+              {offerMode === 'swap' ? (
               <>
                 {swapType === 'single' ? (
                   <SingleSwapSection
@@ -603,8 +621,9 @@ export default function CreateOfferForm({
               />
             )}
           </div>
+        </div>
 
-          <OfferModalFooter
+        <OfferModalFooter
             submitDisabledReason={submitDisabledReason}
             isSubmitDisabled={isSubmitDisabled}
             error={error}
