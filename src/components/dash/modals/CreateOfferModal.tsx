@@ -544,7 +544,7 @@ export default function CreateOfferForm({
           />
 
           {/* Body Content */}
-          <div className="px-4 md:px-8 pt-3.5 pb-2 space-y-3">
+          <div key={offerMode} className="px-4 md:px-8 pt-3.5 pb-2 space-y-3">
             {offerMode === 'swap' ? (
               <>
                 {swapType === 'single' ? (

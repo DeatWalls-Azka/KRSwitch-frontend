@@ -77,8 +77,8 @@ export const DropSeatSection: React.FC<DropSeatSectionProps> = ({
   );
 
   return (
-    <div className="space-y-3">
-      <div>
+    <div key={dropType} className="space-y-3">
+      <div className="animate-tab-content opacity-0 stagger-1">
         <label className="block text-xs text-gray-500 dark:text-gray-400 font-bold mb-1">
           Kelas yang Ingin Dilepas (Drop)
         </label>
@@ -115,7 +115,7 @@ export const DropSeatSection: React.FC<DropSeatSectionProps> = ({
         </Select>
       </div>
 
-      <div className="space-y-3 p-3 bg-red-50/50 dark:bg-red-950/20 border border-red-200/50 dark:border-red-900/30 rounded-lg">
+      <div className="space-y-3 p-3 bg-red-50/50 dark:bg-red-950/20 border border-red-200/50 dark:border-red-900/30 rounded-lg animate-tab-content opacity-0 stagger-2">
         <div className="text-[10px] sm:text-xs text-red-700 dark:text-red-300 bg-red-100/50 dark:bg-red-900/50 p-2 rounded border border-red-200 dark:border-red-800 flex items-start gap-2">
           <Info className="w-4 h-4 mt-0.5 shrink-0" />
           <span>
@@ -149,7 +149,7 @@ export const DropSeatSection: React.FC<DropSeatSectionProps> = ({
         </div>
 
         {dropType === 'targeted' && (
-          <div className="mt-2 relative" ref={dropdownRef}>
+          <div key="targeted-input" className="mt-2 relative animate-tab-content opacity-0 stagger-1" ref={dropdownRef}>
             <label className="block text-[11px] text-gray-600 dark:text-gray-400 font-semibold mb-1">
               NIM Penerima Khusus
             </label>

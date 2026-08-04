@@ -63,9 +63,9 @@ export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
   getClassCodeColor,
 }) => {
   return (
-    <div className="space-y-3">
+    <div key={swapType} className="space-y-3">
       {/* Inline Selector Row 1: Tipe Selector */}
-      <div className="flex items-center gap-2 text-[11px] sm:text-xs">
+      <div className="flex items-center gap-2 text-[11px] sm:text-xs animate-tab-content opacity-0 stagger-1">
         <span className="text-gray-500 dark:text-gray-400 font-bold">Tipe:</span>
         <div className="flex items-center gap-2.5">
           <button
@@ -74,10 +74,11 @@ export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
               setSwapType('single');
               clearError();
             }}
-            className={`transition-colors cursor-pointer ${swapType === 'single'
-              ? 'font-bold text-gray-900 dark:text-gray-100'
-              : 'text-gray-400 dark:text-gray-500 font-medium hover:text-gray-700 dark:hover:text-gray-300'
-              }`}
+            className={`transition-colors cursor-pointer ${
+              swapType === 'single'
+                ? 'font-bold text-gray-900 dark:text-gray-100'
+                : 'text-gray-400 dark:text-gray-500 font-semibold hover:text-gray-700 dark:hover:text-gray-300'
+            }`}
           >
             Tukar 1 Kelas
           </button>
@@ -87,10 +88,11 @@ export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
               setSwapType('batch');
               clearError();
             }}
-            className={`transition-colors cursor-pointer ${swapType === 'batch'
-              ? 'font-bold text-gray-900 dark:text-gray-100'
-              : 'text-gray-400 dark:text-gray-500 font-medium hover:text-gray-700 dark:hover:text-gray-300'
-              }`}
+            className={`transition-colors cursor-pointer ${
+              swapType === 'batch'
+                ? 'font-bold text-gray-900 dark:text-gray-100'
+                : 'text-gray-400 dark:text-gray-500 font-semibold hover:text-gray-700 dark:hover:text-gray-300'
+            }`}
           >
             Tukar Banyak (Batch)
           </button>
@@ -99,16 +101,17 @@ export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
 
       {/* Inline Selector Row 2: Preset Selector (When batch is active) */}
       {swapType === 'batch' && (
-        <div className="flex items-center gap-2 text-[11px] sm:text-xs overflow-x-auto pb-0.5">
+        <div className="flex items-center gap-2 text-[11px] sm:text-xs overflow-x-auto pb-0.5 animate-tab-content opacity-0 stagger-2">
           <span className="text-gray-500 dark:text-gray-400 font-bold shrink-0">Preset:</span>
           <div className="flex items-center gap-2.5 shrink-0">
             <button
               type="button"
               onClick={() => handleSelectPreset('custom')}
-              className={`transition-colors cursor-pointer ${selectedPreset === 'custom'
-                ? 'font-bold text-gray-900 dark:text-gray-100'
-                : 'text-gray-400 dark:text-gray-500 font-medium hover:text-gray-700 dark:hover:text-gray-300'
-                }`}
+              className={`transition-colors cursor-pointer ${
+                selectedPreset === 'custom'
+                  ? 'font-bold text-gray-900 dark:text-gray-100'
+                  : 'text-gray-400 dark:text-gray-500 font-semibold hover:text-gray-700 dark:hover:text-gray-300'
+              }`}
             >
               Custom
             </button>
@@ -117,10 +120,11 @@ export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
                 key={preset.id}
                 type="button"
                 onClick={() => handleSelectPreset(preset.id)}
-                className={`transition-colors cursor-pointer ${selectedPreset === preset.id
-                  ? 'font-bold text-gray-900 dark:text-gray-100'
-                  : 'text-gray-400 dark:text-gray-500 font-medium hover:text-gray-700 dark:hover:text-gray-300'
-                  }`}
+                className={`transition-colors cursor-pointer ${
+                  selectedPreset === preset.id
+                    ? 'font-bold text-gray-900 dark:text-gray-100'
+                    : 'text-gray-400 dark:text-gray-500 font-semibold hover:text-gray-700 dark:hover:text-gray-300'
+                }`}
               >
                 {preset.name}
               </button>
@@ -131,7 +135,7 @@ export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
 
       {/* BATCH ROWS TABLE */}
       {swapType === 'batch' && (
-        <div className="space-y-1 pt-1">
+        <div className="space-y-1 pt-1 animate-tab-content opacity-0 stagger-3">
           {/* Header Row: count · conflicts + Tambah kelas button */}
           <div className="flex items-center justify-between pb-0">
             <div className="text-[11px] sm:text-xs font-semibold text-gray-600 dark:text-gray-400">

@@ -62,9 +62,9 @@ export const SingleSwapSection: React.FC<SingleSwapSectionProps> = ({
   getClassCodeColor,
 }) => {
   return (
-    <div className="space-y-3">
+    <div key={swapType} className="space-y-3">
       {/* Inline Selector Row 1: Tipe Selector */}
-      <div className="flex items-center gap-2 text-[11px] sm:text-xs">
+      <div className="flex items-center gap-2 text-[11px] sm:text-xs animate-tab-content opacity-0 stagger-1">
         <span className="text-gray-500 dark:text-gray-400 font-bold">Tipe:</span>
         <div className="flex items-center gap-2.5">
           <button
@@ -76,7 +76,7 @@ export const SingleSwapSection: React.FC<SingleSwapSectionProps> = ({
             className={`transition-colors cursor-pointer ${
               swapType === 'single'
                 ? 'font-bold text-gray-900 dark:text-gray-100'
-                : 'text-gray-400 dark:text-gray-500 font-medium hover:text-gray-700 dark:hover:text-gray-300'
+                : 'text-gray-400 dark:text-gray-500 font-semibold hover:text-gray-700 dark:hover:text-gray-300'
             }`}
           >
             Tukar 1 Kelas
@@ -90,7 +90,7 @@ export const SingleSwapSection: React.FC<SingleSwapSectionProps> = ({
             className={`transition-colors cursor-pointer ${
               swapType === 'batch'
                 ? 'font-bold text-gray-900 dark:text-gray-100'
-                : 'text-gray-400 dark:text-gray-500 font-medium hover:text-gray-700 dark:hover:text-gray-300'
+                : 'text-gray-400 dark:text-gray-500 font-semibold hover:text-gray-700 dark:hover:text-gray-300'
             }`}
           >
             Tukar Banyak (Batch)
@@ -98,7 +98,7 @@ export const SingleSwapSection: React.FC<SingleSwapSectionProps> = ({
         </div>
       </div>
 
-      <div>
+      <div className="animate-tab-content opacity-0 stagger-2">
         <label className="block text-xs text-gray-500 dark:text-gray-400 font-bold mb-1">
           Kelas Saya
         </label>
@@ -134,7 +134,7 @@ export const SingleSwapSection: React.FC<SingleSwapSectionProps> = ({
         </Select>
       </div>
 
-      <div>
+      <div className="animate-tab-content opacity-0 stagger-3">
         <label className="block text-xs text-gray-500 dark:text-gray-400 font-bold mb-1">
           Tukar Ke
         </label>
