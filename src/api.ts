@@ -41,6 +41,8 @@ export const getEnrollments = () => api.get<Enrollment[]>('/api/enrollments');
 export const getOffers = () => api.get<Offer[]>('/api/offers');
 export const createOffer = (data: { myClassId: number; wantedClassId: number }) => 
   api.post<Offer>('/api/offers', data);
+export const createBatchOffers = (data: { offers: { myClassId: number; wantedClassId: number }[] }) =>
+  api.post<{ created: Offer[]; skipped: { myClassId: number; wantedClassId: number; reason: string }[] }>('/api/offers/batch', data);
 export const createPickDropOffer = (data: { myClassId: number; reservedForNim?: string }) =>
   api.post<Offer>('/api/offers/pick-drop', data);
 export const deleteOffer = (offerId: number) => 

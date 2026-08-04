@@ -18,7 +18,7 @@ import { useSocket } from '../hooks/useSocket';
 import { useOfferAnimations } from '../hooks/useOfferAnimations';
 import { useTooltip } from '../hooks/useTooltip';
 import { useTradingState } from '../hooks/useTradingState';
-import { hasScheduleConflict } from '../utils/offerUtils';
+import { hasScheduleConflict, timesOverlap } from '../utils/offerUtils';
 import type { EnrichedOffer } from '../types';
 
 export default function TradingPage() {
@@ -165,8 +165,47 @@ export default function TradingPage() {
           );
           
           let conflictsWithSchedule = false;
-          if (offer.nim !== currentUser?.nim && incomingClass) {
-            conflictsWithSchedule = hasScheduleConflict(incomingClass.id, currentUser?.nim || '', enrollments, parallelClasses);
+          if (offer.nim !== currentUser?.nim) {
+            if (offer.packageOffers) {
+              const incomingClasses = offer.packageOffers
+                .map(child => parallelClasses.find(pc => pc.courseCode === child.seekingCourse && pc.classCode === child.offeringClass))
+                .filter((pc): pc is import('../types').ParallelClass => !!pc);
+              
+              const swappedOutClasses = offer.packageOffers
+                .map(child => parallelClasses.find(pc => pc.courseCode === child.seekingCourse && pc.classCode === child.seekingClass))
+                .filter((pc): pc is import('../types').ParallelClass => !!pc);
+              
+              const swappedOutIds = new Set(swappedOutClasses.map(pc => pc.id));
+
+              const remainingTakerClasses = enrollments
+                .filter(e => e.nim === currentUser?.nim && !swappedOutIds.has(e.parallelClassId))
+                .map(e => parallelClasses.find(pc => pc.id === e.parallelClassId))
+                .filter((pc): pc is import('../types').ParallelClass => !!pc);
+
+              for (const incoming of incomingClasses) {
+                const hasConflict = remainingTakerClasses.some(enrolled => 
+                  timesOverlap(incoming.day, incoming.timeStart, incoming.timeEnd, enrolled.day, enrolled.timeStart, enrolled.timeEnd)
+                );
+                if (hasConflict) {
+                  conflictsWithSchedule = true;
+                  break;
+                }
+              }
+
+              if (!conflictsWithSchedule) {
+                for (let i = 0; i < incomingClasses.length; i++) {
+                  for (let j = i + 1; j < incomingClasses.length; j++) {
+                    if (timesOverlap(incomingClasses[i].day, incomingClasses[i].timeStart, incomingClasses[i].timeEnd, incomingClasses[j].day, incomingClasses[j].timeStart, incomingClasses[j].timeEnd)) {
+                      conflictsWithSchedule = true;
+                      break;
+                    }
+                  }
+                  if (conflictsWithSchedule) break;
+                }
+              }
+            } else if (incomingClass) {
+              conflictsWithSchedule = hasScheduleConflict(incomingClass.id, currentUser?.nim || '', enrollments, parallelClasses);
+            }
           }
 
           let canAccept = false;
@@ -189,6 +228,14 @@ export default function TradingPage() {
                 tooltipText = 'Jadwal kelas ini bertabrakan dengan jadwalmu.';
               } else if (isEnrolledInCourse) {
                 tooltipText = 'Kamu sudah terdaftar di mata kuliah ini.';
+              }
+            } else if (offer.packageOffers) {
+              canAccept = offer.packageOffers.every(child => myEnrollmentMap[`${child.seekingCourse}-${child.seekingClass[0]}`] === child.seekingClass);
+              if (conflictsWithSchedule) {
+                canAccept = false;
+                tooltipText = 'Jadwal paket ini bertabrakan dengan jadwalmu.';
+              } else if (!canAccept) {
+                tooltipText = 'Kamu tidak memiliki semua kelas yang diminta dalam paket ini.';
               }
             } else {
               canAccept = myEnrollmentMap[`${offer.seekingCourse}-${offer.seekingClass[0]}`] === offer.seekingClass;

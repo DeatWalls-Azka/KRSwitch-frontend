@@ -128,7 +128,7 @@ const AdminLogTable = () => {
     const getActionStyle = (action: string): ActionStyle => {
         const a = (action || '').toUpperCase();
 
-        // 🔴 Destruktif: hapus data atau wipe sistem
+        // Destruktif: hapus data atau wipe sistem
         if (a === 'SYSTEM_RESET') return { badge: 'bg-red-500/10 text-red-500 border-red-500/30', dot: 'bg-red-500' };
         if (a === 'DELETE_STUDENT') return { badge: 'bg-red-400/10 text-red-400 border-red-400/30', dot: 'bg-red-400' };
         if (a === 'DELETE_MASTER') return { badge: 'bg-red-400/10 text-red-400 border-red-400/30', dot: 'bg-red-400' };
@@ -136,27 +136,27 @@ const AdminLogTable = () => {
         if (a === 'CANCEL_BARTER') return { badge: 'bg-amber-400/10 text-amber-400 border-amber-400/30', dot: 'bg-amber-400' };
         if (a === 'BARTER_CANCELLED') return { badge: 'bg-amber-400/10 text-amber-400 border-amber-400/30', dot: 'bg-amber-400' };
 
-        // 🟢 Pembuatan & Impor: data baru masuk
+        // Pembuatan & Impor: data baru masuk
         if (a === 'IMPORT_STUDENTS') return { badge: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30', dot: 'bg-emerald-500' };
         if (a === 'IMPORT_CLASSES') return { badge: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30', dot: 'bg-emerald-500' };
         if (a === 'CREATE_STUDENT') return { badge: 'bg-emerald-400/10 text-emerald-400 border-emerald-400/30', dot: 'bg-emerald-400' };
         if (a === 'ADMIN_CREATED') return { badge: 'bg-emerald-600/10 text-emerald-600 border-emerald-600/30', dot: 'bg-emerald-600' };
         if (a === 'BARTER_CREATED') return { badge: 'bg-teal-500/10 text-teal-500 border-teal-500/30', dot: 'bg-teal-500' };
 
-        // 🟡 Update & Edit: mutasi data
+        // Update & Edit: mutasi data
         if (a === 'UPDATE_STUDENT') return { badge: 'bg-amber-500/10 text-amber-500 border-amber-500/30', dot: 'bg-amber-500' };
         if (a === 'UPDATE_KRS') return { badge: 'bg-amber-400/10 text-amber-400 border-amber-400/30', dot: 'bg-amber-400' };
         if (a === 'ADMIN_MODIFIED') return { badge: 'bg-amber-600/10 text-amber-600 border-amber-600/30', dot: 'bg-amber-600' };
         if (a === 'BARTER_MATCHED') return { badge: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/30', dot: 'bg-indigo-500' };
 
-        // 🟣 Operasi khusus level Admin
+        // Operasi khusus level Admin
         if (a === 'ADMIN_DELETED') return { badge: 'bg-violet-500/10 text-violet-500 border-violet-500/30', dot: 'bg-violet-500' };
         if (a === 'ADMIN_OVERRIDE_SWAP') return { badge: 'bg-violet-400/10 text-violet-400 border-violet-400/30', dot: 'bg-violet-400' };
 
-        // 🔵 Operasi acak / sistem
+        // Operasi acak / sistem
         if (a === 'RANDOMIZE_SYSTEM') return { badge: 'bg-sky-500/10 text-sky-500 border-sky-500/30', dot: 'bg-sky-500' };
 
-        // ⬜ Cadangan / Fallback
+        // Cadangan / Fallback
         return { badge: 'bg-muted text-muted-foreground border-border', dot: 'bg-muted-foreground' };
     };
 

@@ -52,13 +52,19 @@ export function useSocket({
       setApiOffers(prev => [offer, ...prev]);
     };
 
+    const handleNewBatchOffer = (offers: Offer[]) => {
+      setApiOffers(prev => [...offers, ...prev]);
+    };
+
     const handleOfferTaken = ({ offerId }: { offerId: number }) => {
       setApiOffers(prev => {
-        const offer = prev.find(o => o.id === offerId);
-        if (offer) {
-          // Pakai refs biar dapet data terkini tanpa recreate socket listener
-          const enriched = enrichOffer(offer, usersRef.current, parallelClassesRef.current);
+        const targetOffer = prev.find(o => o.id === offerId);
+        if (targetOffer) {
+          const enriched = enrichOffer(targetOffer, usersRef.current, parallelClassesRef.current);
           if (enriched) exitingOffersCache.current.set(offerId, enriched);
+          if (targetOffer.batchGroupId) {
+            return prev.filter(o => o.batchGroupId !== targetOffer.batchGroupId);
+          }
         }
         return prev.filter(o => o.id !== offerId);
       });
@@ -126,6 +132,7 @@ export function useSocket({
     };
 
     socket.on('new-offer', handleNewOffer);
+    socket.on('new-batch-offer', handleNewBatchOffer);
     socket.on('offer-taken', handleOfferTaken);
     socket.on('enrollments-swapped', handleEnrollmentsSwapped);
     socket.on('enrollment-updated', handleEnrollmentUpdated);
@@ -135,6 +142,7 @@ export function useSocket({
 
     return () => {
       socket.off('new-offer', handleNewOffer);
+      socket.off('new-batch-offer', handleNewBatchOffer);
       socket.off('offer-taken', handleOfferTaken);
       socket.off('enrollments-swapped', handleEnrollmentsSwapped);
       socket.off('enrollment-updated', handleEnrollmentUpdated);

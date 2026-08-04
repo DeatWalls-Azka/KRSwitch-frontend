@@ -40,6 +40,7 @@ export interface Offer {
   myClassId: number;
   wantedClassId: number | null;
   type: 'swap' | 'pick_drop';
+  batchGroupId?: string | null;
   reservedForNim?: string | null;
   reservedFor?: { nim: string; name: string } | null;
   isAutoMatched: boolean;
@@ -63,6 +64,7 @@ export interface EnrichedOffer extends Offer {
   studentName: string;
   nim: string;
   timestamp: string;
+  packageOffers?: EnrichedOffer[];
 }
 
 export interface Notification {

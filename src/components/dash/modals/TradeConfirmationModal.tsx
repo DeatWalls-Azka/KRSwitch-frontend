@@ -217,7 +217,35 @@ export default function TradeConfirmationModal({
             </div>
 
             <div className="py-3 border-y border-gray-100 dark:border-gray-800">
-              {isPickDrop ? (
+              {offer?.packageOffers ? (
+                <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
+                  <div className="flex items-center justify-between text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-1">
+                    <span>Rincian Paket ({offer.packageOffers.length} Pertukaran)</span>
+                    <span className="text-[10px] text-gray-400 dark:text-gray-500 font-mono">{isCancel ? 'Menawarkan ⇌ Mencari' : 'Melepas ⇌ Mendapat'}</span>
+                  </div>
+                  {offer.packageOffers.map((child, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-2.5 rounded-lg bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-800 text-xs">
+                      <div className="min-w-0 flex-1 pr-3">
+                        <div className="font-bold text-gray-900 dark:text-gray-100 truncate" title={child.seekingCourseName}>
+                          {child.seekingCourseName}
+                        </div>
+                        <div className="text-[10px] text-gray-500 dark:text-gray-400 font-mono">
+                          {child.seekingCourse}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0 font-mono font-bold text-xs bg-white dark:bg-gray-900 px-2.5 py-1 rounded border border-gray-200 dark:border-gray-700">
+                        <span className="text-red-600 dark:text-red-400">
+                          {isCancel ? child.offeringClass : child.seekingClass}
+                        </span>
+                        <span className="text-gray-400 dark:text-gray-500">⇌</span>
+                        <span className="text-green-600 dark:text-green-400">
+                          {isCancel ? child.seekingClass : child.offeringClass}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : isPickDrop ? (
                 <div className="flex items-center justify-between px-2">
                   <div className="flex-1 text-center">
                     <div className="text-[10px] md:text-xs text-gray-500 dark:text-gray-400 font-medium">

@@ -92,13 +92,12 @@ export default function DesktopBarterPanel({
           onClick={onOpenCreateOffer}
           disabled={!isBarterEnabled}
           title={!isBarterEnabled ? 'Sistem barter sedang ditutup oleh admin' : undefined}
-          className={`w-full text-white text-[11px] font-bold py-2 px-2.5 border-0 transition-colors rounded-sm shadow-sm ${
-            isBarterEnabled
+          className={`w-full text-white text-[11px] font-bold py-2 px-2.5 border-0 transition-colors rounded-sm shadow-sm ${isBarterEnabled
               ? 'bg-green-600 hover:bg-green-700 active:bg-green-800 cursor-pointer'
               : 'bg-gray-400 dark:bg-gray-700 cursor-not-allowed opacity-75'
-          }`}
+            }`}
         >
-          {isBarterEnabled ? 'BUAT PENAWARAN BARTER' : 'SISTEM BARTER DITUTUP'}
+          {isBarterEnabled ? 'Buat Penawaran Barter' : 'Sistem Barter Ditutup'}
         </button>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { enrichOffer, hasScheduleConflict } from '../utils/offerUtils';
+import { enrichOffer, hasScheduleConflict, groupOffersByBatch } from '../utils/offerUtils';
 import type { User, ParallelClass, Offer, Enrollment, Notification, EnrichedOffer } from '../types';
 
 export interface Course {
@@ -44,10 +44,12 @@ export function useTradingState({
   }, [parallelClasses]);
 
   const enrichedOffers = useMemo(() => {
-    return apiOffers
+    const rawOffers = apiOffers
       .map(offer => enrichOffer(offer, users, parallelClasses))
       .filter((o): o is EnrichedOffer => o !== null)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    
+    return groupOffersByBatch(rawOffers);
   }, [apiOffers, users, parallelClasses]);
 
   const myEnrollmentMap = useMemo<Record<string, string>>(() => {

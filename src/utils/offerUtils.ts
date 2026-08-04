@@ -18,7 +18,7 @@ export function enrichOffer(
   const isPickDrop = offer.type === 'pick_drop';
   if (!isPickDrop && !wantedClass) return null;
 
-  const reservedLabel = offer.reservedForNim ? `🔒 ${offer.reservedForNim}` : 'DROP';
+  const reservedLabel = offer.reservedForNim ? `[Khusus: ${offer.reservedForNim}]` : 'DROP';
 
   return {
     ...offer,
@@ -49,7 +49,7 @@ export function getStudentsInClass(
 }
 
 // Cek apakah dua rentang waktu di hari yang sama bentrok
-function timesOverlap(
+export function timesOverlap(
   day1: string,
   start1: string,
   end1: string,
@@ -80,13 +80,11 @@ export function hasScheduleConflict(
     .map(e => e.parallelClassId);
 
   return userEnrolledIds.some(id => {
-    if (id == incomingClassId) return false; // kelas yang sama yang mau dibarter, abaikan
+    if (id == incomingClassId) return false;
 
     const enrolled = parallelClasses.find(pc => pc.id == id);
     if (!enrolled) return false;
 
-    // Kalo kelas yang terdaftar punya matkul dan jenis kelas (K/P/R) yang sama,
-    // berarti ini bagian yang mau diganti, jadinya gak bakal bikin bentrok
     if (enrolled.courseCode === incoming.courseCode && enrolled.classCode[0] === incoming.classCode[0]) {
       return false;
     }
@@ -96,4 +94,38 @@ export function hasScheduleConflict(
       enrolled.day, enrolled.timeStart, enrolled.timeEnd,
     );
   });
+}
+
+export function groupOffersByBatch(offers: EnrichedOffer[]): EnrichedOffer[] {
+  const grouped: Record<string, EnrichedOffer[]> = {};
+  const result: EnrichedOffer[] = [];
+
+  for (const offer of offers) {
+    if (offer.batchGroupId) {
+      if (!grouped[offer.batchGroupId]) {
+        grouped[offer.batchGroupId] = [];
+      }
+      grouped[offer.batchGroupId].push(offer);
+    } else {
+      result.push(offer);
+    }
+  }
+
+  for (const batchId in grouped) {
+    const batch = grouped[batchId];
+    if (batch.length === 0) continue;
+    if (batch.length === 1) {
+      result.push(batch[0]);
+    } else {
+      const parentOffer = { ...batch[0], packageOffers: batch };
+      // Override text fields for display
+      parentOffer.seekingCourseName = 'Paket Pertukaran';
+      parentOffer.seekingCourse = `Paket (${batch.length} Matkul)`;
+      parentOffer.offeringClass = 'PAKET';
+      parentOffer.seekingClass = 'PAKET';
+      result.push(parentOffer);
+    }
+  }
+
+  return result;
 }
