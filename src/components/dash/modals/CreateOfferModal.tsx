@@ -252,8 +252,8 @@ export default function CreateOfferForm({ onSuccess, onClose, enrollments: initi
                   type="button"
                   onClick={() => { setOfferMode('swap'); setError(''); }}
                   className={`py-1.5 rounded transition-all flex items-center justify-center gap-1.5 ${offerMode === 'swap'
-                      ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-xs'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                    ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-xs'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                     }`}
                 >
                   Tukar Kelas
@@ -262,8 +262,8 @@ export default function CreateOfferForm({ onSuccess, onClose, enrollments: initi
                   type="button"
                   onClick={() => { setOfferMode('pick_drop'); setError(''); }}
                   className={`py-1.5 rounded transition-all flex items-center justify-center gap-1.5 ${offerMode === 'pick_drop'
-                      ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-xs'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                    ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-xs'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                     }`}
                 >
                   Drop Kelas
@@ -452,11 +452,13 @@ export default function CreateOfferForm({ onSuccess, onClose, enrollments: initi
                 loading ||
                 !!successMessage ||
                 !selectedMyClass ||
-                (offerMode === 'swap' ? !selectedTargetClass : (dropType === 'targeted' && !targetNim.trim()))
+                (offerMode === 'swap'
+                  ? !selectedTargetClass
+                  : (dropType === 'targeted' && !users.some(u => u.role === 'student' && u.nim === targetNim)))
               }
               className={`flex-1 text-white text-sm font-bold py-3 px-4 rounded transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed ${offerMode === 'pick_drop'
-                  ? 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800'
-                  : 'bg-green-600 hover:bg-green-700 active:bg-green-800'
+                ? 'bg-red-600 hover:bg-red-700 active:bg-red-800'
+                : 'bg-green-600 hover:bg-green-700 active:bg-green-800'
                 }`}
             >
               {loading ? 'MENGIRIM...' : successMessage ? 'SELESAI' : 'KIRIM'}
@@ -482,7 +484,8 @@ export default function CreateOfferForm({ onSuccess, onClose, enrollments: initi
           )}
         </div>
       </div>
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes popUp { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         @keyframes popDown { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(0.95); opacity: 0; } }
         @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }

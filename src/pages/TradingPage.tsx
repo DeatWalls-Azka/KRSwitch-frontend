@@ -159,6 +159,7 @@ export default function TradingPage() {
                 canAccept = false;
                 tooltipText = 'Penawaran ini dikhususkan untuk mahasiswa lain.';
               } else if (conflictsWithSchedule) {
+                canAccept = false;
                 tooltipText = 'Jadwal kelas ini bertabrakan dengan jadwalmu.';
               } else if (isEnrolledInCourse) {
                 tooltipText = 'Kamu sudah terdaftar di mata kuliah ini.';
@@ -166,6 +167,7 @@ export default function TradingPage() {
             } else {
               canAccept = myEnrollmentMap[`${offer.seekingCourse}-${offer.seekingClass[0]}`] === offer.seekingClass;
               if (conflictsWithSchedule) {
+                canAccept = false;
                 tooltipText = 'Jadwal kelas ini bertabrakan dengan jadwalmu.';
               } else if (!canAccept) {
                 tooltipText = 'Kamu tidak memiliki kelas yang diminta oleh penawar (atau sudah berada di kelas tersebut).';

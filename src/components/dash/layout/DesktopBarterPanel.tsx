@@ -33,8 +33,8 @@ export default function DesktopBarterPanel({
       <div className="flex flex-col items-left px-4 py-3 bg-gray-50 dark:bg-gray-900 shrink-0 border-b border-gray-200 dark:border-gray-800">
         <div className="flex flex-row gap-1 items-center">
           <div className="mr-auto flex flex-col items-left">
-            <h2 className="text-xs font-bold text-gray-900 dark:text-gray-100">PANEL BARTER LIVE</h2>
-            <h1 className="text-[11px] font-medium text-gray-600 dark:text-gray-400">Real Time: {offersCount} Penawaran</h1>
+            <h2 className="text-xs font-bold text-gray-900 dark:text-gray-100">PANEL BARTER</h2>
+            <h1 className="text-[11px] font-medium text-gray-600 dark:text-gray-400">{offersCount} Penawaran</h1>
           </div>
           <FilterButton
             label="SEMUA"

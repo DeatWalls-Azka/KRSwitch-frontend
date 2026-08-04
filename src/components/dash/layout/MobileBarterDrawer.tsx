@@ -48,11 +48,11 @@ export default function MobileBarterDrawer({
   const realButtonRef = useRef<HTMLButtonElement | null>(null);
   const svgPathRef = useRef<SVGPathElement | null>(null);
 
-  const dragRef = useRef<{ 
-      startY: number; 
-      initialDrawerY: number;
-      history: { y: number; t: number }[];
-      timeoutId?: ReturnType<typeof setTimeout>;
+  const dragRef = useRef<{
+    startY: number;
+    initialDrawerY: number;
+    history: { y: number; t: number }[];
+    timeoutId?: ReturnType<typeof setTimeout>;
   } | null>(null);
 
   const handleDragStart = (clientY: number) => {
@@ -60,23 +60,23 @@ export default function MobileBarterDrawer({
     let initialDrawerY = drawerY !== null ? drawerY : TRAVEL;
 
     if (dragRef.current?.timeoutId) {
-        clearTimeout(dragRef.current.timeoutId);
+      clearTimeout(dragRef.current.timeoutId);
     }
 
     if (drawerRef.current) {
-        const style = window.getComputedStyle(drawerRef.current);
-        if (style.transform && style.transform !== 'none') {
-            const matrix = new DOMMatrix(style.transform);
-            initialDrawerY = matrix.m42;
-        }
-        drawerRef.current.style.transition = 'none';
-        drawerRef.current.style.transform = `translateY(${initialDrawerY}px)`;
+      const style = window.getComputedStyle(drawerRef.current);
+      if (style.transform && style.transform !== 'none') {
+        const matrix = new DOMMatrix(style.transform);
+        initialDrawerY = matrix.m42;
+      }
+      drawerRef.current.style.transition = 'none';
+      drawerRef.current.style.transform = `translateY(${initialDrawerY}px)`;
     }
 
-    dragRef.current = { 
-        startY: clientY, 
-        initialDrawerY,
-        history: [{ y: clientY, t: Date.now() }]
+    dragRef.current = {
+      startY: clientY,
+      initialDrawerY,
+      history: [{ y: clientY, t: Date.now() }]
     };
 
     const handleMove = (e: MouseEvent | TouchEvent) => {
@@ -86,7 +86,7 @@ export default function MobileBarterDrawer({
       const currentClientY = 'touches' in e ? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).clientY;
       const delta = currentClientY - dragRef.current.startY;
       const clampedY = Math.max(0, Math.min(TRAVEL, dragRef.current.initialDrawerY + delta));
-      
+
       const now = Date.now();
       dragRef.current.history.push({ y: currentClientY, t: now });
       if (dragRef.current.history.length > 5) dragRef.current.history.shift();
@@ -121,7 +121,7 @@ export default function MobileBarterDrawer({
         realButtonRef.current.style.transform = `translateY(${svgY}px)`;
         realButtonRef.current.style.boxShadow = 'none';
         realButtonRef.current.style.pointerEvents = p > 0.8 ? 'auto' : 'none';
-        
+
         const lx = -20 + (13 * p);
         const ly = 0 + (-3.5 * p);
         const mx = 0;
@@ -148,9 +148,9 @@ export default function MobileBarterDrawer({
       const history = dragRef.current.history;
       let velocity = 0;
       if (history.length > 1) {
-          const oldest = history[0];
-          const dt = now - oldest.t;
-          if (dt > 0) velocity = (currentClientY - oldest.y) / dt;
+        const oldest = history[0];
+        const dt = now - oldest.t;
+        if (dt > 0) velocity = (currentClientY - oldest.y) / dt;
       }
 
       let isClosing = false;
@@ -158,16 +158,16 @@ export default function MobileBarterDrawer({
       const VELOCITY_THRESHOLD = 0.4;
 
       if (velocity < -VELOCITY_THRESHOLD) {
-          targetY = 0; 
+        targetY = 0;
       } else if (velocity > VELOCITY_THRESHOLD) {
+        targetY = TRAVEL;
+        isClosing = true;
+      } else {
+        const SNAP_THRESHOLD = 150;
+        if (TRAVEL - finalY < SNAP_THRESHOLD) {
           targetY = TRAVEL;
           isClosing = true;
-      } else {
-          const SNAP_THRESHOLD = 150;
-          if (TRAVEL - finalY < SNAP_THRESHOLD) {
-             targetY = TRAVEL;
-             isClosing = true;
-          }
+        }
       }
 
       cleanup();
@@ -213,15 +213,15 @@ export default function MobileBarterDrawer({
         const rx = 20 + (-13 * p);
         const ry = 0 + (-3.5 * p);
         const sw = 4 + (-1.5 * p);
-        
+
         svgPathRef.current.style.transition = 'd 0.35s cubic-bezier(0.16, 1, 0.3, 1), stroke-width 0.35s ease';
         svgPathRef.current.setAttribute('d', `M ${lx} ${ly} L ${mx} ${my} L ${rx} ${ry}`);
         svgPathRef.current.setAttribute('stroke-width', String(sw));
       }
 
       const timeoutId = setTimeout(() => {
-          if (dragRef.current) dragRef.current.timeoutId = undefined;
-          setDrawerY(isClosing ? null : targetY);
+        if (dragRef.current) dragRef.current.timeoutId = undefined;
+        setDrawerY(isClosing ? null : targetY);
       }, 400);
 
       if (dragRef.current) dragRef.current.timeoutId = timeoutId;
@@ -297,25 +297,25 @@ export default function MobileBarterDrawer({
         }}
       >
         <div className="absolute left-1/2 -translate-x-1/2 top-[-100px] w-[140px] h-[150px] pointer-events-none z-20">
-          <button 
-             ref={realButtonRef}
-             onClick={(e) => { e.stopPropagation(); setDrawerY(null); }}
-             className="absolute left-1/2 -translate-x-1/2 w-[48px] h-[48px] bg-transparent rounded-full flex items-center justify-center border-0 cursor-pointer pointer-events-auto text-gray-600 dark:text-gray-400"
-             style={{
-                transform: `translateY(${svgY}px)`,
-                transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
-                boxShadow: 'none',
-                pointerEvents: btnProgVal > 0.8 ? 'auto' : 'none'
-             }}
+          <button
+            ref={realButtonRef}
+            onClick={(e) => { e.stopPropagation(); setDrawerY(null); }}
+            className="absolute left-1/2 -translate-x-1/2 w-[48px] h-[48px] bg-transparent rounded-full flex items-center justify-center border-0 cursor-pointer pointer-events-auto text-gray-600 dark:text-gray-400"
+            style={{
+              transform: `translateY(${svgY}px)`,
+              transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+              boxShadow: 'none',
+              pointerEvents: btnProgVal > 0.8 ? 'auto' : 'none'
+            }}
           >
-             <svg width="48" height="48" viewBox="-24 -24 48 48" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
-                <path 
-                   ref={svgPathRef} 
-                   d={`M ${lxVal} ${lyVal} L ${mxVal} ${myVal} L ${rxVal} ${ryVal}`} 
-                   strokeWidth={swVal}
-                   style={{ transition: 'd 0.35s cubic-bezier(0.16, 1, 0.3, 1), stroke-width 0.35s ease' }}
-                />
-             </svg>
+            <svg width="48" height="48" viewBox="-24 -24 48 48" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+              <path
+                ref={svgPathRef}
+                d={`M ${lxVal} ${lyVal} L ${mxVal} ${myVal} L ${rxVal} ${ryVal}`}
+                strokeWidth={swVal}
+                style={{ transition: 'd 0.35s cubic-bezier(0.16, 1, 0.3, 1), stroke-width 0.35s ease' }}
+              />
+            </svg>
           </button>
         </div>
 
@@ -341,8 +341,8 @@ export default function MobileBarterDrawer({
           onTouchStart={(e) => handleDragStart(e.touches[0].clientY)}
         >
           <div className="flex flex-col items-left">
-            <h2 className="text-xs font-bold text-gray-900 dark:text-gray-100 tracking-wide">PANEL BARTER LIVE</h2>
-            <h1 className="text-[11px] font-medium text-gray-600 dark:text-gray-400">Real Time: {offersCount} Penawaran</h1>
+            <h2 className="text-xs font-bold text-gray-900 dark:text-gray-100 tracking-wide">PANEL BARTER</h2>
+            <h1 className="text-[11px] font-medium text-gray-600 dark:text-gray-400">{offersCount} Penawaran</h1>
           </div>
           <button
             onClick={(e) => {
@@ -364,22 +364,20 @@ export default function MobileBarterDrawer({
                 setFilterForYou(false);
                 setFilterByYou(false);
               }}
-              className={`flex-1 text-center py-1 px-2 text-[11px] font-bold rounded-md border border-solid cursor-pointer transition-colors ${
-                (!filterByCourse && !filterForYou && !filterByYou)
+              className={`flex-1 text-center py-1 px-2 text-[11px] font-bold rounded-md border border-solid cursor-pointer transition-colors ${(!filterByCourse && !filterForYou && !filterByYou)
                   ? 'border-green-600 bg-white dark:bg-emerald-950/20 text-green-600 dark:text-emerald-400 hover:bg-green-50 dark:hover:bg-emerald-900/10 shadow-sm'
                   : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'
-              }`}
+                }`}
             >
               SEMUA
             </button>
             {!isKelasSaya && (
               <button
                 onClick={() => setFilterByCourse(!filterByCourse)}
-                className={`flex-1 text-center py-1 px-2 text-[11px] font-bold rounded-md border border-solid cursor-pointer transition-colors ${
-                  filterByCourse
+                className={`flex-1 text-center py-1 px-2 text-[11px] font-bold rounded-md border border-solid cursor-pointer transition-colors ${filterByCourse
                     ? 'border-green-600 bg-white dark:bg-emerald-950/20 text-green-600 dark:text-emerald-400 hover:bg-green-50 dark:hover:bg-emerald-900/10 shadow-sm'
                     : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'
-                }`}
+                  }`}
               >
                 {selectedCourseCode || 'MATKUL'}
               </button>
@@ -390,11 +388,10 @@ export default function MobileBarterDrawer({
                 setFilterByYou(newVal);
                 if (newVal) setFilterForYou(false);
               }}
-              className={`flex-1 text-center py-1 px-2 text-[11px] font-bold rounded-md border border-solid cursor-pointer transition-colors ${
-                filterByYou
+              className={`flex-1 text-center py-1 px-2 text-[11px] font-bold rounded-md border border-solid cursor-pointer transition-colors ${filterByYou
                   ? 'border-green-600 bg-white dark:bg-emerald-950/20 text-green-600 dark:text-emerald-400 hover:bg-green-50 dark:hover:bg-emerald-900/10 shadow-sm'
                   : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'
-              }`}
+                }`}
             >
               MILIKMU
             </button>
@@ -404,11 +401,10 @@ export default function MobileBarterDrawer({
                 setFilterForYou(newVal);
                 if (newVal) setFilterByYou(false);
               }}
-              className={`flex-1 text-center py-1 px-2 text-[11px] font-bold rounded-md border border-solid cursor-pointer transition-colors ${
-                filterForYou
+              className={`flex-1 text-center py-1 px-2 text-[11px] font-bold rounded-md border border-solid cursor-pointer transition-colors ${filterForYou
                   ? 'border-green-600 bg-white dark:bg-emerald-950/20 text-green-600 dark:text-emerald-400 hover:bg-green-50 dark:hover:bg-emerald-900/10 shadow-sm'
                   : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'
-              }`}
+                }`}
             >
               UNTUKMU
             </button>
