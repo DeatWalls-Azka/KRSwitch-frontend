@@ -1,5 +1,12 @@
 describe('Student Dashboard Barter Feed & Filter Hardening', () => {
   beforeEach(() => {
+    cy.intercept('GET', '**/api/socket-token', { statusCode: 200, body: { token: 'mock-socket-token' } });
+
+    cy.intercept('GET', '/api/barter-status', {
+      statusCode: 200,
+      body: { isBarterEnabled: true }
+    });
+
     // 1. Mock the logged-in student user M0403241117
     cy.intercept('GET', '/api/me', {
       statusCode: 200,
@@ -118,15 +125,16 @@ describe('Student Dashboard Barter Feed & Filter Hardening', () => {
     cy.intercept('GET', '/api/notifications', { statusCode: 200, body: [] });
 
     // Visit dashboard
+    cy.setCookie('token', 'mock-student-token');
     cy.visit('/');
     cy.wait(['@getMe', '@getUsers', '@getClasses', '@getEnrollments', '@getOffers']);
   });
 
   it('renders all barter offers in the default un-filtered feed', () => {
     // Should show the title and count of all active open offers in the desktop panel
-    cy.get('div.hidden.md\\:flex').filter(':contains("LIVE BARTER FEED PANEL")').as('desktopPanel');
-    cy.get('@desktopPanel').find('h2').contains('LIVE BARTER FEED PANEL').should('be.visible');
-    cy.get('@desktopPanel').find('h1').contains('Real Time: 4 Offers').should('be.visible');
+    cy.get('div.hidden.md\\:flex').filter(':contains("PANEL BARTER")').as('desktopPanel');
+    cy.get('@desktopPanel').find('h2').contains('PANEL BARTER').should('be.visible');
+    cy.get('@desktopPanel').find('h1').contains('4 Penawaran').should('be.visible');
     
     cy.get('@desktopPanel').within(() => {
       cy.contains('Muh Arifaushan').should('exist');
@@ -148,14 +156,14 @@ describe('Student Dashboard Barter Feed & Filter Hardening', () => {
     cy.contains('h3', 'P2').parents('.bg-green-100').should('contain', 'YOU');
   });
 
-  it('filters offers for student when FOR YOU filter is activated, removing bentrok and own offers', () => {
-    cy.get('div.hidden.md\\:flex').filter(':contains("LIVE BARTER FEED PANEL")').as('desktopPanel');
+  it('filters offers for student when UNTUKMU filter is activated, removing bentrok and own offers', () => {
+    cy.get('div.hidden.md\\:flex').filter(':contains("PANEL BARTER")').as('desktopPanel');
 
-    // Activate the "FOR YOU" filter in the desktop panel
-    cy.get('@desktopPanel').contains('button', 'FOR YOU').click();
+    // Activate the "UNTUKMU" filter in the desktop panel
+    cy.get('@desktopPanel').contains('button', 'UNTUKMU').click();
 
     // 1. Total offers should be filtered down to exactly 2 (Offer 1 & Offer 2)
-    cy.get('@desktopPanel').find('h1').contains('Real Time: 2 Offers').should('be.visible');
+    cy.get('@desktopPanel').find('h1').contains('2 Penawaran').should('be.visible');
 
     cy.get('@desktopPanel').within(() => {
       cy.contains('Muh Arifaushan').should('exist'); // Seeking K2, which student holds (Lecture)
@@ -186,13 +194,13 @@ describe('Student Dashboard Barter Feed & Filter Hardening', () => {
     cy.visit('/');
     cy.wait(['@getMe', '@getUsers', '@getClasses', '@getEnrollmentsString', '@getOffers']);
 
-    cy.get('div.hidden.md\\:flex').filter(':contains("LIVE BARTER FEED PANEL")').as('desktopPanel');
+    cy.get('div.hidden.md\\:flex').filter(':contains("PANEL BARTER")').as('desktopPanel');
 
-    // Activate the "FOR YOU" filter
-    cy.get('@desktopPanel').contains('button', 'FOR YOU').click();
+    // Activate the "UNTUKMU" filter
+    cy.get('@desktopPanel').contains('button', 'UNTUKMU').click();
 
     // 1. Should still successfully match classes despite string vs number mismatch
-    cy.get('@desktopPanel').find('h1').contains('Real Time: 2 Offers').should('be.visible');
+    cy.get('@desktopPanel').find('h1').contains('2 Penawaran').should('be.visible');
 
     cy.get('@desktopPanel').within(() => {
       // Offer 1 & 2 should exist because myEnrollmentMap and hasScheduleConflict 
@@ -207,17 +215,17 @@ describe('Student Dashboard Barter Feed & Filter Hardening', () => {
   });
 
   it('passes real-time enrollments to CreateOfferModal instead of fetching stale data', () => {
-    cy.get('div.hidden.md\\:flex').filter(':contains("LIVE BARTER FEED PANEL")').as('desktopPanel');
+    cy.get('div.hidden.md\\:flex').filter(':contains("PANEL BARTER")').as('desktopPanel');
 
     // Open the create offer modal
     // Open the create offer modal
-    cy.get('@desktopPanel').contains('button', 'CREATE BARTER OFFER').click();
+    cy.get('@desktopPanel').contains('button', 'Buat Penawaran Barter').click();
 
     // The modal should appear
-    cy.contains('h3', 'Create New Offer').should('be.visible');
+    cy.contains('h3', 'Buat Penawaran Baru').should('be.visible');
 
     // It should NOT display Loading state
-    cy.contains('label', 'Kelas Saya').parent().find('button').should('not.contain', '-- Loading...');
+    cy.contains('label', 'Kelas Saya').parent().find('button').should('not.contain', '-- Memuat...');
 
     // Close the modal
     cy.get('button[aria-label="Close modal"]').click();

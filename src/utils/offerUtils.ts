@@ -2,6 +2,13 @@ import type { User, ParallelClass, Enrollment, Offer, EnrichedOffer } from '../t
 
 // --- Helpers --------------------------------------------------
 
+export function formatShortName(fullName: string | undefined | null): string {
+  if (!fullName) return '';
+  const parts = fullName.trim().split(/\s+/);
+  if (parts.length <= 2) return fullName.trim();
+  return `${parts[0]} ${parts[1]}`;
+}
+
 const TIMESTAMP_FORMAT: Intl.DateTimeFormatOptions = { day: '2-digit', hour: '2-digit', minute: '2-digit' };
 
 export function enrichOffer(
@@ -120,7 +127,7 @@ export function groupOffersByBatch(offers: EnrichedOffer[]): EnrichedOffer[] {
       const parentOffer = { ...batch[0], packageOffers: batch };
       // Override text fields for display
       parentOffer.seekingCourseName = 'Paket Pertukaran';
-      parentOffer.seekingCourse = `Paket (${batch.length} Matkul)`;
+      parentOffer.seekingCourse = `${batch.length} MATKUL`;
       parentOffer.offeringClass = 'PAKET';
       parentOffer.seekingClass = 'PAKET';
       result.push(parentOffer);

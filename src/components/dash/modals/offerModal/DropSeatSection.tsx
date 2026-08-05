@@ -70,14 +70,14 @@ export const DropSeatSection: React.FC<DropSeatSectionProps> = ({
   const filteredUsers = users.filter(
     (u) =>
       u.role === 'student' &&
-      u.nim !== currentUserNim &&
+      (!currentUserNim || u.nim.toUpperCase() !== currentUserNim.toUpperCase()) &&
       (!targetNim ||
         u.nim.toLowerCase().includes(targetNim.toLowerCase()) ||
         u.name.toLowerCase().includes(targetNim.toLowerCase()))
   );
 
   return (
-    <div key={dropType} className="space-y-3">
+    <div className="space-y-3">
       <div className="animate-tab-content opacity-0 stagger-1">
         <label className="block text-xs text-gray-500 dark:text-gray-400 font-bold mb-1">
           Kelas yang Ingin Dilepas (Drop)
@@ -119,27 +119,29 @@ export const DropSeatSection: React.FC<DropSeatSectionProps> = ({
         <div className="text-[10px] sm:text-xs text-red-700 dark:text-red-300 bg-red-100/50 dark:bg-red-900/50 p-2 rounded border border-red-200 dark:border-red-800 flex items-start gap-2">
           <Info className="w-4 h-4 mt-0.5 shrink-0" />
           <span>
-            <strong>Catatan:</strong> Melepas kelas ini akan secara otomatis melepas <strong>seluruh kelas</strong> untuk mata kuliah ini (Kuliah & Praktikum).
+            Melepas kelas ini akan secara otomatis melepas <strong>seluruh kelas</strong> untuk mata kuliah ini (Kuliah & Praktikum).
           </span>
         </div>
         <label className="block text-xs text-red-900 dark:text-red-200 font-bold mt-2">
           Tipe Drop Seat
         </label>
         <div className="flex gap-4 text-xs font-semibold text-gray-700 dark:text-gray-300">
-          <label className="flex items-center gap-1.5 cursor-pointer">
+          <label className={`flex items-center gap-1.5 ${loading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}>
             <input
               type="radio"
               name="dropType"
+              disabled={loading}
               checked={dropType === 'open'}
               onChange={() => setDropType('open')}
               className="text-red-600 focus:ring-red-500"
             />
             <span>Bebas (Siapa Saja)</span>
           </label>
-          <label className="flex items-center gap-1.5 cursor-pointer">
+          <label className={`flex items-center gap-1.5 ${loading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}>
             <input
               type="radio"
               name="dropType"
+              disabled={loading}
               checked={dropType === 'targeted'}
               onChange={() => setDropType('targeted')}
               className="text-red-600 focus:ring-red-500"
@@ -157,12 +159,19 @@ export const DropSeatSection: React.FC<DropSeatSectionProps> = ({
               type="text"
               placeholder="Contoh: M0403241075 atau Nama"
               value={targetNim}
+              disabled={loading}
               onChange={(e) => {
                 setTargetNim(e.target.value.toUpperCase());
                 setIsDropdownOpen(true);
               }}
-              onFocus={() => setIsDropdownOpen(true)}
-              className="w-full px-3 py-1.5 text-xs bg-white dark:bg-gray-900 border dark:border-gray-700 rounded text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-red-500"
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  e.stopPropagation();
+                  setIsDropdownOpen(false);
+                }
+              }}
+              onFocus={() => !loading && setIsDropdownOpen(true)}
+              className="w-full px-3 py-1.5 text-xs bg-white dark:bg-gray-900 border dark:border-gray-700 rounded text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
             />
 
             {isDropdownOpen && (

@@ -6,6 +6,7 @@ interface OfferModalHeaderProps {
   setOfferMode: (mode: 'swap' | 'pick_drop') => void;
   onClose: () => void;
   loading: boolean;
+  disabled?: boolean;
   clearError: () => void;
 }
 
@@ -14,8 +15,11 @@ export const OfferModalHeader: React.FC<OfferModalHeaderProps> = ({
   setOfferMode,
   onClose,
   loading,
+  disabled = false,
   clearError,
 }) => {
+  const isTabsDisabled = loading || disabled;
+
   return (
     <div className="pt-5 px-4 md:px-8 pb-0">
       <button
@@ -32,14 +36,15 @@ export const OfferModalHeader: React.FC<OfferModalHeaderProps> = ({
       </h3>
 
       {/* Primary Horizontal Tabs */}
-      <div className="flex items-center gap-6 border-b border-gray-200 dark:border-gray-800 text-xs font-semibold">
+      <div className="flex items-center gap-6 border-b border-gray-100 dark:border-gray-800 text-xs font-semibold">
         <button
           type="button"
+          disabled={isTabsDisabled}
           onClick={() => {
             setOfferMode('swap');
             clearError();
           }}
-          className={`pb-2.5 transition-colors relative ${
+          className={`pb-2.5 transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed ${
             offerMode === 'swap'
               ? 'text-gray-900 dark:text-gray-100 font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-green-600 dark:after:bg-emerald-400'
               : 'text-gray-500 dark:text-gray-400 font-semibold hover:text-gray-700 dark:hover:text-gray-200'
@@ -49,11 +54,12 @@ export const OfferModalHeader: React.FC<OfferModalHeaderProps> = ({
         </button>
         <button
           type="button"
+          disabled={isTabsDisabled}
           onClick={() => {
             setOfferMode('pick_drop');
             clearError();
           }}
-          className={`pb-2.5 transition-colors relative ${
+          className={`pb-2.5 transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed ${
             offerMode === 'pick_drop'
               ? 'text-gray-900 dark:text-gray-100 font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-green-600 dark:after:bg-emerald-400'
               : 'text-gray-500 dark:text-gray-400 font-semibold hover:text-gray-700 dark:hover:text-gray-200'

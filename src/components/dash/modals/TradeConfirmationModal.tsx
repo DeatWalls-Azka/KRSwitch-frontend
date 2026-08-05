@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { ArrowLeftRight } from 'lucide-react';
 import { takeOffer, claimPickDropOffer, deleteOffer } from '../../../api';
 import type { EnrichedOffer } from '../../../types';
+import { detectPresetFromOffers } from '../../../utils/presets';
+import { formatShortName } from '../../../utils/offerUtils';
 
 interface User {
   id: number;
@@ -40,6 +43,11 @@ export default function TradeConfirmationModal({
   const [showMessage, setShowMessage] = useState(false);
 
   const isCancel = mode === 'cancel';
+
+  const offeringPreset = offer?.packageOffers ? detectPresetFromOffers(offer.packageOffers, 'offering') : null;
+  const seekingPreset = offer?.packageOffers ? detectPresetFromOffers(offer.packageOffers, 'seeking') : null;
+  const offeringNum = offeringPreset ? offeringPreset.replace(/paket\s*/i, '') : null;
+  const seekingNum = seekingPreset ? seekingPreset.replace(/paket\s*/i, '') : null;
 
   useEffect(() => {
     if (!isOpen || !offer?.id) return;
@@ -117,9 +125,6 @@ export default function TradeConfirmationModal({
       if (onCancel) onCancel(offer.id);
       setIsAvailable(false);
       setSuccessMessage('Penawaran berhasil dibatalkan!');
-
-      // Tutup otomatis setelah 1 detik jika berhasil
-      setTimeout(() => handleClose(), 1000);
     } catch (err: any) {
       setIsAvailable(false);
       setErrorMessage(err.response?.data?.error || err.message);
@@ -188,8 +193,8 @@ export default function TradeConfirmationModal({
             </svg>
           </button>
 
-          <div className="space-y-4 mx-4 md:mx-8 pt-5">
-            <div className="text-center pb-2">
+          <div className="space-y-4 mx-4 md:mx-6 pt-5">
+            <div className="text-center pb-1">
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                 {isCancel
                   ? (isPickDrop ? 'Batalkan Drop Seat' : 'Batalkan Penawaran')
@@ -204,46 +209,71 @@ export default function TradeConfirmationModal({
               </p>
             </div>
 
-            <div className="flex items-baseline justify-between gap-4">
+            <div className="flex items-center justify-between gap-3">
               <div className="text-left min-w-0 flex-1">
-                <div className="text-base md:text-lg font-bold text-gray-900 dark:text-gray-100 truncate">{offer?.seekingCourse || ''}</div>
-                <div className="text-[11px] md:text-xs text-gray-500 dark:text-gray-400 truncate" title={offer?.seekingCourseName}>{offer?.seekingCourseName || ''}</div>
+                <div className="text-base font-bold text-gray-900 dark:text-gray-100 truncate" title={offer?.seekingCourseName || ''}>
+                  {offer?.packageOffers ? 'Paket Pertukaran' : (offer?.seekingCourseName || offer?.seekingCourse || '')}
+                </div>
+                <div className="text-xs font-mono font-semibold text-gray-500 dark:text-gray-400 truncate uppercase">
+                  {offer?.packageOffers ? offer.seekingCourse : (offer?.seekingCourseName ? offer.seekingCourse : '')}
+                </div>
               </div>
 
+              {/* Package Badge */}
+              {offer?.packageOffers && offeringNum && seekingNum && (
+                <div className="flex items-center justify-center gap-1 px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 shrink-0">
+                  <span className="font-bold text-[11px] text-gray-700 dark:text-gray-300">Paket</span>
+                  <span className="font-black text-[11px] text-red-600 dark:text-red-500">{offeringNum}</span>
+                  <ArrowLeftRight className="w-[11px] h-[11px] text-gray-400 dark:text-gray-500 shrink-0 mx-0.5" />
+                  <span className="font-black text-[11px] text-green-600 dark:text-green-500">{seekingNum}</span>
+                </div>
+              )}
+
               <div className="text-right min-w-0 flex-1">
-                <div className="font-bold text-sm md:text-base text-gray-900 dark:text-gray-100 truncate" title={offer?.studentName}>{offer?.studentName || ''}</div>
-                <div className="text-[11px] md:text-xs text-gray-500 dark:text-gray-400 truncate">{offer?.nim || ''}</div>
+                <div className="font-bold text-sm text-gray-900 dark:text-gray-100" title={offer?.studentName}>
+                  {formatShortName(offer?.studentName)}
+                </div>
+                <div className="text-xs font-mono text-gray-500 dark:text-gray-400 truncate">
+                  {offer?.nim || ''}
+                </div>
               </div>
             </div>
 
             <div className="py-3 border-y border-gray-100 dark:border-gray-800">
               {offer?.packageOffers ? (
-                <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
+                <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
                   <div className="flex items-center justify-between text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-1">
-                    <span>Rincian Paket ({offer.packageOffers.length} Pertukaran)</span>
-                    <span className="text-[10px] text-gray-400 dark:text-gray-500 font-mono">{isCancel ? 'Menawarkan ⇌ Mencari' : 'Melepas ⇌ Mendapat'}</span>
+                    <span>Rincian Paket ({offer.packageOffers.length} Matkul)</span>
+                    <span className="text-[10px] text-gray-400 dark:text-gray-500 font-mono flex items-center gap-1">
+                      <span>{isCancel ? 'Menawarkan' : 'Melepas'}</span>
+                      <ArrowLeftRight className="w-2.5 h-2.5" />
+                      <span>{isCancel ? 'Mencari' : 'Mendapat'}</span>
+                    </span>
                   </div>
-                  {offer.packageOffers.map((child, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-2.5 rounded-lg bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-800 text-xs">
-                      <div className="min-w-0 flex-1 pr-3">
-                        <div className="font-bold text-gray-900 dark:text-gray-100 truncate" title={child.seekingCourseName}>
-                          {child.seekingCourseName}
+                  <div className={`grid gap-1.5 ${
+                    offer.packageOffers.length <= 1
+                      ? 'grid-cols-1'
+                      : offer.packageOffers.length % 3 === 0 || offer.packageOffers.length >= 5
+                        ? 'grid-cols-2'
+                        : 'grid-cols-2'
+                  }`}>
+                    {offer.packageOffers.map((child, idx) => (
+                      <div key={idx} className="flex items-center justify-between text-[10px] px-2 py-1.5 rounded bg-gray-50/80 dark:bg-gray-800/50 border border-gray-100/80 dark:border-gray-800/30 min-w-0">
+                        <div className="truncate pr-1.5 font-medium text-gray-700 dark:text-gray-300 min-w-0" title={`${child.seekingCourse} - ${child.seekingCourseName}`}>
+                          <span className="truncate">{child.seekingCourseName}</span>
                         </div>
-                        <div className="text-[10px] text-gray-500 dark:text-gray-400 font-mono">
-                          {child.seekingCourse}
+                        <div className="font-mono font-bold text-[10px] shrink-0 flex items-center gap-1 ml-auto pl-1">
+                          <span className="text-red-500 dark:text-red-400">
+                            {isCancel ? child.offeringClass : child.seekingClass}
+                          </span>
+                          <ArrowLeftRight className="w-2.5 h-2.5 text-gray-400 dark:text-gray-500 shrink-0" />
+                          <span className="text-green-500 dark:text-green-400">
+                            {isCancel ? child.seekingClass : child.offeringClass}
+                          </span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 shrink-0 font-mono font-bold text-xs bg-white dark:bg-gray-900 px-2.5 py-1 rounded border border-gray-200 dark:border-gray-700">
-                        <span className="text-red-600 dark:text-red-400">
-                          {isCancel ? child.offeringClass : child.seekingClass}
-                        </span>
-                        <span className="text-gray-400 dark:text-gray-500">⇌</span>
-                        <span className="text-green-600 dark:text-green-400">
-                          {isCancel ? child.seekingClass : child.offeringClass}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               ) : isPickDrop ? (
                 <div className="flex items-center justify-between px-2">
@@ -266,7 +296,7 @@ export default function TradeConfirmationModal({
                     <div className="text-red-600 dark:text-red-500 font-bold text-base md:text-lg">{isCancel ? offer?.offeringClass : offer?.seekingClass || ''}</div>
                   </div>
 
-                  <div className="text-gray-400 dark:text-gray-600 text-xl md:text-2xl font-bold select-none">⇌</div>
+                  <ArrowLeftRight className="w-4 h-4 text-gray-400 dark:text-gray-600 shrink-0" />
 
                   <div className="flex-1 text-center">
                     <div className="text-[10px] md:text-xs text-gray-500 dark:text-gray-400">{isCancel ? 'Mencari' : 'Mendapat'}</div>

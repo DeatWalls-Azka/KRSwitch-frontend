@@ -85,13 +85,13 @@ function matchCurrentListToPreset(
 ): string {
   if (batchRows.length === 0) return 'custom';
 
-  const currentTargets: { [courseCode: string]: string } = {};
+  const selectedPairs = new Set<string>();
   for (const row of batchRows) {
     if (!row.myClassId || !row.targetClassId) return 'custom';
     const myC = myClasses.find((m) => m.id === parseInt(row.myClassId));
     const targetC = allClasses.find((a) => a.id === parseInt(row.targetClassId));
     if (!myC || !targetC) return 'custom';
-    currentTargets[myC.courseCode] = targetC.classCode;
+    selectedPairs.add(`${myC.courseCode}:${targetC.classCode}`);
   }
 
   for (const preset of PACKAGE_PRESETS) {
@@ -105,7 +105,7 @@ function matchCurrentListToPreset(
         );
         if (studentClass && studentClass.classCode !== targetCode) {
           requiredSwapsCount++;
-          if (currentTargets[spec.courseCode] !== targetCode) {
+          if (!selectedPairs.has(`${spec.courseCode}:${targetCode}`)) {
             match = false;
             break;
           }
@@ -164,7 +164,6 @@ export default function CreateOfferForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [, setSkippedItems] = useState<{ myClassId: number; wantedClassId: number; reason: string }[]>([]);
   const [isClosing, setIsClosing] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
   const [activeOfferClassIds, setActiveOfferClassIds] = useState<Set<number>>(new Set());
@@ -335,6 +334,14 @@ export default function CreateOfferForm({
     );
 
     return batchRows.map((r, idx) => {
+      if (r.myClassId && sourceCounts[r.myClassId] > 1) {
+        return { rowIdx: idx, conflictMessage: 'kelas sumber dipilih lebih dari sekali' };
+      }
+
+      if (r.targetClassId && targetCounts[r.targetClassId] > 1) {
+        return { rowIdx: idx, conflictMessage: 'kelas target dipilih lebih dari sekali' };
+      }
+
       if (!r.myClassId || !r.targetClassId) {
         return { rowIdx: idx, conflictMessage: null };
       }
@@ -350,14 +357,6 @@ export default function CreateOfferForm({
         return { rowIdx: idx, conflictMessage: 'sudah ada penawaran aktif' };
       }
 
-      if (sourceCounts[r.myClassId] > 1) {
-        return { rowIdx: idx, conflictMessage: 'kelas sumber dipilih lebih dari sekali' };
-      }
-
-      if (targetCounts[r.targetClassId] > 1) {
-        return { rowIdx: idx, conflictMessage: 'kelas target dipilih lebih dari sekali' };
-      }
-
       const targetC = rowTargets[idx];
       if (!targetC) return { rowIdx: idx, conflictMessage: null };
 
@@ -366,7 +365,7 @@ export default function CreateOfferForm({
       const remainingEnrolledClasses = myClasses.filter((mc) => !batchReplacedMyClassIds.includes(mc.id));
       for (const oc of remainingEnrolledClasses) {
         if (hasScheduleConflict(oc, targetC)) {
-          conflicts.push(`bentrok dengan ${oc.courseCode}`);
+          conflicts.push(`bentrok ${oc.courseCode}`);
         }
       }
 
@@ -374,7 +373,7 @@ export default function CreateOfferForm({
         if (otherIdx === idx) continue;
         const otherTargetC = rowTargets[otherIdx];
         if (otherTargetC && hasScheduleConflict(targetC, otherTargetC)) {
-          conflicts.push(`bentrok dengan ${otherTargetC.courseCode}`);
+          conflicts.push(`bentrok ${otherTargetC.courseCode}`);
         }
       }
 
@@ -398,31 +397,44 @@ export default function CreateOfferForm({
 
     if (offerMode === 'swap') {
       if (swapType === 'single') {
-        if (!selectedMyClass) return '';
+        if (!selectedMyClass) return 'Pilih kelas Anda yang ingin ditawarkan';
         if (activeOfferClassIds.has(parseInt(selectedMyClass)))
-          return 'Kelas ini sudah memiliki penawaran aktif yang sedang berjalan.';
-        if (!selectedTargetClass) return '';
+          return 'Kelas ini sudah memiliki penawaran aktif yang sedang berjalan';
+        if (!selectedTargetClass) return 'Pilih kelas target yang ingin didapatkan';
         if (selectedTargetHasConflict)
-          return `Jadwal target bentrok dengan kelas ${selectedTargetHasConflict.courseCode}-${selectedTargetHasConflict.classCode} (${selectedTargetHasConflict.day} ${selectedTargetHasConflict.timeStart}-${selectedTargetHasConflict.timeEnd}).`;
+          return `Jadwal target bentrok kelas ${selectedTargetHasConflict.courseCode}-${selectedTargetHasConflict.classCode} (${selectedTargetHasConflict.day} ${selectedTargetHasConflict.timeStart}-${selectedTargetHasConflict.timeEnd})`;
       } else {
-        if (batchRows.length === 0) return '';
+        if (batchRows.length === 0) return 'Tambahkan minimal 1 penawaran kelas';
 
-        const myClassIds = batchRows.map((r) => r.myClassId);
-        if (new Set(myClassIds).size !== myClassIds.length)
-          return 'Terdapat kelas sumber yang sama dipilih lebih dari sekali.';
+        const unselectedMyClass = batchRows.some((r) => !r.myClassId);
+        if (unselectedMyClass) return 'Pilih kelas sumber untuk setiap baris penawaran';
 
-        for (let idx = 0; idx < batchRows.length; idx++) {
-          const r = batchRows[idx];
-          if (!r.myClassId || !r.targetClassId) return '';
-        }
+        const unselectedTargetClass = batchRows.some((r) => !r.targetClassId);
+        if (unselectedTargetClass) return 'Pilih kelas target untuk setiap baris penawaran';
 
-        // Bentrok warnings are displayed per row in the batch table directly
+        const filledMyClassIds = batchRows.map((r) => r.myClassId).filter(Boolean);
+        if (new Set(filledMyClassIds).size !== filledMyClassIds.length)
+          return 'Terdapat kelas sumber yang sama dipilih lebih dari sekali';
+
+        const filledTargetClassIds = batchRows.map((r) => r.targetClassId).filter(Boolean);
+        if (new Set(filledTargetClassIds).size !== filledTargetClassIds.length)
+          return 'Terdapat kelas target yang sama dipilih lebih dari sekali';
+
+        if (bentrokCount > 0)
+          return `Terdapat ${bentrokCount} baris penawaran yang mengalami bentrok jadwal`;
+
+        const hasActiveInBatch = filledMyClassIds.some((id) => activeOfferClassIds.has(parseInt(id)));
+        if (hasActiveInBatch)
+          return 'Salah satu kelas yang dipilih sudah memiliki penawaran aktif';
       }
     } else {
-      if (!selectedMyClass) return '';
-      if (activeOfferClassIds.has(parseInt(selectedMyClass))) return 'Kelas ini sudah memiliki penawaran aktif.';
-      if (dropType === 'targeted' && !users.some((u) => u.role === 'student' && u.nim === targetNim.trim())) {
-        return '';
+      if (!selectedMyClass) return 'Pilih kelas yang ingin Anda lepas (drop)';
+      if (activeOfferClassIds.has(parseInt(selectedMyClass)))
+        return 'Kelas ini sudah memiliki penawaran aktif';
+      if (dropType === 'targeted') {
+        if (!targetNim.trim()) return 'Masukkan NIM penerima khusus terlebih dahulu';
+        if (!users.some((u) => u.role === 'student' && u.nim === targetNim.trim()))
+          return 'NIM penerima khusus tidak ditemukan atau bukan mahasiswa';
       }
     }
 
@@ -436,29 +448,23 @@ export default function CreateOfferForm({
     selectedTargetClass,
     selectedTargetHasConflict,
     batchRows,
+    bentrokCount,
     activeOfferClassIds,
     dropType,
     targetNim,
     users,
   ]);
 
-  const isSubmitDisabled =
-    !!submitDisabledReason ||
-    !!successMessage ||
-    loading ||
-    (offerMode === 'swap' &&
-      (swapType === 'single'
-        ? !selectedMyClass || !selectedTargetClass
-        : batchRows.length === 0 || bentrokCount > 0 || batchRows.some((r) => !r.myClassId || !r.targetClassId))) ||
-    (offerMode === 'pick_drop' &&
-      (!selectedMyClass || (dropType === 'targeted' && !users.some((u) => u.role === 'student' && u.nim === targetNim.trim()))));
+  const isSubmitted = Boolean(successMessage);
+  const isFormDisabled = loading || isSubmitted;
+
+  const isSubmitDisabled = !!submitDisabledReason || isSubmitted || loading;
 
   // --- Submit Handler ---
   const handleSubmit = async () => {
     setLoading(true);
     setError('');
     setSuccessMessage('');
-    setSkippedItems([]);
     setShowMessage(false);
 
     try {
@@ -483,7 +489,6 @@ export default function CreateOfferForm({
           const res = await createBatchOffers({ offers: offersPayload });
           if (onSuccess) onSuccess();
 
-          setSkippedItems(res.data.skipped);
           setSuccessMessage(`Berhasil membuat ${res.data.created.length} penawaran batch!`);
         }
       } else {
@@ -500,9 +505,6 @@ export default function CreateOfferForm({
       }
     } catch (err: any) {
       setError(err.response?.data?.error || err.message);
-      if (err.response?.data?.skipped) {
-        setSkippedItems(err.response.data.skipped);
-      }
     } finally {
       setLoading(false);
     }
@@ -536,17 +538,15 @@ export default function CreateOfferForm({
 
   return (
     <div
-      className={`fixed inset-0 bg-gray-900/60 dark:bg-black/80 z-50 p-3 sm:p-4 flex items-center justify-center ${
-        isClosing ? 'animate-fadeOut' : 'animate-fadeIn'
-      }`}
+      className={`fixed inset-0 bg-gray-900/60 dark:bg-black/80 z-50 p-3 sm:p-4 flex items-center justify-center ${isClosing ? 'animate-fadeOut' : 'animate-fadeIn'
+        }`}
       onKeyDown={handleKeyDown}
       onClick={handleBackdropClick}
     >
-      <div className="w-full max-w-lg my-auto relative max-h-[90vh] flex flex-col">
+      <div className="w-full max-w-lg my-auto relative">
         <div
-          className={`bg-white dark:bg-gray-900 border dark:border-gray-800 rounded-lg shadow-2xl relative flex flex-col max-h-[90vh] overflow-hidden transition-all duration-300 ease-out ${
-            isClosing ? 'animate-popDown' : 'animate-popUp'
-          }`}
+          className={`bg-white dark:bg-gray-900 border dark:border-gray-800 rounded-lg shadow-2xl relative transition-all duration-300 ease-out ${isClosing ? 'animate-popDown' : 'animate-popUp'
+            }`}
           onClick={(e) => e.stopPropagation()}
         >
           <OfferModalHeader
@@ -554,12 +554,14 @@ export default function CreateOfferForm({
             setOfferMode={setOfferMode}
             onClose={handleClose}
             loading={loading}
+            disabled={isSubmitted}
             clearError={() => setError('')}
           />
 
           {/* Animated Body Content Container */}
           <div
-            className="flex-1 min-h-0 overflow-y-auto transition-[height] duration-300 ease-out"
+            className={`transition-[height] duration-300 ease-out overflow-hidden ${isSubmitted ? 'pointer-events-none opacity-80' : ''
+              }`}
             style={{ height: bodyHeight !== undefined ? `${bodyHeight}px` : 'auto' }}
           >
             <div ref={contentRef}>
@@ -578,7 +580,7 @@ export default function CreateOfferForm({
                         displayedMyClasses={displayedMyClasses}
                         availableTargets={availableTargets}
                         activeOfferClassIds={activeOfferClassIds}
-                        loading={loading}
+                        loading={isFormDisabled}
                         clearError={() => setError('')}
                         getClassCodeColor={getClassCodeColor}
                       />
@@ -599,6 +601,7 @@ export default function CreateOfferForm({
                         activeOfferClassIds={activeOfferClassIds}
                         clearError={() => setError('')}
                         getClassCodeColor={getClassCodeColor}
+                        loading={isFormDisabled}
                       />
                     )}
                   </>
@@ -617,7 +620,7 @@ export default function CreateOfferForm({
                     users={users}
                     currentUserNim={user?.nim}
                     activeOfferClassIds={activeOfferClassIds}
-                    loading={loading}
+                    loading={isFormDisabled}
                     clearError={() => setError('')}
                   />
                 )}

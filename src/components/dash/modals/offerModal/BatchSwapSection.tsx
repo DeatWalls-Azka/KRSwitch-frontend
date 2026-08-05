@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from '../../../ui/select';
 import { cn } from '../../../../utils/styleUtils';
-import { Plus, ArrowRight, Trash2 } from 'lucide-react';
+import { ArrowRight, Trash2 } from 'lucide-react';
 import type { ParallelClass } from '../../../../types';
 import { generatePresetRows } from '../CreateOfferModal';
 
@@ -44,6 +44,7 @@ interface BatchSwapSectionProps {
   activeOfferClassIds: Set<number>;
   clearError: () => void;
   getClassCodeColor: (code: string) => string;
+  loading?: boolean;
 }
 
 export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
@@ -62,6 +63,7 @@ export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
   activeOfferClassIds,
   clearError,
   getClassCodeColor,
+  loading = false,
 }) => {
   return (
     <div key={swapType} className="space-y-3">
@@ -71,29 +73,29 @@ export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
         <div className="flex items-center gap-2.5">
           <button
             type="button"
+            disabled={loading}
             onClick={() => {
               setSwapType('single');
               clearError();
             }}
-            className={`transition-colors cursor-pointer ${
-              swapType === 'single'
+            className={`transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${swapType === 'single'
                 ? 'font-bold text-gray-900 dark:text-gray-100'
                 : 'text-gray-400 dark:text-gray-500 font-semibold hover:text-gray-700 dark:hover:text-gray-300'
-            }`}
+              }`}
           >
-            Tukar 1 Kelas
+            Tukar Sekelas
           </button>
           <button
             type="button"
+            disabled={loading}
             onClick={() => {
               setSwapType('batch');
               clearError();
             }}
-            className={`transition-colors cursor-pointer ${
-              swapType === 'batch'
+            className={`transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${swapType === 'batch'
                 ? 'font-bold text-gray-900 dark:text-gray-100'
                 : 'text-gray-400 dark:text-gray-500 font-semibold hover:text-gray-700 dark:hover:text-gray-300'
-            }`}
+              }`}
           >
             Tukar Banyak (Batch)
           </button>
@@ -107,12 +109,12 @@ export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
           <div className="flex items-center gap-2.5 shrink-0">
             <button
               type="button"
+              disabled={loading}
               onClick={() => handleSelectPreset('custom')}
-              className={`transition-colors cursor-pointer ${
-                selectedPreset === 'custom'
+              className={`transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${selectedPreset === 'custom'
                   ? 'font-bold text-gray-900 dark:text-gray-100'
                   : 'text-gray-400 dark:text-gray-500 font-semibold hover:text-gray-700 dark:hover:text-gray-300'
-              }`}
+                }`}
             >
               Custom
             </button>
@@ -125,14 +127,13 @@ export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
                 <button
                   key={preset.id}
                   type="button"
-                  disabled={isZeroOffer}
+                  disabled={loading || isZeroOffer}
                   title={isZeroOffer ? 'Anda sudah berada di paket ini' : undefined}
                   onClick={() => handleSelectPreset(preset.id)}
-                  className={`transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
-                    selectedPreset === preset.id
+                  className={`transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${selectedPreset === preset.id
                       ? 'font-bold text-gray-900 dark:text-gray-100'
                       : 'text-gray-400 dark:text-gray-500 font-semibold hover:text-gray-700 dark:hover:text-gray-300'
-                  }`}
+                    }`}
                 >
                   {preset.name}
                 </button>
@@ -164,15 +165,15 @@ export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
             <button
               type="button"
               onClick={handleAddBatchRow}
-              disabled={batchRows.length >= 10}
-              className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 rounded text-[11px] font-semibold transition-colors disabled:opacity-50 flex items-center gap-0.5 cursor-pointer"
+              disabled={loading || batchRows.length >= 10}
+              className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 rounded text-[11px] font-semibold transition-colors disabled:opacity-50 flex items-center gap-0.5 cursor-pointer"
             >
               <span>+ Tambah Kelas</span>
             </button>
           </div>
 
           {/* Batch Items List */}
-          <div className="divide-y divide-gray-200/60 dark:divide-gray-800/60 border-t border-b border-gray-200 dark:border-gray-800 max-h-[260px] sm:max-h-[300px] overflow-y-auto pr-1">
+          <div className="divide-y divide-gray-100 dark:divide-gray-800 border-t border-b border-gray-100 dark:border-gray-800 max-h-[260px] sm:max-h-[300px] overflow-y-auto pr-1">
             {batchRows.map((row, idx) => {
               const currentMyClass = myClasses.find((m) => m.id === parseInt(row.myClassId));
               const availableRowTargets = currentMyClass
@@ -198,10 +199,11 @@ export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
                       <Select
                         value={row.myClassId}
                         onValueChange={(val) => handleBatchRowChange(idx, 'myClassId', val)}
+                        disabled={loading}
                       >
                         <SelectTrigger
                           chevronClassName="opacity-0 group-hover:opacity-40 transition-opacity"
-                          className="w-full h-6.5 text-[11px] bg-transparent border border-transparent shadow-none hover:bg-white dark:hover:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-xs focus:bg-white dark:focus:bg-gray-900 focus:border-gray-400 dark:focus:border-gray-600 px-1.5 transition-all group-hover:border-gray-200 dark:group-hover:border-gray-800"
+                          className="w-full h-6.5 text-[11px] bg-transparent border border-transparent shadow-none hover:bg-white dark:hover:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-xs focus:bg-white dark:focus:bg-gray-900 focus:border-gray-400 dark:focus:border-gray-600 px-1.5 transition-all group-hover:border-gray-100 dark:group-hover:border-gray-800"
                         >
                           <SelectValue placeholder="Pilih Kelas" />
                         </SelectTrigger>
@@ -232,11 +234,11 @@ export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
                       <Select
                         value={row.targetClassId}
                         onValueChange={(val) => handleBatchRowChange(idx, 'targetClassId', val)}
-                        disabled={!row.myClassId}
+                        disabled={loading || !row.myClassId}
                       >
                         <SelectTrigger
                           chevronClassName="opacity-0 group-hover:opacity-40 transition-opacity ml-0.5"
-                          className="h-6.5 text-[11px] bg-transparent border border-transparent shadow-none hover:bg-white dark:hover:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-xs focus:bg-white dark:focus:bg-gray-900 focus:border-gray-400 dark:focus:border-gray-600 px-1 transition-all group-hover:border-gray-200 dark:group-hover:border-gray-800"
+                          className="h-6.5 text-[11px] bg-transparent border border-transparent shadow-none hover:bg-white dark:hover:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-xs focus:bg-white dark:focus:bg-gray-900 focus:border-gray-400 dark:focus:border-gray-600 px-1 transition-all group-hover:border-gray-100 dark:group-hover:border-gray-800"
                         >
                           <SelectValue placeholder="Target" />
                         </SelectTrigger>
@@ -275,8 +277,9 @@ export const BatchSwapSection: React.FC<BatchSwapSectionProps> = ({
                   {/* Delete Button */}
                   <button
                     type="button"
+                    disabled={loading}
                     onClick={() => handleRemoveBatchRow(idx)}
-                    className="text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded p-0.5 shrink-0 opacity-40 group-hover:opacity-100 transition-all"
+                    className="text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded p-0.5 shrink-0 opacity-40 group-hover:opacity-100 transition-all disabled:opacity-20 disabled:cursor-not-allowed"
                     title="Hapus baris"
                   >
                     <Trash2 className="w-4 h-4" />

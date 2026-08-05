@@ -73,3 +73,45 @@ export const PACKAGE_PRESETS: PackagePreset[] = [
     ],
   },
 ];
+
+export function detectPresetName(classPairs: { courseCode: string; classCode: string }[]): string | null {
+  if (!classPairs || classPairs.length === 0) return null;
+
+  for (const preset of PACKAGE_PRESETS) {
+    const expectedPairs: { courseCode: string; classCode: string }[] = [];
+    for (const c of preset.courses) {
+      for (const cc of c.classCodes) {
+        expectedPairs.push({ courseCode: c.courseCode, classCode: cc });
+      }
+    }
+
+    if (expectedPairs.length === classPairs.length) {
+      const isMatch = expectedPairs.every((ep) =>
+        classPairs.some((cp) => cp.courseCode === ep.courseCode && cp.classCode === ep.classCode)
+      );
+      if (isMatch) {
+        return preset.name;
+      }
+    }
+  }
+
+  return null;
+}
+
+export function detectPresetFromOffers(
+  offers: any[],
+  type: 'offering' | 'seeking'
+): string | null {
+  if (!offers || offers.length === 0) return null;
+
+  const classPairs = offers.map((o) => {
+    const courseCode =
+      type === 'offering'
+        ? o.myClass?.courseCode || o.seekingCourse
+        : o.wantedClass?.courseCode || o.seekingCourse;
+    const classCode = type === 'offering' ? o.offeringClass : o.seekingClass;
+    return { courseCode, classCode };
+  });
+
+  return detectPresetName(classPairs);
+}

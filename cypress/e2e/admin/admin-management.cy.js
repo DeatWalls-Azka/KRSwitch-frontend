@@ -15,6 +15,7 @@ describe('Super Admin Management', () => {
 
     cy.intercept('GET', '/api/admin/me', { statusCode: 200, body: { nim: 'SA1', name: 'SuperAdmin', role: 'super_admin' } }).as('getAdminMe');
 
+    cy.setCookie('token', 'mock-admin-token');
     cy.visit('/admin/management');
     cy.wait(['@getMe', '@getAdmins']);
   });

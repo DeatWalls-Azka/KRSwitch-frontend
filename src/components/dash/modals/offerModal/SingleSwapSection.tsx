@@ -69,29 +69,29 @@ export const SingleSwapSection: React.FC<SingleSwapSectionProps> = ({
         <div className="flex items-center gap-2.5">
           <button
             type="button"
+            disabled={loading}
             onClick={() => {
               setSwapType('single');
               clearError();
             }}
-            className={`transition-colors cursor-pointer ${
-              swapType === 'single'
+            className={`transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${swapType === 'single'
                 ? 'font-bold text-gray-900 dark:text-gray-100'
                 : 'text-gray-400 dark:text-gray-500 font-semibold hover:text-gray-700 dark:hover:text-gray-300'
-            }`}
+              }`}
           >
-            Tukar 1 Kelas
+            Tukar Sekelas
           </button>
           <button
             type="button"
+            disabled={loading}
             onClick={() => {
               setSwapType('batch');
               clearError();
             }}
-            className={`transition-colors cursor-pointer ${
-              swapType === 'batch'
+            className={`transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${swapType === 'batch'
                 ? 'font-bold text-gray-900 dark:text-gray-100'
                 : 'text-gray-400 dark:text-gray-500 font-semibold hover:text-gray-700 dark:hover:text-gray-300'
-            }`}
+              }`}
           >
             Tukar Banyak (Batch)
           </button>
@@ -120,7 +120,7 @@ export const SingleSwapSection: React.FC<SingleSwapSectionProps> = ({
               return (
                 <SelectItem key={c.id} value={c.id.toString()} disabled={hasActiveOffer}>
                   <div className="flex items-center justify-between w-full">
-                    <span>{(c as any).displayLabel || `${c.courseName} (${c.classCode}) - ${c.day}`}</span>
+                    <span className="truncate">{(c as any).displayLabel || `${c.courseName} (${c.classCode}) - ${c.day}`}</span>
                     {hasActiveOffer && (
                       <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold ml-2 shrink-0">
                         (Sudah ada penawaran)
@@ -152,8 +152,8 @@ export const SingleSwapSection: React.FC<SingleSwapSectionProps> = ({
                 !selectedMyClass
                   ? '-- Pilih kelas sumber dulu --'
                   : availableTargets.length === 0
-                  ? '-- Tidak ada kelas lain --'
-                  : '-- Pilih Target --'
+                    ? '-- Tidak ada kelas lain --'
+                    : '-- Pilih Target --'
               }
             />
           </SelectTrigger>

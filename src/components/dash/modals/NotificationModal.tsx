@@ -11,6 +11,13 @@ interface NotificationData {
   offererName?: string;
   oldClassCode?: string;
   newClassCode?: string;
+  isBatch?: boolean;
+  count?: number;
+  items?: {
+    courseCode: string;
+    offeringClass: string;
+    seekingClass: string;
+  }[];
   yourOldClass?: {
     courseCode: string;
     classCode: string;
@@ -71,12 +78,20 @@ function NotificationRow({ notification, parallelClasses }: NotificationRowProps
     newClassCode = data?.yourNewClass?.classCode || '-';
     const counterpartLabel = type === 'barter_auto_matched' ? 'dengan' : (type === 'barter_matched_as_offerer' ? 'oleh' : 'dari');
     const counterpartName = (type === 'barter_auto_matched' ? data?.counterpartName : (type === 'barter_matched_as_offerer' ? data?.takerName : data?.offererName)) || '-';
-    subText = <span><span className="text-red-500 font-semibold">{oldClassCode}</span>{' ⇌ '}<span className="text-green-600 dark:text-emerald-500 font-semibold">{newClassCode}</span>{' · '}{counterpartLabel} <span className="text-gray-700 dark:text-gray-300 font-semibold">{counterpartName}</span></span>;
+    if (data?.yourOldClass?.courseCode === 'Package' || data?.yourOldClass?.courseCode === 'Paket Pertukaran') {
+      subText = <span><span className="text-gray-700 dark:text-gray-300 font-semibold">Paket Pertukaran</span>{' · '}{counterpartLabel} <span className="text-gray-700 dark:text-gray-300 font-semibold">{counterpartName}</span></span>;
+    } else {
+      subText = <span><span className="text-red-500 font-semibold">{oldClassCode}</span>{' ⇌ '}<span className="text-green-600 dark:text-emerald-500 font-semibold">{newClassCode}</span>{' · '}{counterpartLabel} <span className="text-gray-700 dark:text-gray-300 font-semibold">{counterpartName}</span></span>;
+    }
     showSwapDetails = true;
   } else if (type === 'barter_cancelled') {
     title = 'Penawaran Dibatalkan';
     oldClassCode = data?.classCode || '-';
-    subText = <span>Dibatalkan oleh Anda · <span className="text-gray-700 dark:text-gray-300 font-semibold">{courseCode}</span></span>;
+    if (data?.isBatch) {
+      subText = <span>Dibatalkan oleh Anda · <span className="text-gray-700 dark:text-gray-300 font-semibold">{data.count} Kelas Paket</span></span>;
+    } else {
+      subText = <span>Dibatalkan oleh Anda · <span className="text-gray-700 dark:text-gray-300 font-semibold">{courseCode}</span></span>;
+    }
   } else if (type === 'admin_barter_cancelled') {
     title = 'Penawaran Dibatalkan';
     oldClassCode = data?.classCode || '-';
@@ -181,7 +196,25 @@ function NotificationRow({ notification, parallelClasses }: NotificationRowProps
 
             {/* Swap / Action detail */}
             <div className="border border-gray-100 dark:border-gray-800 rounded-sm py-3.5 px-4 bg-gray-50 dark:bg-gray-950/20">
-              {showSwapDetails ? (
+              {data?.items && data.items.length > 0 ? (
+                <div className="space-y-2">
+                  <div className="text-[11px] text-gray-400 dark:text-gray-500 font-bold mb-1">
+                    Detail Paket Pertukaran ({data.items.length} Kelas)
+                  </div>
+                  <div className="grid gap-1.5 grid-cols-2">
+                    {data.items.map((item, idx) => (
+                      <div key={idx} className="flex items-center justify-between text-xs px-2.5 py-1.5 rounded bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+                        <span className="font-semibold text-gray-700 dark:text-gray-300">{item.courseCode}</span>
+                        <div className="flex items-center gap-1 font-mono text-[11px]">
+                          <span className="text-red-500 font-bold">{item.offeringClass}</span>
+                          <span className="text-gray-400">⇌</span>
+                          <span className="text-green-600 dark:text-emerald-500 font-bold">{item.seekingClass}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : showSwapDetails ? (
                 <div className="flex items-center justify-center gap-6">
                   <div className="text-center">
                     <div className="text-[11px] text-gray-400 dark:text-gray-500 mb-1">Dilepas</div>
